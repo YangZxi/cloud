@@ -2,6 +2,7 @@
   <div class="preview">
     <component
       :is="viewType"
+      v-if="url"
       :resource="props.resource"
       :url="url"
     />
@@ -15,6 +16,7 @@ import YText from "./YText.vue";
 import Default from "./Default.vue";
 import YImageM from "./YImage-m.vue";
 import { preview } from "@/http/Explore";
+
 const props = defineProps({
   api: {
     type: Function,
@@ -32,22 +34,21 @@ const isMobile = window.sessionStorage.getItem("isMobile");
 const url = ref("");
 
 watch(() => props.resource, () => {
-  getUrl(props.resource.id).then(u => {
-    url.value = u;
-  });
+  url.value = "";
+  getUrl(props.resource.id);
 });
 
 const getUrl = async (id) => {
   let u = "";
   await props.api(id).then(url => {
     u = url;
+    console.log(url);
   });
+  url.value = u;
   return u;
 };
 
-getUrl(props.resource.id).then(u => {
-  url.value = u;
-});
+getUrl(props.resource.id);
 
 const viewType = computed({
   get: () => {
