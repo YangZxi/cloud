@@ -2,7 +2,7 @@ package cn.xiaosm.cloud.core.util;
 
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.xiaosm.cloud.core.entity.vo.Pager;
+import cn.xiaosm.cloud.core.admin.entity.vo.Pager;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
 import java.util.Objects;

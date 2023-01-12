@@ -282,7 +282,7 @@
         form: {
           label: ["", "目录", "菜单", "按钮"],
           type: 1,
-          menuTree: [{id: "1", name: "根目录"}],
+          menuTree: [],
           formRules: {
             name: [
               {required: true, message: "名称不可以为空", trigger: "blur"},
@@ -480,7 +480,7 @@
        */
       queryMenuTree() {
         $axios.get("/menu", {showType: "tree"}).then(res => {
-          this.form.menuTree = this.form.menuTree.concat(res.data);
+          this.form.menuTree = [{id: "1", name: "根目录"}].concat(res.data);
         });
       },
     }

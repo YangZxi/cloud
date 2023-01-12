@@ -7,7 +7,6 @@
         <module>YCloud-core</module>
         <module>YCloud-security</module>
         <module>YCloud-common</module>
-        <module>YCloud-front</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

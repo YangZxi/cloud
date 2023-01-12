@@ -1,7 +1,7 @@
 package cn.xiaosm.cloud.core.config.security;
 
 import cn.xiaosm.cloud.common.exception.LoginException;
-import cn.xiaosm.cloud.core.entity.LoginUser;
+import cn.xiaosm.cloud.core.admin.entity.LoginUser;
 import cn.xiaosm.cloud.security.DefaultSecurityUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

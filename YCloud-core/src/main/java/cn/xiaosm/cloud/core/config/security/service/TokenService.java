@@ -3,7 +3,7 @@ package cn.xiaosm.cloud.core.config.security.service;
 import cn.hutool.core.util.IdUtil;
 import cn.xiaosm.cloud.common.util.ServletUtils;
 import cn.xiaosm.cloud.common.util.cache.CacheUtils;
-import cn.xiaosm.cloud.core.entity.LoginUser;
+import cn.xiaosm.cloud.core.admin.entity.LoginUser;
 import cn.xiaosm.cloud.security.entity.AuthUser;
 import cn.xiaosm.cloud.security.entity.ShareUser;
 import cn.xiaosm.cloud.security.entity.TokenType;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
-import java.util.Objects;
 
 /**
  * 〈一句话功能简述〉

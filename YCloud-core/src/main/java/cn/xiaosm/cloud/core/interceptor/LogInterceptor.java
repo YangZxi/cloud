@@ -9,11 +9,8 @@
 package cn.xiaosm.cloud.core.interceptor;
 
 import cn.hutool.extra.servlet.ServletUtil;
-import cn.xiaosm.cloud.core.config.security.service.TokenService;
-import cn.xiaosm.cloud.core.service.LogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 

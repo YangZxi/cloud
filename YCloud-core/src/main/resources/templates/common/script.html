@@ -39,7 +39,7 @@
         if (this.name && this.name.startsWith("el-icon")) {
 
         } else {
-          const iconClass = this.name.startsWith("fa-") ? `fa ${this.name}` : this.name;
+          const iconClass = this.name && this.name.startsWith("fa-") ? `fa ${this.name}` : this.name;
           return h("span", {
             class: `y-icon`,
           }, h("i", {

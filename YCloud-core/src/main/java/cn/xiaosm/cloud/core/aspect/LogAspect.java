@@ -4,10 +4,10 @@ import cn.hutool.extra.servlet.ServletUtil;
 import cn.hutool.json.JSONUtil;
 import cn.xiaosm.cloud.common.exception.CanShowException;
 import cn.xiaosm.cloud.common.util.ServletUtils;
-import cn.xiaosm.cloud.core.annotation.LogRecord;
+import cn.xiaosm.cloud.common.annotation.LogRecord;
 import cn.xiaosm.cloud.core.config.security.service.TokenService;
-import cn.xiaosm.cloud.core.entity.Log;
-import cn.xiaosm.cloud.core.service.LogService;
+import cn.xiaosm.cloud.core.admin.entity.Log;
+import cn.xiaosm.cloud.core.admin.service.LogService;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -34,7 +34,7 @@ public class LogAspect {
 
     //定义切点 @Pointcut
     //在注解的位置切入代码
-    @Pointcut("@annotation(cn.xiaosm.cloud.core.annotation.LogRecord)")
+    @Pointcut("@annotation(cn.xiaosm.cloud.common.annotation.LogRecord)")
     public void logPointCut() { }
 
     //切面 环绕通知

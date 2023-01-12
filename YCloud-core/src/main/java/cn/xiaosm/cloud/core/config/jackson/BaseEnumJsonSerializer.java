@@ -1,6 +1,6 @@
 package cn.xiaosm.cloud.core.config.jackson;
 
-import cn.xiaosm.cloud.core.entity.enums.BaseEnum;
+import cn.xiaosm.cloud.core.admin.entity.enums.BaseEnum;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;

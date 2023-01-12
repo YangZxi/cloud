@@ -15,7 +15,7 @@ import cn.xiaosm.cloud.common.exception.LoginException;
 import cn.xiaosm.cloud.common.util.RespUtils;
 import cn.xiaosm.cloud.common.util.cache.CacheUtils;
 import cn.xiaosm.cloud.core.config.security.service.TokenService;
-import cn.xiaosm.cloud.core.entity.LoginUser;
+import cn.xiaosm.cloud.core.admin.entity.LoginUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

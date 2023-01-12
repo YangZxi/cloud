@@ -1,6 +1,6 @@
 package cn.xiaosm.cloud.core.config;
 
-import cn.xiaosm.cloud.core.util.SerializeUtils;
+import cn.xiaosm.cloud.common.util.SerializeUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;

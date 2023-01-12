@@ -8,7 +8,7 @@ package cn.xiaosm.cloud.core.factory;
  * @create 2021/4/15
  * @since 1.0.0
  */
-import cn.xiaosm.cloud.core.entity.enums.BaseEnum;
+import cn.xiaosm.cloud.core.admin.entity.enums.BaseEnum;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.converter.ConverterFactory;
 

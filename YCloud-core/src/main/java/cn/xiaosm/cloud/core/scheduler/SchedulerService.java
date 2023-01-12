@@ -12,7 +12,7 @@ package cn.xiaosm.cloud.core.scheduler;
 
 
 import cn.xiaosm.cloud.common.exception.CanShowException;
-import cn.xiaosm.cloud.core.entity.Task;
+import cn.xiaosm.cloud.core.admin.entity.Task;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;
