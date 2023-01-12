@@ -199,7 +199,7 @@ const shortcuts = reactive({
 
 const editFile = function() {
   HttpPreview(props.resource.id).then(url => {
-    http.post(props.resource.url).then(({ data }) => {
+    http.post(url).then(({ data }) => {
       showEditor(props.resource.id, props.resource.name, data);
     }).catch(() => {
       window.$message.error("资源已被删除");
