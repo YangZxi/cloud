@@ -18,6 +18,9 @@ import cn.xiaosm.cloud.front.mapper.ResourceMapper;
 import cn.xiaosm.cloud.front.service.ChunkService;
 import cn.xiaosm.cloud.front.service.ResourceService;
 import cn.xiaosm.cloud.front.util.FileUtil;
+import cn.xuyanwu.spring.file.storage.FileInfo;
+import cn.xuyanwu.spring.file.storage.FileStorageService;
+import cn.xuyanwu.spring.file.storage.platform.LocalFileStorage;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.NonNull;
@@ -61,6 +64,8 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     ChunkService chunkService;
     @Autowired
     ResourceMapper resourceMapper;
+    @Autowired
+    FileStorageService fileStorageService;
 
     /**
      * 通过 id 获取当前登录用户的资源
@@ -149,14 +154,14 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         db.setName(resource.getName());
         db.setParentId(parentId);
         // 处理文件或目录
-        File dest = null;
+        String path = suffixPath();
+        String fileName = null;
         if (resource.isDir()) {
             db.setType("dir");
         } else {
             String uuid = IdUtil.simpleUUID();
             // 本地文件名格式：uuid.[fileType]
             String fileType = FileUtil.extName(resource.getName());
-            String fileName;
             if (StrUtil.isBlank(fileType)) {
                 fileName = uuid;
                 db.setType("txt");
@@ -164,10 +169,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
                 fileName = uuid + "." + fileType;
                 db.setType(fileType);
             }
-            // 获取到仓库在本地的存储路径
-            File bucketPath = FileUtil.file(UploadConfig.LOCAL_PATH);
-            dest = transformFile(bucketPath, fileName);
-            db.setPath("/" + dest.getParentFile().getName() + "/" + fileName);
+            db.setPath(path + "/" + fileName);
             db.setSize(0l);
             // 因为刚开始创建的是空文件，所以不计算hash，使用 uuid
             db.setHash(uuid);
@@ -176,16 +178,12 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             // 数据库中创建数据后创建文件
             if (resourceMapper.insert(db) == 1) {
                 // 创建文件
-                if (!db.isDir() && !dest.createNewFile()) {
-                    log.info("文件创建失败");
-                    throw new ResourceException("文件【" + resource.getName() + "】创建失败");
+                if (!db.isDir()) {
+                    fileStorageService.of(new byte[1]).setPath(path).setSaveFilename(fileName).upload();
                 }
                 log.info("文件创建成功");
             }
         } catch (Exception e) {
-            if (dest != null) {
-                dest.deleteOnExit();
-            }
             e.printStackTrace();
             log.error("文件创建失败");
             throw new ResourceException("文件【" + resource.getName() + "】创建失败");
@@ -403,11 +401,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      */
     @Override
     public File getLocalFile(Resource resource) {
-        Bucket bucket = bucketService.getBucket(resource.getBucketId());
-        // 获取到仓库在本地的存储路径
-        File bucketPath = bucketService.transformBucketToFile(bucket);
+        String basePath = ((LocalFileStorage) fileStorageService.getFileStorage()).getBasePath();
         // 根据仓库地址和文件相对地址创建文件对象
-        return new File(bucketPath, resource.getPath());
+        return new File(basePath, resource.getPath());
     }
 
     public boolean save(MultipartFile file, Bucket bucket, @NonNull Long parentId) throws IOException {
@@ -417,18 +413,18 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         // 检查文件是否唯一
         Resource db = this.getAndCheckHashInPath(hash, file.getOriginalFilename(), parentId, bucket.getId());
         Resource resource;
-        File dest = null;
+        String fileName = null;
+        String path = suffixPath();
         if (null != db) {
             resource = new Resource();
             BeanUtils.copyProperties(db, resource);
             resource.setId(null);
         } else {
-            String fileName = IdUtil.simpleUUID() + "." + FileUtil.extName(file.getOriginalFilename());
+            fileName = IdUtil.simpleUUID() + "." + FileUtil.extName(file.getOriginalFilename());
             // 创建本地文件
-            dest = transformFile(bucket.getPathFile(), fileName);
             resource = new Resource();
             // 文件对应的本地存储路径
-            resource.setPath("/" + dest.getParentFile().getName() + "/" + fileName);
+            resource.setPath(path + "/" + fileName);
             resource.setType(FileUtil.getType(file));
             resource.setDir(false);
             resource.setSize(file.getSize());
@@ -440,10 +436,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         resource.setParentId(parentId);
         if (resourceMapper.insert(resource) == 1) {
             // 转存至本地文件
-            if (null != dest) file.transferTo(dest);
+            fileStorageService.of(file).setPath(path).setSaveFilename(fileName).upload();
             return true;
         } else {
-            if (null != dest) dest.deleteOnExit();
             return false;
         }
     }
@@ -485,17 +480,24 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     /**
      * 获取转存文件目的地地址
      *
-     * @param parent
-     * @param fileName
+     * @param filePath
      * @return
      */
-    public static File transformFile(File parent, String fileName) {
+    public static File transformFile(String filePath) {
         // 本地文件名格式：yyyy-MM/uuid.[fileType]
         String month = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
-        File dest = new File(parent, month);
+        File dest = new File(UploadConfig.LOCAL_PATH, month);
         if (!dest.exists()) dest.mkdir();
-        dest = new File(dest, fileName);
+        dest = new File(dest, filePath);
         return dest;
+    }
+
+    /**
+     * 本地文件名前缀格式：yyyy-MM/filename
+     * @return yyyy-MM
+     */
+    public static String suffixPath() {
+        return LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
     }
 
     /**

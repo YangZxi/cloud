@@ -82,12 +82,12 @@ public class PreviewController {
         response.setHeader("Accept-Ranges", "bytes");
         // 设置文件名
         response.setHeader("Content-Disposition",
-            "attachment;fileName=" + URLUtil.encode(resource.getName(), "UTF-8"));
+            "attachment;fileName=" + URLUtil.encode(resource.getName(), Charset.defaultCharset()));
         DownloadUtil.outputData(request, response, file);
         return null;
     }
 
-    @GetMapping("preview/{id}")
+    @RequestMapping("preview/{id}")
     @PreAuthorize("hasAuthority('resource:preview')")
     public RespBody preview(
         @PathVariable("id") String id,

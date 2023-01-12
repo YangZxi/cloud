@@ -4,6 +4,7 @@ import cn.xiaosm.cloud.common.util.SpringContextUtils;
 import cn.xiaosm.cloud.common.util.cache.CacheUtils;
 import cn.xiaosm.cloud.core.service.MenuService;
 import cn.xiaosm.cloud.core.service.TaskService;
+import cn.xuyanwu.spring.file.storage.EnableFileStorage;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableAsync // 启用异步方法调用
 @EnableConfigurationProperties // 开启配置文件注入到实体类/属性
 @EnableTransactionManagement // 开启事物
+@EnableFileStorage
 @EnableAspectJAutoProxy(proxyTargetClass = true, exposeProxy = true) // 开启 cglib, 暴露
 @MapperScan("cn.xiaosm.cloud.**.mapper")
 @SpringBootApplication

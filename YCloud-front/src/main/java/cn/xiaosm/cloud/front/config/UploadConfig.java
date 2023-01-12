@@ -9,6 +9,7 @@ import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.system.ApplicationHome;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
@@ -23,8 +24,10 @@ import java.io.File;
 
 @Data
 @Component
-@PropertySource(value = "classpath:app-config.yml", factory = YamlSourceFactory.class)
-// @ConfigurationProperties(prefix = "ycloud.upload")
+@ConfigurationProperties(
+    prefix = "spring.ycloud"
+)
+// @PropertySource(value = "classpath:app-config.yml", factory = YamlSourceFactory.class)
 public class UploadConfig {
 
     Logger logger = LoggerFactory.getLogger(UploadConfig.class);
@@ -50,21 +53,31 @@ public class UploadConfig {
      */
     public static Long MAX_UPLOAD_SIZE;
 
-    @Value("${cloud.local-path}")
-    public void setROOT(String path) {
-        path = path.replaceAll("\\\\", "/");
-        File file = new File(PROJECT_PATH, path);
-        if (!file.exists()) file.mkdirs();
+    public void setLocalPath(String path) {
+        File file;
+        if (path.startsWith("/")) {
+            file = new File(PROJECT_PATH, path);
+        } else {
+            file = new File(path);
+            if (!file.exists()) file.mkdirs();
+        }
         LOCAL_PATH = file.getAbsolutePath();
         logger.info("当前存储路径：{}", LOCAL_PATH);
+    }
 
-        file = new File(PROJECT_PATH, "/chunk");
-        if (!file.exists()) file.mkdirs();
+    public void setChunkPath(String path) {
+        path = path.replaceAll("\\\\", "/");
+        File file;
+        if (path.startsWith("/")) {
+            file = new File(PROJECT_PATH, path);
+        } else {
+            file = new File(path);
+            if (!file.exists()) file.mkdirs();
+        }
         CHUNK_PATH = file.getAbsolutePath();
         logger.info("当前分块路径：{}", CHUNK_PATH);
     }
 
-    @Value("${cloud.max-upload-size}")
     public void setMaxUploadSize(String arg) {
         long mb = DataUnit.MEGABYTES.ordinal();
         if (StrUtil.isBlank(arg)) {
@@ -74,6 +87,7 @@ public class UploadConfig {
         arg = arg.replace("MB", "");
         try {
             MAX_UPLOAD_SIZE = Long.valueOf(arg) * mb;
+            logger.info("当前最大上传文件大小：{}", MAX_UPLOAD_SIZE);
         } catch (NumberFormatException e) {
             throw new NumberFormatException("MAX_UPLOAD_SIZE 格式化错误");
         }

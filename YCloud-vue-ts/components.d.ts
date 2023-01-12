@@ -79,8 +79,12 @@ declare module '@vue/runtime-core' {
     VarUploader: typeof import('@varlet/ui')['_UploaderComponent']
     YButton: typeof import('./src/components/YButton.vue')['default']
     YIcon: typeof import('./src/components/YIcon.vue')['default']
+    YImage: typeof import('./src/components/file-preview/YImage.vue')['default']
+    YImageM: typeof import('./src/components/file-preview/YImage-m.vue')['default']
     YPopup: typeof import('./src/components/mobile/YPopup.vue')['default']
+    YText: typeof import('./src/components/file-preview/YText.vue')['default']
     YUploader: typeof import('./src/components/YUploader/YUploader.vue')['default']
+    YVideo: typeof import('./src/components/file-preview/YVideo.vue')['default']
   }
   export interface ComponentCustomProperties {
     vRipple: typeof import('@varlet/ui')['_RippleComponent']
