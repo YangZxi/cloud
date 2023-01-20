@@ -179,6 +179,5 @@ export default {
       headers: { "Content-Type": "application/x-www-form-urlencoded" }
     });
   },
-  "message": window.$message
 
 }

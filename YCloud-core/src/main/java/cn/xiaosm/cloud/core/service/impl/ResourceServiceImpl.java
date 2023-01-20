@@ -11,7 +11,6 @@ import cn.xiaosm.cloud.core.config.EditableType;
 import cn.xiaosm.cloud.core.config.UploadConfig;
 import cn.xiaosm.cloud.core.config.security.SecurityUtils;
 import cn.xiaosm.cloud.core.entity.Bucket;
-import cn.xiaosm.cloud.core.entity.Chunk;
 import cn.xiaosm.cloud.core.entity.Resource;
 import cn.xiaosm.cloud.core.entity.dto.ResourceDTO;
 import cn.xiaosm.cloud.core.entity.dto.UploadDTO;
@@ -405,7 +404,8 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         return new File(basePath, resource.getPath());
     }
 
-    public boolean save(MultipartFile file, Bucket bucket, @NonNull Long parentId) throws IOException {
+    public boolean save(UploadDTO dto, Bucket bucket, @NonNull Long parentId) throws IOException {
+        MultipartFile file = dto.getFile();
         // 根据 hash 获取数据库数据
         String hash = DigestUtil.md5Hex(file.getInputStream());
         this.checkNameAndUnique(file.getOriginalFilename(), parentId, bucket.getId()); // 与下面的判断重复
@@ -436,6 +436,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         if (resourceMapper.insert(resource) == 1) {
             // 转存至本地文件
             fileStorageService.of(file).setPath(path).setSaveFilename(fileName).upload();
+            log.info("{}-文件保存成功，{}", dto.getIdentifier(), path);
             return true;
         } else {
             return false;
@@ -460,13 +461,11 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             // 单文件上传
             if (upload.getTotalChunks() == null || upload.getTotalChunks() <= 1) {
                 // 存储数据
-                this.save(file, bucket, parentId);
-                log.info("文件上传成功");
+                this.save(upload, bucket, parentId);
             } else { // 分块上传
-                if (chunkService.save(upload, bucket, parentId)) {
+                if (chunkService.save(upload)) {
 
                 }
-                log.info("分块上传成功");
             }
         } catch (Exception e) {
             log.error("文件上传失败");
@@ -474,6 +473,20 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             throw new CanShowException(e.getMessage(), 400);
         }
         return file.getOriginalFilename();
+    }
+
+    /**
+     * 文件合并请求
+     * @param dto
+     * @return
+     */
+    public Boolean merge(UploadDTO dto) {
+        // 查询当前仓库
+        Bucket bucket = bucketService.getBucket(dto.getBucketName());
+        Long parentId = getIdByPath(bucket.getId(), dto.getPath());
+        if (null == parentId) throw new ResourceException(dto.getPath() + "目录不存在");
+
+        return chunkService.integrateFile(dto, bucket, parentId);
     }
 
     /**
@@ -542,24 +555,11 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         Bucket bucket = bucketService.getBucket(dto.getBucketName());
         Long parentId = getIdByPath(bucket.getId(), dto.getPath());
         if (null == parentId) throw new ResourceException(dto.getPath() + "目录不存在");
-
         // 如果存储目录下文件不存在
         if (getAndCheckHashInPath(dto.getIdentifier(), dto.getFilename(), parentId, bucket.getId()) == null) {
-            if (!dto.isUploadBefore()) {
-                // 判断分块是否齐全
-                Chunk chunk = chunkService.getByFileHash(dto.getIdentifier());
-                if (chunk == null) return false;
-                Integer[] total = chunkService.getUploaded(dto.getIdentifier());
-                // 如果分块齐全，直接合并文件
-                if (chunk.getTotal().equals(total.length)) {
-                    synchronized (SecurityUtils.getLoginUserId()) {
-                        chunkService.integrateFile(dto, bucket, parentId);
-                    }
-                    return true;
-                }
-            }
             return false;
         }
+        // 查询数据库中是否有同样的文件
         return true;
     }
 
@@ -613,9 +613,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         // 获取资源信息
         Resource resource = resourceMapper.selectByIdAndUser(resourceDTO.getId(), resourceDTO.getUserId());
         Assert.isTrue(resource != null, "资源已被删除");
-        // 如果是目录，不进行预览
+        // 目录类型文件不进行预览
+        Assert.isTrue(!resource.isDir(), "文件夹不允许预览");
         // 如果文件过大，不进行预览
-        if (resource.isDir() || (resource.getSize() != null && resource.getSize() > 10485760)) return null;
         File file = this.getLocalFile(resource);
         resourceDTO.setName(resource.getName());
         resourceDTO.setType(resource.getType());

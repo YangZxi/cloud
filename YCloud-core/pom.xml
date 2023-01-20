@@ -36,22 +36,6 @@
             <version>1.0</version>
         </dependency>
 
-        <dependency>
-            <groupId>cn.xuyanwu</groupId>
-            <artifactId>spring-file-storage</artifactId>
-            <version>0.7.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jdk8</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <!-- springboot thymeleaf -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -77,11 +61,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
         <!-- mybatis-plus -->
@@ -120,7 +99,6 @@
             <version>${justauth.version}</version>
         </dependency>
 
-
         <!-- https://mvnrepository.com/artifact/org.quartz-scheduler/quartz -->
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
@@ -128,6 +106,22 @@
             <version>${quartz.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>cn.xuyanwu</groupId>
+            <artifactId>spring-file-storage</artifactId>
+            <version>0.7.0</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib-jdk8</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

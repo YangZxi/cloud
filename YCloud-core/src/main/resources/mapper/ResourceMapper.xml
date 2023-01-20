@@ -6,7 +6,7 @@
 属性namespace：空间名，主要在代理中使用。这个namespace是唯一的。
 这里把mapper标签和接口联系在一起了，namespace=写接口路径，映射文件要和接口在同一目录下
  -->
-<mapper namespace="cn.xiaosm.cloud.front.mapper.ResourceMapper">
+<mapper namespace="cn.xiaosm.cloud.core.mapper.ResourceMapper">
     <!-- =============映射关系标签=============
     属性type:写po类的包名类名，由于之前定义了po类的别名，这里就写这个别名
     属性id：是这个映射标签的唯一标识

@@ -88,7 +88,7 @@ import { SERVER_UPLOAD } from "@/http/API";
 import uploader from "vue-simple-uploader";
 import "vue-simple-uploader/dist/style.css";
 import user from "@/store/user";
-import { uploadCheck } from "@/http/Explore";
+import { uploadCheck, mergeChunk } from "@/http/Explore";
 
 console.log(uploader);
 
@@ -125,7 +125,7 @@ export default {
         chunkSize: CHUNK_SIZE,
         // 并发上传数，默认为 3
         simultaneousUploads: 2,
-        query: (file, chunk, isTest) => {
+        query: (_file, _chunk, _isTest) => {
           // console.log("a:", file, chunk, isTest);
           return {
             ...this.uploadData
@@ -154,7 +154,7 @@ export default {
           // check the chunk is uploaded
           return (data.uploadedChunks || []).indexOf(chunk.offset + 1) >= 0;
         },
-        parseTimeRemaining: function(timeRemaining, parsedTimeRemaining) {
+        parseTimeRemaining: function(_timeRemaining, parsedTimeRemaining) {
           // 格式化时间
           return parsedTimeRemaining
             .replace(/\syears?/, "年")
@@ -221,10 +221,18 @@ export default {
       });
     },
     onFileSuccess(rootFile, file, response, chunk) {
-      console.log("上传成功", rootFile, file, response, chunk);
-      const res = JSON.parse(response);
-      window.$message.success(res.msg);
-      this.uploadSuccess();
+      mergeChunk({
+        ...this.uploadData,
+        identifier: rootFile.uniqueIdentifier,
+        filename: file.name
+      }).then(res => {
+        console.log("上传成功", rootFile, file, response, chunk);
+        window.$message.success(res.msg);
+        this.uploadSuccess();
+      }).catch(_err => {
+        file.error = true;
+        file.cancel();
+      });
       // 这里可以做一些上传成功之后的事情，比如，如果后端需要合并的话，可以通知到后端合并
     },
     onFileError(rootFile, file, response, chunk) {
@@ -232,7 +240,7 @@ export default {
       const res = JSON.parse(response);
       window.$message.error(res.msg);
     },
-    onFileProgress(rootFile, file, chunk) {
+    onFileProgress(_rootFile, file, _chunk) {
       console.log(`当前进度：${Math.ceil(file._prevProgress * 100)}%`);
     },
     // 计算文件的MD5值
@@ -279,7 +287,7 @@ export default {
         fileReader.readAsArrayBuffer(blobSlice.call(file.file, start, end));
       }
     },
-    fileStatusText(status, response) {
+    fileStatusText(status, _response) {
       if (status === "md5") {
         return "校验MD5";
       } else {
@@ -341,7 +349,7 @@ export default {
       }
     },
     // 点击下载
-    download(file, id) {
+    download(file, _id) {
       console.log("file:>> ", file);
       window.location.href = `/fileStorage/download/${file.uniqueIdentifier}`;
     },

@@ -51,12 +51,8 @@ public class UploadConfig {
 
     public void setLocalPath(String path) {
         File file;
-        if (path.startsWith("/")) {
-            file = new File(PROJECT_PATH, path);
-        } else {
-            file = new File(path);
-            if (!file.exists()) file.mkdirs();
-        }
+        file = new File(path);
+        if (!file.exists()) file.mkdirs();
         LOCAL_PATH = file.getAbsolutePath();
         logger.info("当前存储路径：{}", LOCAL_PATH);
     }
@@ -64,12 +60,8 @@ public class UploadConfig {
     public void setChunkPath(String path) {
         path = path.replaceAll("\\\\", "/");
         File file;
-        if (path.startsWith("/")) {
-            file = new File(PROJECT_PATH, path);
-        } else {
-            file = new File(path);
-            if (!file.exists()) file.mkdirs();
-        }
+        file = new File(path);
+        if (!file.exists()) file.mkdirs();
         CHUNK_PATH = file.getAbsolutePath();
         logger.info("当前分块路径：{}", CHUNK_PATH);
     }

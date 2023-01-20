@@ -121,6 +121,13 @@ export function uploadCheck(data: any) {
   });
 }
 
+export function mergeChunk(data: any) {
+  return http.post(API("/resource/upload/merge"), data).then((res) => {
+    return res;
+  });
+}
+
+
 export default {
   listResource,
   createFile,

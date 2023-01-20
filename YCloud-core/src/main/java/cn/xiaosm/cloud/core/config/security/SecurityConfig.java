@@ -32,7 +32,7 @@ public class SecurityConfig extends SecurityAdapter {
         super.configure(security);
 
         String[] staticPath = new String[]{
-            "/*/*.html", "/*/*.css", "/*/*.js", "/*/*.map",
+            "/*/*.html", "/*/*.json", "/*/*.css", "/*/*.js", "/*/*.map",
             "/*/*.woff", "/*/*.woff2", "/*/*.ttf",
             "/*/*.png", "/*/*.jpg", "/*/*.ico", "*.ico",
             "/*/*.gif", "/*/*.svg"

@@ -118,7 +118,7 @@ public class ResourceController {
     }
 
     /**
-     *
+     * 上传前检查
      * @param dto
      * chunkNumber=1
      * chunkSize=31457280
@@ -138,11 +138,11 @@ public class ResourceController {
         Map<String, Object> data = new HashMap<>();
         if (resourceService.existCurrentPath(dto)) {
             data.put("uploaded",  true);
-            return RespUtils.success("文件上传成功", data);
+            return RespUtils.success("文件已上传", data);
         } else {
             data.put("uploaded",  false);
             data.put("uploadedChunks", chunkService.getUploaded(dto.getIdentifier()));
-            return RespUtils.success(data);
+            return RespUtils.success("文件有分块未上传", data);
         }
     }
 
@@ -152,6 +152,12 @@ public class ResourceController {
         if (uploadDTO.getFile() == null || uploadDTO.getFile().isEmpty()) return RespUtils.fail("文件不可以为空");
         resourceService.upload(uploadDTO);
         return RespUtils.success("文件上传成功");
+    }
+
+    @PostMapping("upload/merge")
+    @LogRecord("文件上传")
+    public RespBody uploadMerge(@RequestBody UploadDTO dto) {
+        return RespUtils.success(resourceService.merge(dto) ? "文件上传成功" : "文件上传失败");
     }
 
     /**

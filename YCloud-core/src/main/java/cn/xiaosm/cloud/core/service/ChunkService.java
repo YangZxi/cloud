@@ -13,7 +13,7 @@ import java.util.Collection;
  */
 public interface ChunkService {
 
-    boolean save(UploadDTO dto, Bucket bucket, Long parentId);
+    boolean save(UploadDTO dto);
 
     Chunk getByFileHash(String fileHash);
 

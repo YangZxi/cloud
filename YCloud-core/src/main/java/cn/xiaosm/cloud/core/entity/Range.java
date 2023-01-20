@@ -1,5 +1,6 @@
 package cn.xiaosm.cloud.core.entity;
 
+import cn.hutool.core.io.unit.DataUnit;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import cn.xiaosm.cloud.common.exception.ResourceException;
@@ -110,23 +111,28 @@ public class Range {
             // 如果 arg 存在，包装 arg 范围
             Range range = new Range();
             if (arr.length == 1) {
-                if (arg.startsWith("-")) {  // 没有 start  -xx
+                if (arg.startsWith("-")) {  // 没有 start  -xxx
                     range.setEnd(Long.valueOf(arr[0]));
-                } else {                    // 没有 end  xx-
-                    // 不是分段
+                } else {                    // 没有 end    xxx-
                     range.setStart(Long.valueOf(arr[0]));
-                    range.setEnd(file.length() - 1);
-                    range.setPart(false);
+                    // 默认给 10MB 的传输数据
+                    range.setEnd(range.start + ((1 << 20) * 10 - 1));
                 }
             } else {
                 range.setStart(Long.valueOf(arr[0]));
                 range.setEnd(Long.valueOf(arr[1]));
             }
-            Assert.isTrue(range.start < range.end, "请求资源超出限制");
+            // 如果end大于文件大小
+            if (range.end >= file.length()) {
+                range.setEnd(file.length() - 1);
+            }
+            Assert.isTrue(range.start < range.end, "range请求头不规范，start < end is error");
             range.setTotal(file.length());
-            // 由于 Range 的表示方式，如 length = 1000; 分两次下载
-            // 则两次分段分别是是 [0, 499] [500, 999],其表示方式遵循数学的闭区间
-            // 所以在计算长度的时候需要 +1
+            /**
+             * Range 的表示方式，如 length = 1000; 分两次下载
+             * 则两次分段分别是是 [0, 499] [500, 999],其表示方式遵循数学的闭区间
+             * 所以在计算长度的时候需要 +1
+             */
             range.setContentLength(range.end - range.start + 1);
             if (range.contentLength == range.total) range.part = false;
             return range;

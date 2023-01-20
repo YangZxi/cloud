@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
@@ -75,12 +76,17 @@ public class PreviewController {
             return RespUtils.fail("资源已被删除");
         }
         response.reset();
-        response.setContentType("application/octet-stream;charset=UTF-8");
+        String mimeType = URLConnection.guessContentTypeFromName(file.getName());
+        if (mimeType == null) {
+            //unknown mimetype so set the mimetype to application/octet-stream
+            mimeType = "application/octet-stream";
+        }
+        response.setContentType(mimeType);
         // 分段下载，响应头
         response.setHeader("Accept-Ranges", "bytes");
         // 设置文件名
         response.setHeader("Content-Disposition",
-            "attachment;fileName=" + URLUtil.encode(resource.getName(), Charset.defaultCharset()));
+            "attachment;fileName=\"" + URLUtil.encode(resource.getName(), Charset.defaultCharset()) + "\"");
         DownloadUtil.outputData(request, response, file);
         return null;
     }
@@ -125,24 +131,24 @@ public class PreviewController {
         if (StrUtil.isBlank(resourceDTO.getFileAbPath())
             || !(file = new File(resourceDTO.getFileAbPath())).exists())
             return RespUtils.fail("文件不存在");
-        if (resourceDTO.getSize() > MAX_SIZE) return RespUtils.fail("文件过大，暂不支持在线预览");
+        // if (resourceDTO.getSize() > MAX_SIZE) return RespUtils.fail("文件过大，暂不支持在线预览");
         response.reset();
         String contentType = getContentType(resourceDTO.getType());
         if (StrUtil.isBlank(contentType)) return RespUtils.fail("当前文件类型暂不支持预览");
         response.setContentType(contentType);
+        response.setHeader("Access-Control-Allow-Origin", "*");
         // GET 请求直接在浏览器中能够展示
         if ("GET".equalsIgnoreCase(request.getMethod())) {
             DownloadUtil.outputData(request, response, file);
         }
         // 如果非 GET 请求，且文件类型是文本时，直接把内容放在 json 中传回
         else if (ArrayUtil.contains(TEXT_TYPE, resourceDTO.getType())) {
-            response.setHeader("Access-Control-Allow-Origin", "*");
             return RespUtils.success("", IoUtil.read(FileUtil.getInputStream(file), Charset.defaultCharset()));
         }
         return null;
     }
 
-    private static Map<String, String> RESOURCE_TYPE = new HashMap<String, String>(){{
+    private static Map<String, String> RESOURCE_TYPE = new HashMap(){{
        put("plain", "text/plain;charset=UTF-8");
        put("jpg", "image/jpeg");
        put("jpeg", "image/jpeg");
@@ -150,6 +156,9 @@ public class PreviewController {
        put("png", "image/png");
        put("pdf", "application/pdf");
        put("xml", "text/xml");
+       put("mp4", "video/mp4");
+       put("mp3", "audio/mpeg");
+       put("ogg", "audio/ogg");
     }};
 
     private static String[] TEXT_TYPE = new String[]{

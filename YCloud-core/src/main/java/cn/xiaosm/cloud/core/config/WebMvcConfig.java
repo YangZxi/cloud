@@ -79,8 +79,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
      */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/upload/**")
-                .addResourceLocations("classpath:/static/upload/");
     }
 
     /**
@@ -96,7 +94,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
          */
         List<String> excludePath = new LinkedList<>();
         excludePath.addAll(Arrays.asList(
-            "/**/*.html",
+            "/**/*.html", "/**/*.json",
             "/**/*.css", "/**/*.js", "/**/*.map",
             "/**/*.woff", "/**/*.ttf",
             "/**/*.png", "/**/*.jpg", "/**/*.ico",

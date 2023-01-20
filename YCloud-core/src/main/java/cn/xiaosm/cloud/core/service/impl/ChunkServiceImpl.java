@@ -37,7 +37,7 @@ public class ChunkServiceImpl implements ChunkService {
 
     @Override
     @Transactional
-    public boolean save(UploadDTO dto, Bucket bucket, Long parentId) {
+    public boolean save(UploadDTO dto) {
         // 检查上传的文件名
         // this.checkNameAndUnique(file.getOriginalFilename(), parentId, bucket.getId()); // 与下面的判断重复
         if (!dto.getCurrentChunkSize().equals(dto.getFile().getSize())) {
@@ -67,6 +67,7 @@ public class ChunkServiceImpl implements ChunkService {
             }
             File dest = new File(UploadConfig.CHUNK_PATH, fileName);
             try {
+                log.info("{}-分块保存成功，{}", dto.getIdentifier(), dest.getAbsolutePath());
                 // 缓存文件存在 && 大小相等直接返回成功
                 if (dest.exists() && dest.length() == dto.getCurrentChunkSize()) {
                     return true;
@@ -76,10 +77,6 @@ public class ChunkServiceImpl implements ChunkService {
                 e.printStackTrace();
                 return false;
             }
-        }
-        // 分块转存完成后，进行整合
-        synchronized (SecurityUtils.getLoginUserId()) {
-            this.integrateFile(dto, bucket, parentId);
         }
         return true;
     }
@@ -94,12 +91,14 @@ public class ChunkServiceImpl implements ChunkService {
     @Override
     public boolean integrateFile(UploadDTO dto, Bucket bucket, Long parentId) {
         List<Chunk> chunks = chunkMapper.listByFileHash(dto.getIdentifier());
+        if (chunks.isEmpty()) {
+            return false;
+        }
         // 检查所有分块是否都上传完成
-        if (chunks.size() != dto.getTotalChunks()) {
+        if (chunks.size() != chunks.get(0).getTotal()) {
             // 没有上传完，或者上传完，数据已经删除了
             return false;
         }
-
         // 合并之前，检查当前用户的仓库中是否文件存在
         Resource db = SpringContextUtils.getBean(ResourceServiceImpl.class)
             .getAndCheckHashInPath(dto.getIdentifier(), dto.getFilename(), parentId, bucket.getId());

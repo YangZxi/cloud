@@ -1,5 +1,6 @@
 package cn.xiaosm.cloud;
 
+import cn.hutool.core.io.FileTypeUtil;
 import cn.xiaosm.cloud.common.util.SpringContextUtils;
 import cn.xiaosm.cloud.common.util.cache.CacheUtils;
 import cn.xiaosm.cloud.core.admin.service.MenuService;
@@ -24,13 +25,14 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement // 开启事物
 @EnableFileStorage
 @EnableAspectJAutoProxy(proxyTargetClass = true, exposeProxy = true) // 开启 cglib, 暴露
-@MapperScan("cn.xiaosm.cloud.**.mapper")
+// @MapperScan("cn.xiaosm.cloud.**.mapper")
 @SpringBootApplication
 public class Application {
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
-        // loadMenu();
+        FileTypeUtil.removeFileType("52494646");
+        loadMenu();
         // loadTask();
     }
 

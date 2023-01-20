@@ -11,11 +11,14 @@
 
 <script setup>
 import { computed, watch, ref } from "vue";
-import YImage from "./YImage.vue";
-import YText from "./YText.vue";
 import Default from "./Default.vue";
+import YImage from "./YImage.vue";
 import YImageM from "./YImage-m.vue";
+import YText from "./YText.vue";
+import YVideo from "./YVideo.vue";
+import YAudio from "./YAudio.vue";
 import { preview } from "@/http/Explore";
+import store from "@/store/temp";
 
 const props = defineProps({
   api: {
@@ -27,6 +30,11 @@ const props = defineProps({
     type: Object,
     required: true
   }
+});
+
+const filetype = ref({});
+store().getFiletype().then(res => {
+  filetype.value = res;
 });
 
 const isMobile = window.sessionStorage.getItem("isMobile");
@@ -52,23 +60,38 @@ getUrl(props.resource.id);
 
 const viewType = computed({
   get: () => {
-    const type = props.resource.type;
-    if ("png,jpg,jpeg,gif".indexOf(type) !== -1) {
-      return isMobile ? YImageM : YImage;
-    } else if ("txt,md,js,java,cpp,c,py,go".indexOf(type) !== -1) {
-      return YText;
-    } else {
-      return Default;
+    let type = props.resource.type;
+    let v = getView(type);
+    if (v === Default) {
+      let dot = props.resource.name.indexOf(".");
+      if (dot === -1) return v;
+      type = props.resource.name.substring(dot + 1);
+      v = getView(type);
     }
+    return v;
   },
   set: () => { }
 });
+
+function getView(type) {
+  if (filetype.value.image.indexOf(type) !== -1) {
+    return isMobile ? YImageM : YImage;
+  } else if (filetype.value.text.indexOf(type) !== -1) {
+    return YText;
+  } else if (filetype.value.video.indexOf(type) !== -1) {
+    return YVideo;
+  } else if (filetype.value.audio.indexOf(type) !== -1) {
+    return YAudio;
+  } else {
+    return Default;
+  }
+}
 
 </script>
 
 <style scoped>
 .preview {
-  height: 320px;
+  height: 380px;
   background-color: #F7F7F7;
   display: flex;
   justify-content: center;

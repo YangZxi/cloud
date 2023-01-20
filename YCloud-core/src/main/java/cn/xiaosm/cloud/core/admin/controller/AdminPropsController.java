@@ -34,7 +34,7 @@ import java.util.Set;
  */
 @YAdmin("api/props")
 @RestController
-public class PropsController {
+public class AdminPropsController {
 
     @Autowired
     PropService propService;

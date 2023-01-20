@@ -1,13 +1,13 @@
 import { defineStore } from 'pinia';
 import { Resource } from "@/type/type";
+import http from "@/http/Other"
 
 //创建VueX对象
-export const sharePinia = defineStore("temp", {
+export const otherPinia = defineStore("temp", {
     state: () => {
-        const state: {
-            resource: Resource | null
-        } = {
-            resource: window.sessionStorage.getItem("resource") ? JSON.parse(window.sessionStorage.getItem("resource") as string) : null
+        const state = {
+            resource: window.sessionStorage.getItem("resource") ? JSON.parse(window.sessionStorage.getItem("resource") as string) : null,
+            filetype: null
         }
         return state;
     },
@@ -16,7 +16,16 @@ export const sharePinia = defineStore("temp", {
             this.resource = resource;
             window.sessionStorage.setItem("resource", JSON.stringify(resource));
         },
+        async getFiletype() {
+            if (!this.filetype) {
+                await http.filetype().then(res => {
+                    console.log(res);
+                    this.filetype = res;
+                });
+            }
+            return this.filetype;
+        },
     }
 })
 
-export default sharePinia
+export default otherPinia

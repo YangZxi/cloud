@@ -36,6 +36,8 @@ public interface ResourceService extends BaseService<Resource> {
 
     String upload(UploadDTO uploadDTO);
 
+    Boolean merge(UploadDTO uploadDTO);
+
     boolean existCurrentPath(UploadDTO dto);
 
     ResourceDTO download(ResourceDTO resource);
