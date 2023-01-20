@@ -65,6 +65,7 @@ public class DownloadUtil {
             out.flush();
             response.flushBuffer();
         } catch (IOException e) {
+            e.printStackTrace();
             logger.error("文件传输失败");
         } finally {
             close(randomAccessFile, out);
