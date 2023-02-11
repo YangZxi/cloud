@@ -108,7 +108,7 @@ public class ChunkServiceImpl implements ChunkService {
         }
 
         chunks.sort(Comparator.comparingInt(Chunk::getOrder));
-        String path = ResourceServiceImpl.suffixPath();
+        String suffixPath = ResourceServiceImpl.suffixPath();
         String filename = dto.getIdentifier() + "." + FileUtil.extName(dto.getFilename());
         File dest = ResourceServiceImpl.transformFile(filename);
         try (RandomAccessFile raf = new RandomAccessFile(dest, "rw");) {
@@ -123,7 +123,7 @@ public class ChunkServiceImpl implements ChunkService {
         }
         // 写完以后保存至数据库
         Resource resource = new Resource();
-        resource.setPath("/" + path + "/" + filename);
+        resource.setPath(suffixPath + "/" + filename);
         resource.setHash(dto.getIdentifier());
         resource.setName(dto.getFilename());
         resource.setBucketId(bucket.getId());

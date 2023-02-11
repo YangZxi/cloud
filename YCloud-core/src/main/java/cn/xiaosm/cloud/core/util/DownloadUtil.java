@@ -22,16 +22,19 @@ public class DownloadUtil {
     private static final Logger logger = LoggerFactory.getLogger(DownloadUtil.class);
 
     public static void outputData(HttpServletRequest request, HttpServletResponse response, @NotNull File file) {
+        response.setHeader("Accept-Ranges", "bytes");
+        response.setHeader("Cache-Control", "no-cache");
         response.setHeader("Etag", makeEtag(file));
         response.setHeader("Last-Modified", new Date(file.lastModified()).toString());
         // 创建 Range 分段
         Range range = Optional
             .ofNullable(Range.build(request.getHeader("Range"), file))
-            .orElse(new Range(file.length()));
+            .orElse(Range.build(file));
         // Content-Range，格式为：bytes [要下载的开始位置]-[结束位置]/[文件总大小]
         response.setHeader("Content-Range", "bytes "
             + range.getStart() + "-" + range.getEnd() + "/" + range.getTotal());
         response.setContentLengthLong(range.getContentLength());
+        logger.info("file: {}, range: {}", file.getPath(), range);
         if (range.isPart())
             response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
         // 数据发送
@@ -43,24 +46,26 @@ public class DownloadUtil {
             // 从 start 位置开始读取数据
             randomAccessFile.seek(range.getStart());
             out = new BufferedOutputStream(response.getOutputStream());
-            byte[] buff = new byte[4096];
+            byte[] buff = new byte[1024];
             int len = 0;
             // 已发送数据长度
-            long sending = 0;
+            long transmitted = 0;
             // 要下载的长度
             long dataLen = range.getContentLength();
             // 如果需要下载的长度小于一次 buff 传输的大小，则直接进行下面的一次传输完成
+            long l = System.currentTimeMillis();
             if (dataLen >= buff.length) {
                 // 如果下一次的传输的长度大于了本次需要传输的长度，则进行的一次传输完成
-                while ((sending + len < dataLen) && (len = randomAccessFile.read(buff)) != -1) {
+                while ((transmitted + len < dataLen) && (len = randomAccessFile.read(buff)) != -1) {
                     out.write(buff, 0, len);
-                    sending += len;
+                    transmitted += len;
                 }
             }
             // 一次传输完剩下的数据
-            if (sending < dataLen) {
-                len = randomAccessFile.read(buff, 0, (int) (dataLen - sending));
+            if (transmitted < dataLen) {
+                len = randomAccessFile.read(buff, 0, (int) (dataLen - transmitted));
                 out.write(buff, 0, len);
+                logger.info("finished, time: {}, size: {}", System.currentTimeMillis() - l, dataLen);
             }
             out.flush();
             response.flushBuffer();
