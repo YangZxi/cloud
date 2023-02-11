@@ -113,9 +113,12 @@ public class SecurityAdapter extends WebSecurityConfigurerAdapter {
         //         .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         // 添加跨域请求（允许）过滤器
         security.addFilter(corsFilter);
+        // 禁用框架有关缓存的设置
+        security.headers().cacheControl().disable();
         // 添加 session 过滤器，session 过滤器通过以后，直接掠过 JWT 过滤器
         security.addFilterBefore(defaultSessionAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         // 添加 JWT 过滤器
+        security.addFilterBefore(defaultJWTAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         security.addFilterBefore(defaultJWTAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         // security.addFilter(defaultJWTAuthenticationFilter);
         // 登录处理
