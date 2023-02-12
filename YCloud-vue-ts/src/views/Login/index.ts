@@ -1,8 +1,7 @@
-import { reactive, ref, nextTick, getCurrentInstance, defineComponent } from 'vue'
-import { main } from '@/store/user'
+import { reactive, ref, nextTick } from 'vue'
 import { login as httpLogin } from "@/http/User"
 import $router from "@/router/index"
-import { FormInst, useMessage } from "naive-ui"
+import { FormInst } from "naive-ui"
 
 const loginForm = ref<FormInst | null>(null);
 const guestLogin = ref(false);
@@ -66,7 +65,7 @@ export const login = function(url: string | Event) {
     return;
   } else if (guestLogin.value === true) {
     if (!checkPwd()) return;
-    httpLogin("guest", user.password).then(res => {
+    httpLogin(user.username || "guest", user.password).then(res => {
       // showPwd.value = false;
       $router.push({ path: "/explorer/local" });
     });

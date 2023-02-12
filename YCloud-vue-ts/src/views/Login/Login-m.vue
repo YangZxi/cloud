@@ -50,13 +50,12 @@
 </template>
 
 <script setup lang="ts">
-import { setup, toggle, login } from "./index";
+import { setup, login } from "./index";
 import { useRouter } from "vue-router";
 
 const {
   loginForm,
   guestLogin,
-  input,
   user
 } = setup;
 

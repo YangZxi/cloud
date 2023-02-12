@@ -32,7 +32,7 @@ const props = defineProps({
   }
 });
 
-const filetype = ref({});
+const filetype = ref(null);
 store().getFiletype().then(res => {
   filetype.value = res;
 });
@@ -74,6 +74,7 @@ const viewType = computed({
 });
 
 function getView(type) {
+  if (filetype.value === null) return Default;
   if (filetype.value.image.indexOf(type) !== -1) {
     return isMobile ? YImageM : YImage;
   } else if (filetype.value.text.indexOf(type) !== -1) {

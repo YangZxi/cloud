@@ -3,6 +3,7 @@ import API from "./API"
 import { SERVER_PREVIEW } from "./API"
 import { user } from '@/store/user'
 import { download as DL } from "@/utils/Tools"
+import $router from "@/router/index"
 
 const isMobile = window.sessionStorage.getItem("isMobile");
 
@@ -11,14 +12,14 @@ const isMobile = window.sessionStorage.getItem("isMobile");
  * @param data 
  * @returns Promise
  */
-export const listResource = (data: any) => {
-  let uri = "";
-  if (isMobile) {
-    uri = `#/explorer/${data.bucketName}?path=${data.path}`;
-  } else {
-    uri = `/explorer/${data.bucketName}?path=${data.path}`;
-  }
-  window.history.pushState("", "", uri);
+export const listResource = async (data: any) => {
+  await $router.push({
+    path: `/explorer/${data.bucketName}`,
+    query: {
+      path: data.path
+    }
+  })
+  history.replaceState({ ...history.state }, "")
   return http.get(API("/resource"), data).then(res => {
     if (res.code == 200) {
       return res.data;
@@ -31,7 +32,7 @@ export const listResource = (data: any) => {
  * @param data 
  * @returns 
  */
- export const createFile = (data: any) => {
+export const createFile = (data: any) => {
   return http.post(API("/resource/create"), data).then(res => {
     if (res.code == 200) {
       window.$message.success(res.msg);
@@ -45,7 +46,7 @@ export const listResource = (data: any) => {
  * @param data 
  * @returns 
  */
- export const deleteFile = (id: string) => {
+export const deleteFile = (id: string) => {
   return http.post(API("/resource/delete"), {
     id: id
   }).then(res => {
@@ -95,7 +96,7 @@ export const moveOrCopyFile = (originId: string, targetId: string, type: string 
  * @param content 
  * @returns 
  */
- export const saveContent = (id: string, content: string) => {
+export const saveContent = (id: string, content: string) => {
   return http.post(API("/resource/saveContent"), {
     id,
     content
