@@ -1,6 +1,9 @@
 <template>
   <div>
-    <cloud-header :title="(explorerPath.length > 0) ? explorerPath.slice(-1)[0] : bucketName">
+    <cloud-header
+      class="cloud-header"
+      :title="(explorerPath.length > 0) ? explorerPath.slice(-1)[0] : bucketName"
+    >
       <template
         v-if="(explorerPath.length > 0)"
         #left
@@ -20,7 +23,7 @@
         </var-button>
       </template>
     </cloud-header>
-    <div>
+    <div class="resource-list">
       <var-cell
         v-for="el in fileList"
         :key="el.id"
@@ -80,6 +83,7 @@
       </template>
     </y-popup>
 
+    <!-- 重命名 -->
     <var-dialog
       v-model:show="renameDialog.visible"
       :close-on-click-overlay="false"
@@ -95,6 +99,7 @@
       />
     </var-dialog>
 
+    <!-- 下载 -->
     <var-dialog
       v-model:show="downloadDialog.visible"
       :close-on-click-overlay="false"
@@ -111,6 +116,7 @@
       >点我下载</a>
     </var-dialog>
 
+    <!-- 分享 -->
     <var-popup
       v-model:show="shareDialog.visible"
       position="bottom"
@@ -246,7 +252,7 @@ if (setRefresh) {
 onMounted(() => {
   // console.log($route);
   explorerPath.value = $route.query.path ? ($route.query.path as string).split("/") : [];
-  intoPath();
+  intoPath(null);
   // if (tableOperation.value) console.log(tableOperation.value);
   // 此处计算 需要减去头部的 头部的 110 和面包屑的 30
 });
@@ -322,7 +328,7 @@ const actionSheet = reactive({
 
 const cellClick = function(row: Resource) {
   if (row.type === "dir") {
-    intoPath(row.name);
+    intoPath({ path: row.name, parentId: row.id });
   } else {
     API.preview(row.id).then(url => {
       store().setResource({
@@ -365,6 +371,15 @@ const copyUrl = async function() {
 </script>
 
 <style lang="scss" scoped>
+.cloud-header {
+  height: var(--cloud-header);
+  box-sizing: border-box;
+}
+.resource-list {
+  max-height: calc(100% - var(--cloud-header));
+  // max-height: 300px;
+  overflow-y: scroll;
+}
 .resource-cell {
   display: flex;
   justify-content: space-between;

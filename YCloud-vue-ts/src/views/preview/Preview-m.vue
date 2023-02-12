@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 import Preview from "@/components/file-preview/FilePreview.vue";
 import store from "@/store/temp";
 

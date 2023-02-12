@@ -4,13 +4,21 @@ import { SERVER_PREVIEW } from "./API"
 import { user } from '@/store/user'
 import { download as DL } from "@/utils/Tools"
 
+const isMobile = window.sessionStorage.getItem("isMobile");
+
 /**
  * 获取指定目录下的所有文件
  * @param data 
  * @returns Promise
  */
 export const listResource = (data: any) => {
-  window.history.pushState("", "", `/explorer/${data.bucketName}?path=${data.path}`);
+  let uri = "";
+  if (isMobile) {
+    uri = `#/explorer/${data.bucketName}?path=${data.path}`;
+  } else {
+    uri = `/explorer/${data.bucketName}?path=${data.path}`;
+  }
+  window.history.pushState("", "", uri);
   return http.get(API("/resource"), data).then(res => {
     if (res.code == 200) {
       return res.data;

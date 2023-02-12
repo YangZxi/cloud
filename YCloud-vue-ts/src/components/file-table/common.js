@@ -1,13 +1,38 @@
 import { h } from "vue";
-import YIcon from "@/components/YIcon";
+import YIcon from "@/components/mie-ui/YIcon";
+
+const types = {
+  image: {
+    suffix: ["jpg", "png", "jpeg"],
+    icon: "file-image"
+  },
+  video: {
+    suffix: ["mp4", "avi"],
+    icon: "file-video"
+  },
+  audio: {
+    suffix: ["mp3", "ogg"],
+    icon: "file-audio"
+  },
+  text: {
+    suffix: ["txt", "js", "ts", "java", "md"],
+    icon: "file-code"
+  },
+  package: {
+    suffix: ["zip", "rar", "7z", "tar"],
+    icon: "file-zipper"
+  }
+};
 
 export const fileIconName = function(type = "FILE") {
   let icon = "file";
   type = type.toLowerCase();
-  if (type === "dir") icon = "folder";
-  else if (["jpg", "png", "jpeg"].includes(type)) icon = "file-image";
-  else if (["txt", "js", "ts", "java", "md"].includes(type)) icon = "file-code";
-  else if (["zip", "rar", "7z", "tar"].includes(type)) icon = "file-zipper";
+  if (type === "dir") return "fa-folder";
+  for (let el of Object.values(types)) {
+    if (el.suffix.includes(type)) {
+      icon = el.icon;
+    }
+  }
   return "fa-" + icon;
 };
 

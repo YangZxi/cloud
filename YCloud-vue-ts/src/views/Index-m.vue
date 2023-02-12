@@ -1,6 +1,9 @@
 <template>
   <div>
-    <router-view style="margin-bottom: calc(var(--bottom-navigation-height) + 10px);" />
+    <router-view
+      style="padding-bottom: calc(var(--bottom-navigation-height) + 15px);height: 100%;box-sizing: border-box;
+        background-color: #FFF;"
+    />
     <var-bottom-navigation
       v-model:active="active"
       fixed
@@ -9,13 +12,26 @@
       @change="changeNav"
     >
       <template #fab>
-        <var-uploader
+        <!-- <var-uploader
           v-model="files"
           hide-list
           @after-read="upload"
         >
           <var-icon name="upload" />
-        </var-uploader>
+        </var-uploader> -->
+        <YUploader
+          :upload-data="{
+            'bucketName': bucketName,
+            'path': path
+          }"
+          :upload-success="refresh"
+          hide-list
+        >
+          <var-icon
+            name="upload"
+            color="#FFF"
+          />
+        </YUploader>
       </template>
       <var-bottom-navigation-item
         name="Home"
@@ -50,8 +66,6 @@
 <script setup lang="ts">
 import { provide, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import axios from "@/http/XMLHttpRequest";
-import type { VarFile } from "@varlet/ui";
 
 const $route = useRoute();
 const $router = useRouter();
@@ -60,25 +74,10 @@ const bucketName = ref($route.params.name as string);
 const path = ref("");
 
 const active = ref<number | string>($route.name as string);
-const files = ref<[]>([]);
 
 const refresh = ref<Function>(() => {
   console.log("refresh");
 });
-
-const upload = function(file: VarFile) {
-  const formData = new FormData();
-  formData.append("bucketName", bucketName.value);
-  formData.append("path", path.value);
-  formData.append("file", file.file as File);
-  axios.upload("/resource/upload", formData)
-    .then(() => {
-      window.$message.success("上传成功");
-      refresh.value();
-    }).catch(() => {
-      files.value = [];
-    });
-};
 
 const changeNav = function(active: number | string) {
   if (typeof active === "string") {

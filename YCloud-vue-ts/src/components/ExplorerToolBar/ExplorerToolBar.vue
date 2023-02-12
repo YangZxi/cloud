@@ -3,20 +3,6 @@
     id="tableOperation"
   >
     <div style="display: flex;column-gap: 15px;">
-      <!-- <n-upload
-        :action="SERVER_UPLOAD"
-        style="width: unset"
-        name="files"
-        :headers="{
-          'Authorization': `Bearer ${user().token}`
-        }"
-        :data="{
-          'bucketName': props.name,
-          'path': props.path.join('/')
-        }"
-        :custom-request="customRequest"
-      >
-      </n-upload> -->
       <YUploader
         :upload-data="{
           'bucketName': props.name,
@@ -27,6 +13,7 @@
         <n-button
           color="#FF69B4"
           size="small"
+          tag="div"
         >
           <template #icon>
             <n-icon>
@@ -157,14 +144,13 @@
 import YFilePath from "./FilePath.vue";
 import { h, inject, reactive } from "vue";
 import { user } from "@/store/user";
-import { SERVER_UPLOAD } from "@/http/API";
 import { axios } from "@/http/XMLHttpRequest";
 import { createFile } from "@/http/Explore";
 // import YButton from "@/components/YButton.vue"
 import type { AxiosRequestConfig } from "axios";
 import type { UploadCustomRequestOptions } from "naive-ui";
-import YIcon from "../YIcon.vue";
-import YUploader from "@/components/YUploader/YUploader.vue";
+import YIcon from "@/components/mie-ui/YIcon.vue";
+import YUploader from "@/components/mie-ui/YUploader/YUploader.vue";
 
 const showEditor = inject<Function>("showEditor");
 const props = defineProps({

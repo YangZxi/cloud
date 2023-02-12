@@ -9,7 +9,6 @@ services:
     volumes:
       - $PWD:/home/cloud
     environment:
-      - TZ=Asia/shanghai
       - PASSWORD=xiaoyang #optional
     # restart: unless-stopped
     restart: always

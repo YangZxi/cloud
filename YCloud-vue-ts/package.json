@@ -4,12 +4,15 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
+    "prod": "vite --mode production",
     "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
     "@chenfengyuan/vue-qrcode": "2",
     "@varlet/ui": "^2.3.1",
+    "@vime/core": "^5.4.0",
+    "@vime/vue-next": "^5.4.0",
     "axios": "^0.27.2",
     "highlight.js": "^11.6.0",
     "pinia": "^2.0.13",
@@ -19,8 +22,7 @@
     "vue-axios": "^3.4.1",
     "vue-router": "^4.0.14",
     "vue-simple-uploader": "1.0.0-beta.5",
-    "vue3-audio-player": "^1.0.6",
-    "vue3-video-play": "1.3.1-beta.6"
+    "vue3-audio-player": "^1.0.6"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.0.0",

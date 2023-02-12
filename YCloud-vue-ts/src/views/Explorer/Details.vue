@@ -86,7 +86,7 @@
               v-model:value="shareDialog.form.deadline"
               type="date"
               clearable
-              :is-date-disabled="(val) => new Date() > val"
+              :is-date-disabled="(val) => Date.now() > val"
               :shortcuts="shortcuts"
               placeholder="留空则表示永久"
             />
@@ -102,7 +102,8 @@
             <n-input
               v-show="shareDialog.enablePwd"
               v-model:value="shareDialog.form.password"
-              :maxlength="4"
+              minlength="4"
+              maxlength="4"
               show-count
               clearable
               :allow-input="(val) => !val || /^[a-zA-Z0-9]+$/.test(val)"

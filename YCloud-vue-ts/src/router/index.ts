@@ -1,5 +1,5 @@
 import { user } from "@/store/user"
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHistory, createWebHashHistory, RouteRecordRaw } from 'vue-router'
 
 
 // 解决ElementUI导航栏中的vue-router在3.0版本以上重复点菜单报错问题
@@ -59,7 +59,7 @@ const routes: {
 // 暂时保持简单
 const router = createRouter({
   // 4. 内部提供了 history 模式的实现。为了简单起见，我们在这里使用 hash 模式。
-  history: createWebHistory(),
+  history: isMobile ? createWebHashHistory() : createWebHistory(),
   routes: isMobile ? routes.mobile : routes.pc, // `routes: routes` 的缩写
 });
 

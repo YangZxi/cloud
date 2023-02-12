@@ -1,3 +1,8 @@
+:root {
+    --cloud-header: 90px;
+    --cloud-navbar: 50px;
+}
+
 a {
     color: #333;
     text-decoration: none;
