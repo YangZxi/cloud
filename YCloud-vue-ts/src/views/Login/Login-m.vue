@@ -70,7 +70,7 @@ const goBack = () => {
 
 <style scoped lang="scss">
 #user-login {
-  height: calc(100% - var(--app-bar-height));
+  height: calc(100% - 90px);
   padding: 0 3vw;
   display: flex;
   align-items: center;

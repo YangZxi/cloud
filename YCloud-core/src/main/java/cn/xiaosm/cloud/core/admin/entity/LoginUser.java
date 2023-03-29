@@ -38,16 +38,15 @@ public class LoginUser extends User implements AuthUser {
     private String loginId;
     @JsonIgnore
     private String password;
+    @JsonIgnore
     private String roleIds;
+    @JsonIgnore
     private List<Role> roles;
     private List<? extends Menu> menus; // 树结构的菜单列表
+    @JsonIgnore
     private List<Menu> menusOriginal; // 源菜单列表
     private List<UserLoginTrack> userLoginTracks;
     private Collection<SimpleGrantedAuthority> authorities;
-
-    public String getLoginId() {
-        return loginId;
-    }
 
     public void setLoginId(String loginId) {
         this.loginId = loginId;

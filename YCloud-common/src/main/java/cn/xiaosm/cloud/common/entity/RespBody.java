@@ -76,7 +76,8 @@ public class RespBody {
         return data;
     }
 
-    public void setData(Object data) {
+    public RespBody setData(Object data) {
         this.data = data;
+        return this;
     }
 }

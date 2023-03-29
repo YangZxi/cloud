@@ -2,7 +2,8 @@ import axios, { AxiosResponse, AxiosRequestConfig, AxiosRequestHeaders } from 'a
 import $router from '@/router/index'
 import { user } from '@/store/user'
 import API from "./API"
-import { createDiscreteApi, create } from 'naive-ui'
+import { createDiscreteApi } from 'naive-ui';
+import { decrypt, encrypt } from "@/utils/Cryptor";
 
 import {
   SERVER_BASE, SERVER_API
@@ -84,7 +85,7 @@ instance.interceptors.response.use(
 );
 
 function alertErrMsg(err: YAxiosResponse) {
-  if (err.config.show === false) return;
+  if (!err.data) return;
   if (err.data && err.data.code == 200) return;
   if (err.data!.msg) window.$message.warning(err.data.msg);
   else if (err.data!.error) window.$message.warning(err.data.error);
@@ -121,13 +122,20 @@ function logout() {
 
 type Option = {
   headers?: object,
-  hiddenMsg?: false,
+  hiddenMsg?: boolean,
+  encrypt?: boolean,
+  decrypt?: boolean
 }
 
 function request(method: Method, url: string, data: any, option: Option = {}): Promise<RespBody> {
   // 如果要展示页面提醒
   // if (isShow) headers["Show-Time"] = "Hello";
   loadingBar.start();
+  if (option.encrypt && method !== "GET") {
+    data = {
+      data: encrypt(data)
+    }
+  }
   // @ts-ignore
   return instance({
     method: method,
@@ -143,6 +151,9 @@ function request(method: Method, url: string, data: any, option: Option = {}): P
   })
   .then((data: any) => {
     loadingBar.finish();
+    if (option.decrypt) {
+      data.data = decrypt(data.data);
+    }
     return data;
   }).catch((err: YAxiosResponse) => {
     // 将错误往方法调用的页面传
@@ -161,19 +172,19 @@ export type { RespBody }
 
 export default {
 
-  "get": (url: string, data?: any, option?: any) => {
+  "get": (url: string, data?: any, option?: Option) => {
     return request("GET", url, data, option);
   },
-  "post": (url: string, data?: any, option?: any) => {
+  "post": (url: string, data?: any, option?: Option) => {
     return request("POST", url, data, option);
   },
-  "put": (url: string, data: any, option?: any) => {
+  "put": (url: string, data: any, option?: Option) => {
     return request("PUT", url, data, option);
   },
-  "delete": (url: string, data: any, option?: any) => {
+  "delete": (url: string, data: any, option?: Option) => {
     return request("DELETE", url, data, option);
   },
-  "upload": (url: string, data: any, option?: any) => {
+  "upload": (url: string, data: any, option?: Option) => {
     return request("POST", url, data, {
       ...option,
       headers: { "Content-Type": "application/x-www-form-urlencoded" }

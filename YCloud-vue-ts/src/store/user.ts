@@ -27,9 +27,8 @@ export const user = defineStore("user", {
   },
   actions: {
     login(data: any) {
-      return http.post(API("/login"), JSON.stringify(data)).then(res => {
+      return http.post(API("/login"), JSON.stringify(data), { encrypt: true }).then(res => {
         console.log(res);
-
         // 添加Token信息
         this.token = res.token;
         window.localStorage.setItem(TOKEN_NAME, res.token);
@@ -48,10 +47,9 @@ export const user = defineStore("user", {
     },
     async info() {
       if (!this.user) {
-        await http.get(API("/user/info")).then(res => {
+        await http.get(API("/user/info"), null, { decrypt: true }).then(res => {
           this.user = res.data;
-          console.log(this.user);
-
+          // console.log(this.user);
         });
       }
       return this.user;

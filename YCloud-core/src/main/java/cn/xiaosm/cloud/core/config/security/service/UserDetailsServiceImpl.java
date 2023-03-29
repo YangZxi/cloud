@@ -144,12 +144,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         // 添加默认权限
         authorities.addAll(SecurityUtils.getDefaultAuthorities());
         // 设置角色权限
-        authorities.addAll(
-            loginUser.getRoles().stream()
-                // 取出角色名
-                .map(Role::getName)
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList())
+        authorities.addAll(loginUser.getRoles().stream()
+            // 取出角色名
+            .map(Role::getName).map(SimpleGrantedAuthority::new).toList()
         );
         loginUser.setAuthorities(authorities);
         // 构建登录用户菜单树，在首页展示导航栏需要用到

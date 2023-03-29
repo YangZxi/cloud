@@ -11,6 +11,7 @@
 package cn.xiaosm.cloud.security;
 
 import cn.xiaosm.cloud.security.annotation.AnonymousAccess;
+import cn.xiaosm.cloud.security.annotation.Encrypt;
 import cn.xiaosm.cloud.security.handler.LoginFailHandler;
 import cn.xiaosm.cloud.security.handler.LoginSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.util.Assert;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
@@ -33,8 +35,10 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import org.springframework.web.util.pattern.PathPattern;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 /**
@@ -98,19 +102,22 @@ public class SecurityAdapter extends WebSecurityConfigurerAdapter {
         // 搜寻匿名标记 url： @AnonymousAccess
         Map<RequestMappingInfo, HandlerMethod> handlerMethodMap = applicationContext.getBean(RequestMappingHandlerMapping.class).getHandlerMethods();
         Set<PathPattern> anonymousUrls = new HashSet<>();
+        AnonymousAccess anonymousAccess = null;
+        Encrypt encrypt = null;
         for (Map.Entry<RequestMappingInfo, HandlerMethod> infoEntry : handlerMethodMap.entrySet()) {
             HandlerMethod handlerMethod = infoEntry.getValue();
-            AnonymousAccess anonymousAccess = handlerMethod.getMethodAnnotation(AnonymousAccess.class);
+            anonymousAccess = handlerMethod.getMethodAnnotation(AnonymousAccess.class);
+            Set<PathPattern> patterns = infoEntry.getKey().getPathPatternsCondition().getPatterns();
             if (null != anonymousAccess) {
-                anonymousUrls.addAll(infoEntry.getKey().getPathPatternsCondition().getPatterns());
+                anonymousUrls.addAll(patterns);
             }
         }
 
         // 禁用 CSRF 因为我不需要 session 鸭
-        security.csrf().disable();
+        security.csrf().disable()
         //         // 不创建会话，因为此项目基于 Java Web Token 进行登录
-        //         .sessionManagement()
-        //         .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         // 添加跨域请求（允许）过滤器
         security.addFilter(corsFilter);
         // 禁用框架有关缓存的设置

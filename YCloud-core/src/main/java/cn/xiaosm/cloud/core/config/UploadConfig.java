@@ -74,7 +74,7 @@ public class UploadConfig {
         }
         arg = arg.replace("MB", "");
         try {
-            MAX_UPLOAD_SIZE = Long.valueOf(arg) * mb;
+            MAX_UPLOAD_SIZE = Long.parseLong(arg) * mb;
             logger.info("当前最大上传文件大小：{}", MAX_UPLOAD_SIZE);
         } catch (NumberFormatException e) {
             throw new NumberFormatException("MAX_UPLOAD_SIZE 格式化错误");

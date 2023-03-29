@@ -9,6 +9,7 @@
 package cn.xiaosm.cloud.core.interceptor;
 
 import cn.hutool.extra.servlet.ServletUtil;
+import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -28,45 +29,31 @@ import javax.servlet.http.HttpServletResponse;
 public class LogInterceptor implements HandlerInterceptor {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private Long timer = 0l;
+    private final ThreadLocal<Long> timer = new ThreadLocal<>();
 
     /**
      * 在DispatcherServlet之前执行
-     *
-     * @param request
-     * @param response
-     * @param handler
-     * @return
-     * @throws Exception
      */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         // 判断请求的所有时间
-        timer = System.currentTimeMillis();
+        timer.set(System.currentTimeMillis());
         return true;
     }
 
     /**
      * 在Controller执行之后的DispatcherServlet之后执行
-     *
-     * @param request
-     * @param response
-     * @param handler
-     * @param modelAndView
-     * @throws Exception
      */
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        if ("/error".equals(request.getRequestURI())) {
-            // logger.info("客户端IP=[{}]，请求地址=[{}]，请求类型=[{}]",
-            //         ServletUtil.getClientIP(request),
-            //         request.getRequestURI(), request.getMethod());
-        } else {
+        if (!"/error".equals(request.getRequestURI())) {
             logger.info("客户端IP=[{}]，请求地址=[{}]，请求类型=[{}]，本次请求耗时={}ms",
                 ServletUtil.getClientIP(request),
                 request.getRequestURI(), request.getMethod(),
-                System.currentTimeMillis() - timer);
+                System.currentTimeMillis() - timer.get());
         }
+        timer.remove();
+        HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
     }
 
 }

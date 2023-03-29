@@ -10,6 +10,8 @@ import cn.xiaosm.cloud.core.admin.entity.dto.LoginUserDTO;
 import cn.xiaosm.cloud.core.admin.service.RoleService;
 import cn.xiaosm.cloud.core.admin.service.UserService;
 import cn.xiaosm.cloud.common.annotation.Api;
+import cn.xiaosm.cloud.security.annotation.Decrypt;
+import cn.xiaosm.cloud.security.annotation.Encrypt;
 import cn.xiaosm.cloud.security.entity.TokenType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -42,7 +44,7 @@ public class LoginController {
     private static LoginUser PUBLIC_LOGIN = null;
 
     @PostMapping("login")
-    public RespBody login(@RequestBody LoginUserDTO user, HttpServletResponse response) {
+    public RespBody login(@Decrypt LoginUserDTO user, HttpServletResponse response) {
         if ("guest".equals(user.getUsername()) && null != PUBLIC_LOGIN) {
             return publicLogin(user, response);
         }

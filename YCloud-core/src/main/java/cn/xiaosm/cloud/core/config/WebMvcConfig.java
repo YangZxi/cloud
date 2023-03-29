@@ -10,12 +10,15 @@ package cn.xiaosm.cloud.core.config;
 
 import cn.xiaosm.cloud.common.annotation.YAdmin;
 import cn.xiaosm.cloud.core.admin.entity.dto.MenuDTO;
+import cn.xiaosm.cloud.core.config.security.MyHandlerMethodArgumentResolver;
 import cn.xiaosm.cloud.core.factory.BaseEnumConverterFactory;
 import cn.xiaosm.cloud.core.interceptor.LogInterceptor;
 import cn.xiaosm.cloud.core.interceptor.AdminInterceptor;
 import cn.xiaosm.cloud.common.annotation.Api;
 import cn.xiaosm.cloud.core.admin.service.MenuService;
+import cn.xiaosm.cloud.core.interceptor.MainInterceptor;
 import lombok.extern.log4j.Log4j2;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.server.ConfigurableWebServerFactory;
 import org.springframework.boot.web.server.ErrorPage;
@@ -25,11 +28,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * 〈拦截器配置文件〉
@@ -42,19 +45,16 @@ import java.util.List;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
-    // @Autowired
-    // ServletContext servletContext;
-    //
-    // public WebMvcConfig(ServletContext context) {
-    //     context.setAttribute("TITLE", "\uD83C\uDF31-Admin");
-    //     log.info("加载网站配置完成");
-    // }
     @Autowired
     MenuService menuService;
 
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        resolvers.add(new MyHandlerMethodArgumentResolver());
+    }
+
     /**
      * 视图控制器
-     * @param registry
      */
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
@@ -75,46 +75,39 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     /**
      * 静态资源处理器
-     * @param registry
      */
     @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-    }
-
-    /**
-     * 拦截器
-     * @param registry
-     */
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
+    public void addResourceHandlers(@NotNull ResourceHandlerRegistry registry) {
         /**
          - /**： 匹配所有路径 /**
          - /api/*：只匹配 /api下的内容，不匹配/api/v1/*
          - /api/v1/**：匹配 /api/v1/ 下的所有路径
          */
-        List<String> excludePath = new LinkedList<>();
-        excludePath.addAll(Arrays.asList(
-            "/**/*.html", "/**/*.json",
-            "/**/*.css", "/**/*.js", "/**/*.map",
-            "/**/*.woff", "/**/*.ttf",
-            "/**/*.png", "/**/*.jpg", "/**/*.ico",
-            "/**/*.gif", "/**/*.svg"
+        List<String> excludePath = new LinkedList<>(Arrays.asList(
+            "/**/*.html", "/**/*.json", "/**/*.css", "/**/*.js",
+            "/**/*.map", "/**/*.woff", "/**/*.ttf", "/**/*.png",
+            "/**/*.jpg", "/**/*.ico", "/**/*.gif", "/**/*.svg"
         ));
-        registry.addInterceptor(createMainInterceptor())
+    }
+
+    /**
+     * 拦截器
+     */
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        log.info("加载Main拦截器");
+        registry.addInterceptor(new MainInterceptor())
+            .addPathPatterns("/**");
+        log.info("加载日志记录拦截器");
+        registry.addInterceptor(new LogInterceptor())
             .addPathPatterns("/**")
-            .excludePathPatterns(excludePath);
-        registry.addInterceptor(createLogInterceptor())
-            .addPathPatterns("/**")
-            .excludePathPatterns(excludePath)
             .excludePathPatterns("/login");
         registry.addInterceptor(new AdminInterceptor())
-            .addPathPatterns("/admin/**")
-            .excludePathPatterns(excludePath);
+            .addPathPatterns("/admin/**");
     }
 
     /**
      * 转换器
-     * @param registry
      */
     @Override
     public void addFormatters(FormatterRegistry registry) {
@@ -129,18 +122,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
             // 前台接口前缀
             .addPathPrefix("/api", c -> c.isAnnotationPresent(Api.class))
         ;
-    }
-
-    @Bean
-    public AdminInterceptor createMainInterceptor() {
-        log.info("加载Main拦截器");
-        return new AdminInterceptor();
-    }
-
-    @Bean
-    public LogInterceptor createLogInterceptor() {
-        log.info("加载日志记录拦截器");
-        return new LogInterceptor();
     }
 
     @Bean

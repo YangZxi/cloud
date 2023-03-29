@@ -11,8 +11,6 @@ public class SerializeUtils {
 
     /**
      * 序列化对象
-     * @param o
-     * @return
      */
     public static byte[] serialize(Object o) {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -31,8 +29,6 @@ public class SerializeUtils {
 
     /**
      * 反序列化对象
-     * @param bytes
-     * @return
      */
     public static Object deserialize(byte[] bytes) {
         if (bytes == null) return null;

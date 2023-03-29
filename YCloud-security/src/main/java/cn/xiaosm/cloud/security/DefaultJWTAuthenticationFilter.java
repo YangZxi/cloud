@@ -55,7 +55,6 @@ public class DefaultJWTAuthenticationFilter extends OncePerRequestFilter {
         } else if (StrUtil.isNotBlank((token = request.getParameter("token"))) && DefaultSecurityUtils.verifyUUIDToken(token)) {
             /**
              * 获取请求参数中的token
-             *
              * 此权限暂时只拥有 文件预览
              * 注意！！！
              * 请求参数中的token和请求头中的 token 权限是不一样的

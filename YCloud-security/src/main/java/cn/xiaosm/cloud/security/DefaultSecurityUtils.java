@@ -1,13 +1,16 @@
 package cn.xiaosm.cloud.security;
 
 import cn.xiaosm.cloud.common.util.cache.CacheUtils;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.token.TokenService;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.pattern.PathPattern;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Young

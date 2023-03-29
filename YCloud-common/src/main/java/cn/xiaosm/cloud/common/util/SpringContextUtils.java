@@ -5,6 +5,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import org.springframework.web.util.pattern.PathPattern;
+
+import java.lang.annotation.Annotation;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * spring上下文工具
@@ -19,24 +28,21 @@ public class SpringContextUtils implements ApplicationContextAware {
  
     @Autowired
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
+        SpringContextUtils.applicationContext = applicationContext;
     }
 
     public static Object createClass(String className) {
-        Class clazz = null;
         try {
-            clazz = Class.forName(className);
+            Class<?> clazz = Class.forName(className);
             return getApplicationContext().getAutowireCapableBeanFactory().createBean(clazz);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        return clazz;
+        return null;
     }
 
     /**
      * 获取applicationContext
-     *
-     * @return
      */
     public static ApplicationContext getApplicationContext() {
         return applicationContext;
@@ -44,9 +50,6 @@ public class SpringContextUtils implements ApplicationContextAware {
  
     /**
      * 通过name获取 Bean.
-     *
-     * @param name
-     * @return
      */
     public static Object getBean(String name){
         return getApplicationContext().getBean(name);
@@ -54,10 +57,6 @@ public class SpringContextUtils implements ApplicationContextAware {
  
     /**
      * 通过class获取Bean.
-     *
-     * @param clazz
-     * @param <T>
-     * @return
      */
     public static <T> T getBean(Class<T> clazz){
         return getApplicationContext().getBean(clazz);
@@ -65,13 +64,9 @@ public class SpringContextUtils implements ApplicationContextAware {
  
     /**
      * 通过name,以及Clazz返回指定的Bean
-     *
-     * @param name
-     * @param clazz
-     * @param <T>
-     * @return
      */
-    public static <T> T getBean(String name,Class<T> clazz){
+    public static <T> T getBean(String name, Class<T> clazz){
         return getApplicationContext().getBean(name, clazz);
     }
+
 }
