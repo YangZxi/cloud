@@ -76,7 +76,7 @@ const path = ref("");
 const active = ref<number | string>($route.name as string);
 
 const refresh = ref<Function>(() => {
-  console.log("refresh");
+  console.esLog("refresh");
 });
 
 const changeNav = function(active: number | string) {

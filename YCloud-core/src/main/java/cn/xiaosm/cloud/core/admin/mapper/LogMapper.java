@@ -10,7 +10,7 @@
  */
 package cn.xiaosm.cloud.core.admin.mapper;
 
-import cn.xiaosm.cloud.core.admin.entity.Log;
+import cn.xiaosm.cloud.core.admin.entity.DbLog;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.springframework.stereotype.Repository;
 
@@ -23,6 +23,6 @@ import org.springframework.stereotype.Repository;
  * @since 1.0.0
  */
 @Repository
-public interface LogMapper extends BaseMapper<Log> {
+public interface LogMapper extends BaseMapper<DbLog> {
 
 }

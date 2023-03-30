@@ -90,10 +90,10 @@
       receiveMsg(e) {
         if (e.origin === this.$api.SERVER_BASE) {
           let res = JSON.parse(e.data);
-          console.log(res)
+          console.esLog(res)
           // 如果登录成功
           if (res.code == 200) {
-            console.log(this)
+            console.esLog(this)
             // 添加Token信息
             this.$store.commit("setToken", res.token);
             this.$router.push({
@@ -132,11 +132,11 @@
               }
               this.spinning = false;
             }).catch(err => {
-              // console.log(err)
+              // console.esLog(err)
               this.spinning = false;
             });
           }).catch(err => {
-            console.log(err);
+            console.esLog(err);
             $message.error("请输入账号和密码");
             this.spinning = false;
           });

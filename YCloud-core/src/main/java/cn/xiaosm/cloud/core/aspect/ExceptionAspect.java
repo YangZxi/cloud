@@ -3,7 +3,7 @@ package cn.xiaosm.cloud.core.aspect;
 import cn.hutool.extra.servlet.ServletUtil;
 import cn.xiaosm.cloud.common.util.ServletUtils;
 import cn.xiaosm.cloud.core.config.security.service.TokenService;
-import cn.xiaosm.cloud.core.admin.entity.Log;
+import cn.xiaosm.cloud.core.admin.entity.DbLog;
 import cn.xiaosm.cloud.core.admin.service.LogService;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -32,14 +32,14 @@ public class ExceptionAspect {
     //切面 后置通知
     @AfterReturning("logPointCut()")
     public void after(JoinPoint joinPoint) {
-        Log log = new Log();
+        DbLog dbLog = new DbLog();
 
-        log.setError(this.getStackTrace((Exception) joinPoint.getArgs()[0]));
-        log.setTitle(this.getFirstLine((Exception) joinPoint.getArgs()[0]));
-        log.setType("ERROR");
+        dbLog.setError(this.getStackTrace((Exception) joinPoint.getArgs()[0]));
+        dbLog.setTitle(this.getFirstLine((Exception) joinPoint.getArgs()[0]));
+        dbLog.setType("ERROR");
 
-        log.setIp(ServletUtil.getClientIP(ServletUtils.getRequest()));
-        logService.save(log);
+        dbLog.setIp(ServletUtil.getClientIP(ServletUtils.getRequest()));
+        logService.save(dbLog);
     }
 
     public String getFirstLine(Exception e) {

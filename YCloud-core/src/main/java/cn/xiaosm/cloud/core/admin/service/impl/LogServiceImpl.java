@@ -10,8 +10,9 @@
  */
 package cn.xiaosm.cloud.core.admin.service.impl;
 
+import cn.xiaosm.cloud.common.service.LoggerService;
 import cn.xiaosm.cloud.core.admin.service.LogService;
-import cn.xiaosm.cloud.core.admin.entity.Log;
+import cn.xiaosm.cloud.core.admin.entity.DbLog;
 import cn.xiaosm.cloud.core.admin.entity.vo.LogVO;
 import cn.xiaosm.cloud.core.admin.entity.vo.Pager;
 import cn.xiaosm.cloud.core.admin.mapper.LogMapper;
@@ -21,7 +22,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -35,39 +35,27 @@ import java.util.Date;
  * @since 1.0.0
  */
 @Service
-public class LogServiceImpl extends ServiceImpl<LogMapper, Log> implements LogService {
+public class LogServiceImpl extends ServiceImpl<LogMapper, DbLog> implements LogService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    LogMapper logMapper;
+    LoggerService loggerService;
 
-    public boolean save(Log log) {
-        log.setCreateTime(new Date());
-        this.addEntityAsync(log);
-        logger.debug("记录日志=>{}", log.getTitle());
+    public boolean save(DbLog dbLog) {
+        loggerService.insert(dbLog);
+        logger.debug("记录日志=>{}", dbLog.getTitle());
         return true;
     }
 
-    @Async
-    public void addEntityAsync(Log log) {
-        // 查询ip地址属于哪
-        // http://ip-api.com/json/114.114.114.114?lang=zh-CN
-        logMapper.insert(log);
-    }
-
     @Override
-    public Pager<Log> listOfPage(Pager<Log> pager, LogVO log) {
-        QueryWrapper<Log> wrapper = new QueryWrapper();
+    public Pager<DbLog> listOfPage(Pager<DbLog> pager, LogVO log) {
+        QueryWrapper<DbLog> wrapper = new QueryWrapper<>();
         WrapperUtils.bindSearch(wrapper, pager, "title");
         wrapper.eq("type", log.getType())
             .orderByDesc("create_time");
-        return this.listOfPage(pager, wrapper);
-    }
-
-    @Override
-    public Pager<Log> listOfPage(Pager<Log> pager, QueryWrapper<Log> wrapper) {
-        return this.page(pager, wrapper);
+        // return logMapper.selectPage(pager, wrapper);
+        return pager;
     }
 
 }

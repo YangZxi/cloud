@@ -10,7 +10,7 @@
  */
 package cn.xiaosm.cloud.core.admin.service;
 
-import cn.xiaosm.cloud.core.admin.entity.Log;
+import cn.xiaosm.cloud.core.admin.entity.DbLog;
 import cn.xiaosm.cloud.core.admin.entity.vo.LogVO;
 import cn.xiaosm.cloud.core.admin.entity.vo.Pager;
 
@@ -22,8 +22,10 @@ import cn.xiaosm.cloud.core.admin.entity.vo.Pager;
  * @create 2020/6/16
  * @since 1.0.0
  */
-public interface LogService extends BaseService<Log> {
+public interface LogService {
 
+    boolean save(DbLog dbLog);
 
-    Pager<Log> listOfPage(Pager<Log> page, LogVO log);
+    Pager<DbLog> listOfPage(Pager<DbLog> page, LogVO log);
+
 }

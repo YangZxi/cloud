@@ -5,7 +5,7 @@
   const ref1 = ref(null);
   const getHeight = computed({
     get: () => {
-      // if (ref1.value) console.log(ref1.value.$el);
+      // if (ref1.value) console.esLog(ref1.value.$el);
       // 此处计算 需要减去头部的 头部的 110 和面包屑的 30
       return ref1.value ? ref1.value.$el.clientHeight - 145 + "px" : null;
     },
@@ -17,7 +17,7 @@
 - [x] 在`src\views\Explore.vue`中，不能将string复制给string[]
 ``` javascript
 const om = onMounted(() => {
-  console.log(useRoute().params)
+  console.esLog(useRoute().params)
   expolerPath.value = useRoute().params.path;
 });
 ```

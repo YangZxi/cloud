@@ -250,10 +250,10 @@ if (setRefresh) {
 }
 
 onMounted(() => {
-  // console.log($route);
+  // console.esLog($route);
   explorerPath.value = $route.query.path ? ($route.query.path as string).split("/") : [];
   intoPath(null);
-  // if (tableOperation.value) console.log(tableOperation.value);
+  // if (tableOperation.value) console.esLog(tableOperation.value);
   // 此处计算 需要减去头部的 头部的 110 和面包屑的 30
 });
 

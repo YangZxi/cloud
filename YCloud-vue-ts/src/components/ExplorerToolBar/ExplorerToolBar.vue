@@ -167,7 +167,7 @@ const props = defineProps({
   clickBread: {
     type: Function,
     default: () => {
-      console.log(null);
+      console.esLog(null);
     }
   }
 });
@@ -224,7 +224,7 @@ const makeDirHandler = function(fileName: string) {
     name: fileName,
     type: popselect.value
   }).then((res) => {
-    console.log(res);
+    console.esLog(res);
     refresh();
     // 如果是文件类型，将在文件创建成功后打开编辑器
     if (popselect.value === "file") {
@@ -261,7 +261,7 @@ const customRequest = ({
     });
   }
   formData.append("file", file.file as File);
-  console.log(data);
+  console.esLog(data);
   axios.post(action as string, formData, {
     method: "POST",
     withCredentials,

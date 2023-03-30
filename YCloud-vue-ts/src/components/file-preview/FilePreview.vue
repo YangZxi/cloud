@@ -50,7 +50,7 @@ const getUrl = async (id) => {
   let u = "";
   await props.api(id).then(url => {
     u = url;
-    console.log(url);
+    console.esLog(url);
   });
   url.value = u;
   return u;

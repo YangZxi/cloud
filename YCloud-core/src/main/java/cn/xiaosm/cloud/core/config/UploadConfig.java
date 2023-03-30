@@ -21,7 +21,7 @@ import java.io.File;
 @Data
 @Component
 @ConfigurationProperties(
-    prefix = "spring.ycloud"
+    prefix = "cloud"
 )
 // @PropertySource(value = "classpath:app-config.yml", factory = YamlSourceFactory.class)
 public class UploadConfig {

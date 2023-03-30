@@ -77,8 +77,6 @@ public class SecurityAdapter extends WebSecurityConfigurerAdapter {
 
     /**
      * 如果某个地址无需拦截，在此进行放行
-     * @param web
-     * @throws Exception
      */
     @Override
     public void configure(WebSecurity web) throws Exception {

@@ -14,8 +14,9 @@
     <version>1.0</version>
 
     <properties>
+        <cloud.version>1.0</cloud.version>
         <mybatis-plus.version>3.5.1</mybatis-plus.version>
-        <mysql.version>8.0.17</mysql.version>
+        <mysql.version>8.0.28</mysql.version>
         <ali-pool.version>1.1.22</ali-pool.version>
         <justauth.version>1.15.6</justauth.version>
         <poi.version>4.1.2</poi.version>
@@ -28,12 +29,17 @@
         <dependency>
             <groupId>cn.xiaosm.cloud</groupId>
             <artifactId>cloud-common</artifactId>
-            <version>1.0</version>
+            <version>${cloud.version}</version>
         </dependency>
         <dependency>
             <groupId>cn.xiaosm.cloud</groupId>
             <artifactId>cloud-security</artifactId>
-            <version>1.0</version>
+            <version>${cloud.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.xiaosm.cloud</groupId>
+            <artifactId>cloud-logger</artifactId>
+            <version>${cloud.version}</version>
         </dependency>
 
         <!-- springboot thymeleaf -->

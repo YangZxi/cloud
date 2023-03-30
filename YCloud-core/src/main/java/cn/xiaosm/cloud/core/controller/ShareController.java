@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.xiaosm.cloud.common.annotation.LogRecord;
 import cn.xiaosm.cloud.common.entity.RespBody;
 import cn.xiaosm.cloud.common.exception.ShareException;
 import cn.xiaosm.cloud.common.util.RespUtils;
@@ -43,6 +44,7 @@ public class ShareController {
     PreviewController previewController;
 
     @RequestMapping("create")
+    @LogRecord("资源分享")
     public RespBody create(@RequestBody @Validated ShareDTO shareDTO) {
         ShareDTO dto = shareService.create(shareDTO);
         ShareVO vo = new ShareVO(dto);

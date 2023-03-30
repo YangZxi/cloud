@@ -10,6 +10,7 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -17,7 +18,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 /**
  * 项目启动类
  *
- * @copyright WWW.XIAOSM.CN
  * @author Young
  */
 @EnableAsync // 启用异步方法调用
@@ -31,9 +31,12 @@ public class Application {
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
-        FileTypeUtil.removeFileType("52494646");
         loadMenu();
         // loadTask();
+    }
+
+    private static void loadLogService() {
+
     }
 
     /**

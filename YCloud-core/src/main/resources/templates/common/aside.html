@@ -64,9 +64,9 @@
     methods: {
       handleClick({key, keyPath}) {
         // window.location.href = `/admin/${key}`
-        console.log(keyPath)
+        console.esLog(keyPath)
         const path = keyPath.join("/");
-        console.log(path)
+        console.esLog(path)
         this.iframe.src = `/admin/${path}`;
         window.history.pushState({}, "111", `#${path}`)
       }

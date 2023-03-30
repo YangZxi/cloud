@@ -1,6 +1,7 @@
 package cn.xiaosm.cloud.core.controller;
 
 import cn.hutool.core.util.IdUtil;
+import cn.xiaosm.cloud.common.annotation.LogRecord;
 import cn.xiaosm.cloud.common.entity.RespBody;
 import cn.xiaosm.cloud.common.util.RespUtils;
 import cn.xiaosm.cloud.core.config.security.service.TokenService;

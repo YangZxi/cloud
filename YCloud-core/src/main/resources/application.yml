@@ -1,10 +1,6 @@
 server:
   port: 8080
 spring:
-  ycloud:
-    local-path: C:\Users\Young\Desktop\local\
-    chunk-path: C:\Users\Young\Desktop\chunk\
-    max-upload-size: 120MB
   file-storage: #文件存储配置
     default-platform: local #默认使用的存储平台
     thumbnail-suffix: ".min.jpg" #缩略图后缀，例如【.min.jpg】【.png】
@@ -66,5 +62,8 @@ logging:
   level:
     cn.xiaosm.cloud.mapper: debug
 
+## 项目自定义配置
 cloud:
-  da: ABC
+  local-path: C:\Users\Young\Desktop\cloud\local\
+  chunk-path: C:\Users\Young\Desktop\cloud\chunk\
+  max-upload-size: 120MB

@@ -1,0 +1,1 @@
+System.register(["./index-legacy.ef81fb63.js","./_plugin-vue_export-helper-legacy.649209c3.js"],(function(e,t){"use strict";var n,r,c,u,i,l;return{setters:[e=>{n=e.c,r=e.f,c=e.b,u=e.o,i=e.ce},e=>{l=e._}],execute:function(){const t={},s=c("div",null," 123 ",-1);e("default",l(t,[["render",function(e,t){const c=i;return u(),n("div",null,[r(c,{title:"主页"}),s])}]]))}}}));

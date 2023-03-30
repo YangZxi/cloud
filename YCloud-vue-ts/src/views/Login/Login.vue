@@ -162,7 +162,7 @@ const {
 // // const receiveMsg = function (e) {
 // //   if (e.origin === $api.SERVER_BASE) {
 // //     let res = JSON.parse(e.data);
-// //     console.log(res)
+// //     console.esLog(res)
 // //     // 如果登录成功
 // //     if (res.code == 200) {
 // //       // 添加Token信息

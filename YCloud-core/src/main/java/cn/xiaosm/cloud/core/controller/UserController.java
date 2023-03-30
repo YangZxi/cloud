@@ -1,5 +1,6 @@
 package cn.xiaosm.cloud.core.controller;
 
+import cn.xiaosm.cloud.common.annotation.LogRecord;
 import cn.xiaosm.cloud.common.entity.RespBody;
 import cn.xiaosm.cloud.common.util.RespUtils;
 import cn.xiaosm.cloud.common.annotation.Api;
@@ -24,6 +25,7 @@ public class UserController {
      * 根据 Token 获取当前登录用户的信息
      */
     @GetMapping("info")
+    @LogRecord("获取用户信息")
     @Encrypt
     public RespBody userInfo() {
         return RespUtils.success(SecurityUtils.getLoginUser());

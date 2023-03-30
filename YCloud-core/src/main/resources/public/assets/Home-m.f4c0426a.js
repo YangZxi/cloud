@@ -1,0 +1,1 @@
+import{c as o,f as c,b as t,o as n,ce as s}from"./index.6d4055d0.js";import{_ as a}from"./_plugin-vue_export-helper.cdc0426e.js";const r={},_=t("div",null," 123 ",-1);function d(l,f){const e=s;return n(),o("div",null,[c(e,{title:"\u4E3B\u9875"}),_])}const p=a(r,[["render",d]]);export{p as default};

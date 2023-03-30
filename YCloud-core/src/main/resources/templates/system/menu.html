@@ -312,7 +312,7 @@
     },
     methods: {
       searchHandler() {
-        console.log(this.modelForm)
+        console.esLog(this.modelForm)
       },
       /**
        * 清空表单
@@ -323,7 +323,7 @@
         })
       },
       statusChange(value) {
-        // console.log(value);
+        // console.esLog(value);
         if (value.status != 1) {
           this.$alert("是否将当前" + value.name + "设置为禁用状态，这将会影响其所有子菜单", "禁用菜单", {
             distinguishCancelAndClose: true,
@@ -370,7 +370,7 @@
       },
       // 表格行被选择事件
       rowSelect(selection, row) {
-        console.log(selection, row);
+        console.esLog(selection, row);
         // this.table.row = row;
       },
       //
@@ -382,7 +382,7 @@
        */
       baseRequest(data) {
         return this.method(this.API, data).then(res => {
-          console.log(res)
+          console.esLog(res)
           if (res.code == 200) {
             // this.modelForm = {type: 1, order: 3, status: 1}
             this.dialog.visible = false;
@@ -439,8 +439,8 @@
           cancelButtonText: '取消'
         }).then(() => {
           this.method = $axios.delete;
-          console.log("删除了")
-          console.log(rows)
+          console.esLog("删除了")
+          console.esLog(rows)
           if (Array.isArray(rows)) {
             this.baseRequest(rows.map(el => el.id));
           } else {
@@ -459,7 +459,7 @@
        * @param {Object} type
        */
       submitHandler(type) {
-        console.log(this.modelForm)
+        console.esLog(this.modelForm)
         this.$refs["modelForm"].validate((valid) => {
           if (valid) {
             this.baseRequest(this.modelForm);
@@ -472,7 +472,7 @@
       // 这下面是关于表单的方法
       //
       typeChange(val) {
-        console.log(val)
+        console.esLog(val)
         // this.type = val;
       },
       /**

@@ -160,7 +160,7 @@ const moveOrCopyDialog = reactive({
       bucketName: bucket.name,
       type: "dir"
     }).then((data) => {
-      console.log(data);
+      console.esLog(data);
       data.forEach((el: any) => {
         el.isLeaf = false;
       });
@@ -193,10 +193,10 @@ const editorRef = ref();
 const tableRef = ref(null);
 const tableHeight = ref(500);
 onMounted(() => {
-  // console.log($route);
+  // console.esLog($route);
   explorerPath.value = $route.query.path ? ($route.query.path as string).split("/") : [];
   intoPath(null);
-  // if (tableOperation.value) console.log(tableOperation.value);
+  // if (tableOperation.value) console.esLog(tableOperation.value);
   // 此处计算 需要减去头部的 头部的 110 和面包屑的 30
   nextTick(() => {
     tableHeight.value = tableRef.value ? tableRef.value.$el.clientHeight : 500;
@@ -275,7 +275,7 @@ const options = [
 ];
 const handleSelect = function() {
   showMenu.value = false;
-  // console.log("handleSelect");
+  // console.esLog("handleSelect");
 };
 
 const onClickoutside = function() {
@@ -331,7 +331,7 @@ const columns = readonly([
           onClick: (e: MouseEvent) => {
             e.stopPropagation();
             if (row.type === "dir") {
-              console.log(row.name);
+              console.esLog(row.name);
               intoPath({
                 path: row.name,
                 parentId: row.id
