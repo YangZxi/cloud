@@ -13,11 +13,9 @@
     <version>1.0</version>
 
     <dependencies>
-
         <dependency>
             <groupId>cn.xiaosm.cloud</groupId>
             <artifactId>cloud-common</artifactId>
-            <version>1.0</version>
         </dependency>
     </dependencies>
 </project>
