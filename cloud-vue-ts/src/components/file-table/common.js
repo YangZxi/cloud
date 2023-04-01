@@ -1,5 +1,5 @@
 import { h } from "vue";
-import YIcon from "@/components/mie-ui/YIcon";
+import CIcon from "@/components/mie-ui/CIcon";
 
 const types = {
   image: {
@@ -38,7 +38,7 @@ export const fileIconName = function(type = "FILE") {
 
 export const fileIcon = function(type = "file", size = 13) {
   return h(
-    YIcon,
+    CIcon,
     {
       name: fileIconName(type),
       size,

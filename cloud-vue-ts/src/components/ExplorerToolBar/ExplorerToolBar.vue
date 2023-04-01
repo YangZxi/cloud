@@ -3,7 +3,7 @@
     id="tableOperation"
   >
     <div style="display: flex;column-gap: 15px;">
-      <YUploader
+      <CUploader
         :upload-data="{
           'bucketName': props.name,
           'path': props.path.join('/')
@@ -31,7 +31,7 @@
           </template>
           上传
         </n-button>
-      </YUploader>
+      </CUploader>
       <n-dropdown
         trigger="click"
         :options="popselect.options"
@@ -108,7 +108,7 @@
         当前用户为共享账户，您上传的文件将对所有人可见，请勿上传敏感数据
       </div>
     </div>
-    <YFilePath
+    <CFilePath
       :name="props.name"
       :path="props.path"
       :click-bread="props.clickBread"
@@ -141,7 +141,7 @@
 </template>
 
 <script setup lang="ts">
-import YFilePath from "./FilePath.vue";
+import CFilePath from "./FilePath.vue";
 import { h, inject, reactive } from "vue";
 import { user } from "@/store/user";
 import { axios } from "@/http/XMLHttpRequest";
@@ -149,8 +149,8 @@ import { createFile } from "@/http/Explore";
 // import YButton from "@/components/YButton.vue"
 import type { AxiosRequestConfig } from "axios";
 import type { UploadCustomRequestOptions } from "naive-ui";
-import YIcon from "@/components/mie-ui/YIcon.vue";
-import YUploader from "@/components/mie-ui/YUploader/YUploader.vue";
+import CIcon from "@/components/mie-ui/CIcon.vue";
+import CUploader from "@/components/mie-ui/CUploader/CUploader.vue";
 
 const showEditor = inject<Function>("showEditor");
 const props = defineProps({
@@ -178,11 +178,11 @@ const popselect = reactive({
     {
       key: "file",
       label: "创建文件",
-      icon: () => h(YIcon, { name: "fa-file-circle-plus" })
+      icon: () => h(CIcon, { name: "fa-file-circle-plus" })
     }, {
       key: "dir",
       label: "创建目录",
-      icon: () => h(YIcon, { name: "fa-folder-plus" })
+      icon: () => h(CIcon, { name: "fa-folder-plus" })
     }
   ],
   handleSelect(key: string) {

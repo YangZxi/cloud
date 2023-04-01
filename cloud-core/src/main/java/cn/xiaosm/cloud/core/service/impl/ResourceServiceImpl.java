@@ -13,6 +13,7 @@ import cn.xiaosm.cloud.core.config.security.SecurityUtils;
 import cn.xiaosm.cloud.core.entity.Bucket;
 import cn.xiaosm.cloud.core.entity.Resource;
 import cn.xiaosm.cloud.core.entity.dto.ResourceDTO;
+import cn.xiaosm.cloud.core.entity.dto.ResourceParentDTO;
 import cn.xiaosm.cloud.core.entity.dto.UploadDTO;
 import cn.xiaosm.cloud.core.mapper.ResourceMapper;
 import cn.xiaosm.cloud.core.service.ChunkService;
@@ -642,5 +643,22 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 
         return null;
     }
+
+    @Override
+    public List<Resource> search(ResourceDTO dto) {
+        Long userId = SecurityUtils.getLoginUserId();
+        Bucket bucket = bucketService.getBucket(dto.getBucketName());
+        Assert.notNull(bucket, "bucket不存在");
+        List<Resource> list = resourceMapper.selectAllByName(dto.getName(), userId, bucket.getId());
+        // 获取每个资源的逻辑路径
+        for (Resource resource : list) {
+            List<ResourceParentDTO> r = resourceMapper.selectAllParent(resource.getId());
+            String path = r.get(0).getViewPath();
+            int i = path.lastIndexOf("/");
+            resource.setPath(i == -1 ? "" : path.substring(0, i));
+        }
+        return list;
+    }
+
 
 }

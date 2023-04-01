@@ -1,6 +1,6 @@
 package cn.xiaosm.cloud.core.config;
 
-import cn.xiaosm.cloud.logger.EsLoggerServiceImpl;
+import cn.xiaosm.cloud.core.admin.service.impl.DbLoggerServiceImpl;
 import cn.xiaosm.cloud.common.service.LoggerService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +15,7 @@ public class BeanConfig {
 
     @Bean
     public LoggerService getLoggerService() {
-        return new EsLoggerServiceImpl();
+        return new DbLoggerServiceImpl();
     }
 
 }

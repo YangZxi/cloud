@@ -3,7 +3,8 @@ import API from "./API"
 import { SERVER_PREVIEW } from "./API"
 import { user } from '@/store/user'
 import { download as DL } from "@/utils/Tools"
-import $router from "@/router/index"
+import $router from "@/router/index";
+import { Resource } from "@/type/type";
 
 const isMobile = window.sessionStorage.getItem("isMobile");
 
@@ -133,6 +134,16 @@ export function uploadCheck(data: any) {
 export function mergeChunk(data: any) {
   return http.post(API("/resource/upload/merge"), data).then((res) => {
     return res;
+  });
+}
+
+/**
+ * 文件搜索
+ * @param data 
+ */
+export function search(data: any): Promise<Resource[]> {
+  return http.post(API("/resource/search"), data).then(res => {
+    return res.data;
   });
 }
 

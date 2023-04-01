@@ -116,7 +116,7 @@
 </template>
 
 <script setup lang="ts">
-import ExplorerHeader from "@/components/ExplorerHeader.vue";
+import ExplorerHeader from "@/components/ExploreHeader/ExplorerHeader.vue";
 import ExplorerToolBar from "@/components/ExplorerToolBar/ExplorerToolBar.vue";
 import FileDetails from "./Details.vue";
 import TextEditor from "@/components/TextEditor/TextEditor.vue";
@@ -160,7 +160,6 @@ const moveOrCopyDialog = reactive({
       bucketName: bucket.name,
       type: "dir"
     }).then((data) => {
-      console.esLog(data);
       data.forEach((el: any) => {
         el.isLeaf = false;
       });
@@ -227,6 +226,7 @@ const options = [
       onClick: () => {
         // 通过保存的文件进行操作
         moveOrCopyDialog.visible = true;
+        moveOrCopyDialog.title = "复制";
         moveOrCopyDialog.operator = "copy";
       }
     }
@@ -248,6 +248,7 @@ const options = [
       onClick: () => {
         // 通过保存的文件进行操作
         moveOrCopyDialog.visible = true;
+        moveOrCopyDialog.title = "移动";
         moveOrCopyDialog.operator = "move";
       }
     }
@@ -331,7 +332,6 @@ const columns = readonly([
           onClick: (e: MouseEvent) => {
             e.stopPropagation();
             if (row.type === "dir") {
-              console.esLog(row.name);
               intoPath({
                 path: row.name,
                 parentId: row.id

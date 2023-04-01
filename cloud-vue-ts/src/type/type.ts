@@ -5,10 +5,17 @@ export interface User {
     username: string
 }
 
+export interface Bucket {
+    id: number,
+    name: string,
+    nameZh: string
+}
+
 export interface Resource {
     id: string,
     name: string,
     hash: string,
+    path?: string,
     dir: boolean,
     type: string,
     url: string,

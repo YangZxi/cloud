@@ -81,11 +81,16 @@ router.beforeEach((to, from, next) => {
   }
   else {
     if (to.name == "Login") { // 有登录信息，将保持原页面不进行跳转
-      // 不要太快了，不然体验不好
-      console.log("已登录了")
-      next(false);
-      // setTimeout(() => {
-      // }, 1500);
+      if (!from.name || from.name === "Login") {
+        next({ name: "Home" });
+      } else {
+        // 不要太快了，不然体验不好
+        console.log("已登录了");
+        next(false);
+        // setTimeout(() => {
+        // }, 1500);
+      }
+      
     } else {
       if (to.path === null || to.name === null) {
         next({ name: "NotFound" });

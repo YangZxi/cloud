@@ -31,4 +31,27 @@
         </if>
     </select>
 
+    <select id="selectAllParent" resultType="ResourceParentDTO">
+        WITH RECURSIVE allParent AS (
+            SELECT id,
+                   `name`,
+                   parent_id,
+                   1 AS level,
+                   `name` AS view_path
+            FROM resource
+            WHERE id = #{id}
+
+            UNION ALL
+
+            SELECT p.id,
+                   p.name,
+                   p.parent_id,
+                   t.level + 1,
+                   CONCAT(p.name, '/', view_path) as view_path
+            FROM resource p
+                     JOIN allParent t ON t.parent_id = p.id
+        )
+        SELECT * FROM allParent ORDER BY `level` DESC
+    </select>
+
 </mapper>

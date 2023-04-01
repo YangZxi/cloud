@@ -52,4 +52,6 @@ public interface ResourceService extends BaseService<Resource> {
     boolean copy(List<Resource> children, Resource target);
 
     ResourceDTO offlineDownload(String url);
+
+    List<Resource> search(ResourceDTO dto);
 }

@@ -65,7 +65,7 @@ public class LocalBucketServiceImpl extends ServiceImpl<BucketMapper, Bucket> im
 
     @Override
     public Bucket getBucket(String name) {
-        Bucket bucket = this.getBucket(name, SecurityUtils.getLoginUser().getId());
+        Bucket bucket = this.getBucket(name, SecurityUtils.getLoginUserId());
         if (Objects.isNull(bucket)) throw new ResourceException(name + "-仓库不存在");
         return bucket;
     }

@@ -1,6 +1,7 @@
 package cn.xiaosm.cloud.core.controller;
 
 import cn.hutool.core.date.DateUnit;
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.xiaosm.cloud.common.entity.RespBody;
@@ -36,6 +37,13 @@ public class ResourceController {
     ResourceService resourceService;
     @Autowired
     ChunkService chunkService;
+
+    @RequestMapping("search")
+    public RespBody search(@RequestBody ResourceDTO dto) {
+        if (StrUtil.isBlank(dto.getName())) return RespUtils.fail("文件名不可以为空");
+        if (StrUtil.isBlank(dto.getBucketName())) return RespUtils.fail("仓库名不可以为空");
+        return RespUtils.success(resourceService.search(dto));
+    }
 
     /**
      * 获取文件信息

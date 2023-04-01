@@ -11,6 +11,7 @@
 package cn.xiaosm.cloud.core.mapper;
 
 import cn.xiaosm.cloud.core.entity.Resource;
+import cn.xiaosm.cloud.core.entity.dto.ResourceParentDTO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
@@ -51,4 +52,13 @@ public interface ResourceMapper extends BaseMapper<Resource> {
 
     List<Resource> selectByIdsAndUser(String ids, Long userId);
 
+    @Select("SELECT * FROM resource WHERE `name` like concat('%', #{name,jdbcType=VARCHAR}, '%') AND user_id = #{userId} AND bucket_id = #{bucketId}")
+    List<Resource> selectAllByName(String name, long userId, int bucketId);
+
+    /**
+     * 获取指定文件的所有父级
+     * @param id
+     * @return
+     */
+    List<ResourceParentDTO> selectAllParent(Long id);
 }

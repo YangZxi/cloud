@@ -1,8 +1,9 @@
-import { reactive, ref, inject } from "vue";
+import { reactive, ref, inject, watch } from "vue";
 import API from "@/http/Explore";
 import type { Resource } from "@/type/type";
 import { useRoute } from "vue-router";
 import shareHttp from "@/http/Share";
+import store from "@/store/temp";
 
 interface ShareDialogType {
   [key: string]: any
@@ -82,6 +83,14 @@ export default {
       name: $route.params.name || "local",
       nameZh: "本地存储"
     });
+    store().setBucket(bucket);
+
+    watch(() => $route.query, (nv, ov) => {
+      if (ov === undefined) return;
+      if (nv.path === ov.path || !nv.fileId) return;
+      explorerPath.value = $route.query.path ? ($route.query.path as string).split("/") : [];
+      intoPath(null);
+    }, { immediate: true });
 
     /* table中的文件列表数据 */
     const fileList = ref<Resource[]>([]);
@@ -130,7 +139,7 @@ export default {
         }
       }
       path = explorerPath.value.join("/");
-      API.listResource({
+      return API.listResource({
         bucketName: bucket.name,
         path,
         parentId

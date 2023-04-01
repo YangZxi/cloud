@@ -33,10 +33,10 @@
             <groupId>cn.xiaosm.cloud</groupId>
             <artifactId>cloud-security</artifactId>
         </dependency>
-        <dependency>
-            <groupId>cn.xiaosm.cloud</groupId>
-            <artifactId>cloud-logger</artifactId>
-        </dependency>
+        <!--<dependency>-->
+        <!--    <groupId>cn.xiaosm.cloud</groupId>-->
+        <!--    <artifactId>cloud-logger</artifactId>-->
+        <!--</dependency>-->
 
         <!-- springboot thymeleaf -->
         <dependency>
