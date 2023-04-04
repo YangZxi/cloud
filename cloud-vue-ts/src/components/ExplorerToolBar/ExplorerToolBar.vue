@@ -167,7 +167,7 @@ const props = defineProps({
   clickBread: {
     type: Function,
     default: () => {
-      console.esLog(null);
+      console.log(null);
     }
   }
 });
@@ -223,12 +223,12 @@ const makeDirHandler = function(fileName: string) {
     path: props.path.join("/"),
     name: fileName,
     type: popselect.value
-  }).then((res) => {
-    console.esLog(res);
+  }).then((resourceId) => {
+    console.log(resourceId);
     refresh();
     // 如果是文件类型，将在文件创建成功后打开编辑器
     if (popselect.value === "file") {
-      showEditor(res, fileName, "");
+      showEditor(resourceId, fileName, "");
     }
   }).catch(() => {
     renameDialog.status = "error";
@@ -261,7 +261,7 @@ const customRequest = ({
     });
   }
   formData.append("file", file.file as File);
-  console.esLog(data);
+  console.log(data);
   axios.post(action as string, formData, {
     method: "POST",
     withCredentials,

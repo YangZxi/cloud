@@ -1,7 +1,6 @@
 package cn.xiaosm.cloud.core.controller;
 
 import cn.hutool.core.date.DateUnit;
-import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.xiaosm.cloud.common.entity.RespBody;
@@ -144,9 +143,11 @@ public class ResourceController {
     public RespBody uploadCheck(UploadDTO dto) {
         System.out.println(dto.toString());
         Map<String, Object> data = new HashMap<>();
-        if (resourceService.existCurrentPath(dto)) {
-            data.put("uploaded",  true);
-            return RespUtils.success("文件已上传", data);
+        Resource r = resourceService.checkByHashOrNameInPath(dto);
+        if (r != null) {
+            data.put("uploaded", true);
+            resourceService.quickUpload(r.getId(), dto);
+            return RespUtils.success("文件上传成功", data);
         } else {
             data.put("uploaded",  false);
             data.put("uploadedChunks", chunkService.getUploaded(dto.getIdentifier()));
@@ -157,13 +158,15 @@ public class ResourceController {
     @PostMapping("upload")
     @LogRecord("文件上传")
     public RespBody upload(UploadDTO uploadDTO) {
-        if (uploadDTO.getFile() == null || uploadDTO.getFile().isEmpty()) return RespUtils.fail("文件不可以为空");
+        if (uploadDTO.getFile() == null
+            || uploadDTO.getFile().isEmpty()
+            || StrUtil.isBlank(uploadDTO.getIdentifier())) return RespUtils.fail("文件不可以为空");
         resourceService.upload(uploadDTO);
         return RespUtils.success("文件上传成功");
     }
 
     @PostMapping("upload/merge")
-    @LogRecord("文件上传")
+    @LogRecord("文件上传-合并操作")
     public RespBody uploadMerge(@RequestBody UploadDTO dto) {
         return RespUtils.success(resourceService.merge(dto) ? "文件上传成功" : "文件上传失败");
     }

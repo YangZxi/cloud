@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -36,6 +37,8 @@ public class JacksonConfig {
         module.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer());
         // 添加时间反序列化
         module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer());
+        // 全局将long转为String
+        module.addSerializer(Long.class, ToStringSerializer.instance);
         mapper.registerModule(module);
         return mapper;
     }

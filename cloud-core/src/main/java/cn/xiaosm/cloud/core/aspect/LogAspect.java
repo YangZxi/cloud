@@ -86,8 +86,7 @@ public class LogAspect {
             logger.info("{}", esLog);
             loggerService.insert(esLog);
         }
-        throw new ResourceException("123");
-        // return returnObj;
+        return returnObj;
     }
 
     public String getStackTrace(Throwable e) {

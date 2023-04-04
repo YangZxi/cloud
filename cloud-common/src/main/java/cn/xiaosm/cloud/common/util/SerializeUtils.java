@@ -1,5 +1,7 @@
 package cn.xiaosm.cloud.common.util;
 
+import cn.hutool.core.lang.Assert;
+
 import java.io.*;
 
 /**
@@ -13,16 +15,17 @@ public class SerializeUtils {
      * 序列化对象
      */
     public static byte[] serialize(Object o) {
+        Assert.isTrue(o instanceof Serializable, "对象没有实现序列化");
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
-        ObjectOutputStream oout = null;
+        ObjectOutputStream out = null;
         try {
-            oout = new ObjectOutputStream(bout);
-            oout.writeObject(o);
+            out = new ObjectOutputStream(bout);
+            out.writeObject(o);
             return bout.toByteArray();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            close(bout, oout);
+            close(bout, out);
         }
         return null;
     }
@@ -37,9 +40,7 @@ public class SerializeUtils {
         try {
             oin = new ObjectInputStream(in);
             return oin.readObject();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         } finally {
             close(in, oin);

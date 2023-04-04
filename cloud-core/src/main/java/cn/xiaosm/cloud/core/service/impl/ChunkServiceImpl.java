@@ -138,7 +138,7 @@ public class ChunkServiceImpl implements ChunkService {
         resource.setType(FileUtil.getType(dest));
         SpringContextUtils.getBean(ResourceService.class).save(resource);
         // 删除所有chunk，注：故意这么写的，为了不走事物，即时生效 // 先不删除，后期考虑怎么处理
-        // this.deleteByIds(chunks.stream().map(Chunk::getId).toList());
+        this.deleteByIds(chunks.stream().map(Chunk::getId).toList());
         log.info("分块上传，文件保存成功，文件id：{}", resource.getId());
         return true;
     }

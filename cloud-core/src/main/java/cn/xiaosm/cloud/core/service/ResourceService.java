@@ -35,6 +35,8 @@ public interface ResourceService extends BaseService<Resource> {
 
     File getLocalFile(Resource resource);
 
+    Resource quickUpload(long resourceId, UploadDTO dto);
+
     String upload(UploadDTO uploadDTO);
 
     Boolean merge(UploadDTO uploadDTO);
@@ -43,11 +45,11 @@ public interface ResourceService extends BaseService<Resource> {
 
     boolean checkNameAndNoExist(String fileName, String path, int bucketId);
 
-    boolean existCurrentPath(UploadDTO dto);
+    Resource checkByHashOrNameInPath(UploadDTO dto);
 
     ResourceDTO download(ResourceDTO resource);
 
-    String create(ResourceDTO resource);
+    Long create(ResourceDTO resource);
 
     ResourceDTO preview(ResourceDTO resourceDTO);
 

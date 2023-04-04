@@ -33,9 +33,13 @@ public class CacheUtils {
     // 缓存处理器
     private static CacheHandler handler;
 
+    public static boolean hasKey(String key) {
+        return handler.hasKey(key);
+    }
 
-    public static void set(String key, Object value) {
-        set(key, value, 0);
+
+    public static boolean set(String key, Object value) {
+        return set(key, value, 0);
     }
 
     /**
@@ -44,8 +48,8 @@ public class CacheUtils {
      * @param value
      * @param exp 到期时间 单位 毫秒
      */
-    public static void set(String key, Object value, long exp) {
-        handler.set(key, value, exp);
+    public static boolean set(String key, Object value, long exp) {
+        return handler.set(key, value, exp);
     }
 
     /**

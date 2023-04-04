@@ -1,5 +1,8 @@
 package cn.xiaosm.cloud.common.util.cache;
 
+import javax.validation.constraints.NotNull;
+import java.util.Map;
+
 /**
  * @author Young
  * @create 2021/5/8
@@ -7,7 +10,9 @@ package cn.xiaosm.cloud.common.util.cache;
  */
 public interface CacheHandler {
 
-    void set(String key, Object value, long exp);
+    boolean hasKey(String key);
+
+    boolean set(@NotNull String key, @NotNull Object value, long exp);
 
     Object get(String key);
 

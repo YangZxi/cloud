@@ -1,8 +1,11 @@
 package cn.xiaosm.cloud.common.util.cache;
 
 import cn.hutool.crypto.digest.MD5;
+import cn.hutool.json.JSONUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.SerializationException;
 
 import javax.annotation.PostConstruct;
 import java.util.concurrent.TimeUnit;
@@ -12,22 +15,28 @@ import java.util.concurrent.TimeUnit;
  * @create 2021/5/8
  * @since 1.0.0
  */
-public class RedisCache implements CacheHandler{
+public record RedisCache(RedisTemplate<String, Object> template) implements CacheHandler {
 
     @Autowired
-    private RedisTemplate<String, Object> template;
+    public RedisCache { }
 
     @PostConstruct
-    public void init() throws Exception{
+    public void init() throws Exception {
         String key = MD5.create().toString();
         this.set(key, "0", 0);
         this.delete(key);
     }
 
     @Override
-    public void set(String key, Object value, long exp) {
+    public boolean hasKey(String key) {
+        return Boolean.TRUE.equals(template.hasKey(key));
+    }
+
+    @Override
+    public boolean set(String key, Object value, long exp) {
         if (exp == 0) template.opsForValue().set(key, value);
         else template.opsForValue().set(key, value, exp, TimeUnit.SECONDS);
+        return true;
     }
 
     @Override
@@ -44,4 +53,5 @@ public class RedisCache implements CacheHandler{
     public void delete(String key) {
         template.delete(key);
     }
+
 }

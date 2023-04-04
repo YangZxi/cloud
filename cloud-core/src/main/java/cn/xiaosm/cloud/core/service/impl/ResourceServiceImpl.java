@@ -137,7 +137,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     }
 
     @Override
-    public String create(ResourceDTO resource) {
+    public Long create(ResourceDTO resource) {
         // 校验文件名
         if (!checkName(resource.getName())) throw new ResourceException("文件名不能包含：" + ILLEGAL_CHAR);
         // 查询当前仓库
@@ -189,7 +189,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             log.error("文件创建失败");
             throw new ResourceException("文件【" + resource.getName() + "】创建失败");
         }
-        return db.getHash();
+        return db.getId();
     }
 
     @Override
@@ -199,7 +199,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         wrapper.eq("id", dto.getId()).eq("user_id", SecurityUtils.getLoginUserId());
         Resource db = resourceMapper.selectOne(wrapper);
         // 如果不是属于自己的资源
-        Assert.isTrue(null != db, () -> new ResourceException("资源不存在"));
+        Assert.notNull(db, () -> new ResourceException("资源不存在"));
         // 判断文件是否属于可编辑类型
         Assert.isTrue(EditableType.isEditable(db.getType()), () -> new ResourceException("文件不可编辑"));
         // 获取File文件
@@ -448,6 +448,30 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     }
 
     /**
+     * 当数据库存在同样的文件，执行复制操作
+     * @return
+     */
+    @Override
+    public Resource quickUpload(long resourceId, UploadDTO dto) {
+        // 查询当前仓库
+        Bucket bucket = bucketService.getBucket(dto.getBucketName());
+        Long parentId = getIdByPath(bucket.getId(), dto.getPath());
+        if (null == parentId) throw new ResourceException(dto.getPath() + "目录不存在");
+        Resource db = resourceMapper.selectById(resourceId);
+        Resource resource;
+        Assert.notNull(db, "文件妙传失败");
+        resource = new Resource();
+        BeanUtils.copyProperties(db, resource);
+        resource.setId(null);
+        resource.setName(dto.getFilename());
+        resource.setUserId(bucket.getUserId());
+        resource.setParentId(parentId);
+        resource.setBucketId(bucket.getId());
+        resourceMapper.insert(resource);
+        return resource;
+    }
+
+    /**
      * 文件上传
      *
      * @param upload
@@ -462,15 +486,18 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         MultipartFile file = upload.getFile();
 
         try {
-            // 单文件上传
-            if (upload.getTotalChunks() == null || upload.getTotalChunks() <= 1) {
-                // 存储数据
-                this.save(upload, bucket, parentId);
-            } else { // 分块上传
-                if (chunkService.save(upload)) {
-
-                }
+            if (chunkService.save(upload)) {
+                log.info("文件分块上传成功：{}, {}/{}", upload.getIdentifier(), upload.getChunkNumber(), upload.getTotalChunks());
             }
+            // // 单文件上传
+            // if (upload.getTotalChunks() == null || upload.getTotalChunks() <= 1) {
+            //     // 存储数据
+            //     this.save(upload, bucket, parentId);
+            // } else { // 分块上传
+            //     if (chunkService.save(upload)) {
+            //         log.info("文件分块上传成功：{}, {}/{}", upload.getIdentifier(), upload.getChunkNumber(), upload.getTotalChunks());
+            //     }
+            // }
         } catch (Exception e) {
             log.error("文件上传失败");
             e.printStackTrace();
@@ -565,17 +592,14 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      * @return
      */
     @Override
-    public boolean existCurrentPath(UploadDTO dto) {
+    public Resource checkByHashOrNameInPath(UploadDTO dto) {
         // 查询当前仓库
         Bucket bucket = bucketService.getBucket(dto.getBucketName());
         Long parentId = getIdByPath(bucket.getId(), dto.getPath());
         if (null == parentId) throw new ResourceException(dto.getPath() + "目录不存在");
         // 如果存储目录下文件不存在
-        if (getAndCheckHashInPath(dto.getIdentifier(), dto.getFilename(), parentId, bucket.getId()) == null) {
-            return false;
-        }
         // 查询数据库中是否有同样的文件
-        return true;
+        return getAndCheckHashInPath(dto.getIdentifier(), dto.getFilename(), parentId, bucket.getId());
     }
 
     /**
@@ -592,10 +616,11 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     public Resource getAndCheckHashInPath(String hash, String filename, Long parentId, Integer bucketId) {
         // 检查是否同名
         try {
-            Assert.isTrue(this.checkNameAndUnique(filename, parentId, bucketId), "文件名校验失败");
+            Assert.isTrue(this.checkNameAndUnique(filename, parentId, bucketId), "文件名含有非法字符");
         } catch (ResourceException e) {
             throw e;
         }
+        // 检查当前文件在数据库中是否存在
         Resource db = resourceMapper.selectByHash(hash);
         if (null != db) {
             /**
