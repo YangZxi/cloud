@@ -19,7 +19,7 @@ export default {
     }
   },
   mounted() {
-    console.esLog(this);
+    console.log(this);
   }
 }
 </script>

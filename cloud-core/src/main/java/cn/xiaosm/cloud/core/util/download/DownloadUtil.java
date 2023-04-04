@@ -1,4 +1,4 @@
-package cn.xiaosm.cloud.core.util;
+package cn.xiaosm.cloud.core.util.download;
 
 import cn.hutool.core.util.HexUtil;
 import cn.xiaosm.cloud.core.entity.Range;
@@ -75,10 +75,6 @@ public class DownloadUtil {
         } finally {
             close(randomAccessFile, out);
         }
-    }
-
-    public static void offlineDownload(String url, Long userId) {
-        new DownloadService(url, userId).download();
     }
 
     private static String makeEtag(File file) {

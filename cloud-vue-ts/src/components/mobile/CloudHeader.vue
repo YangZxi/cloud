@@ -104,7 +104,7 @@ const logout = function() {
 };
 
 const mineHandler = function() {
-  console.esLog(1);
+  console.log(1);
 };
 
 </script>

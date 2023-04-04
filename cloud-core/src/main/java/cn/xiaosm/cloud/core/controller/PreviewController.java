@@ -14,7 +14,7 @@ import cn.xiaosm.cloud.core.entity.Resource;
 import cn.xiaosm.cloud.core.entity.dto.ResourceDTO;
 import cn.xiaosm.cloud.core.service.ResourceService;
 import cn.xiaosm.cloud.core.service.ShareService;
-import cn.xiaosm.cloud.core.util.DownloadUtil;
+import cn.xiaosm.cloud.core.util.download.DownloadUtil;
 import cn.xiaosm.cloud.security.annotation.AnonymousAccess;
 import cn.xiaosm.cloud.security.entity.AuthUser;
 import cn.xiaosm.cloud.security.entity.TokenType;

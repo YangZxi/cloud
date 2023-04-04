@@ -21,10 +21,6 @@ spring:
     filters: stat
     druid:
       filters: stat,wall
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
   redis:
     host: 127.0.0.1
     port: 6379
@@ -45,6 +41,8 @@ spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
+  main:
+    allow-circular-references: true
 
 # 使用 mybatis-plus 配置
 mybatis-plus:

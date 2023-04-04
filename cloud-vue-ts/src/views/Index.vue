@@ -16,7 +16,7 @@ onMounted(() => {
 });
 
 // const appHeight = document.getElementById("appWindow")!.clientHeight;
-// console.esLog(appHeight)
+// console.log(appHeight)
 // const menuTheme = {
 //   heightMedium: '40px',
 //   textColor: 'rgba(24, 127, 231, 1)'

@@ -18,6 +18,8 @@ import cn.xiaosm.cloud.core.entity.dto.UploadDTO;
 import cn.xiaosm.cloud.core.mapper.ResourceMapper;
 import cn.xiaosm.cloud.core.service.ChunkService;
 import cn.xiaosm.cloud.core.service.ResourceService;
+import cn.xiaosm.cloud.core.util.download.DlTaskInfo;
+import cn.xiaosm.cloud.core.util.download.DownloadService;
 import cn.xuyanwu.spring.file.storage.FileStorageService;
 import cn.xuyanwu.spring.file.storage.platform.LocalFileStorage;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -33,8 +35,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -54,7 +54,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     /**
      * 文件名不可用字符
      */
-    private final static String ILLEGAL_CHAR = "\\/:*\"<>|";
+    public final static String ILLEGAL_CHAR = "\\/:*\"<>|";
     private final static Long ROOT_ID = 0l;
 
     @Autowired
@@ -65,6 +65,8 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     ResourceMapper resourceMapper;
     @Autowired
     FileStorageService fileStorageService;
+    @Autowired
+    DownloadService downloadService;
 
     /**
      * 通过 id 获取当前登录用户的资源
@@ -405,6 +407,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         return new File(basePath, resource.getPath());
     }
 
+    @Transactional
     public boolean save(UploadDTO dto, Bucket bucket, @NonNull Long parentId) throws IOException {
         MultipartFile file = dto.getFile();
         // 根据 hash 获取数据库数据
@@ -519,7 +522,8 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      * @param fileName
      * @return
      */
-    private boolean checkName(String fileName) {
+    @Override
+    public boolean checkName(String fileName) {
         if (StrUtil.isBlank(fileName)) return false;
         for (int i = 0; i < fileName.length(); i++) {
             if (ILLEGAL_CHAR.indexOf(fileName.charAt(i)) != -1) return false;
@@ -542,6 +546,16 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             if (fileName.equals(el.getName())) throw new ResourceException("当前目录下已有同名文件");
         });
         return true;
+    }
+
+    public boolean checkNameAndNoExist(String fileName, String path, int bucketId) {
+        Long parentId = this.getIdByPath(bucketId, path);
+        try {
+            this.checkNameAndUnique(fileName, parentId, bucketId);
+            return true;
+        } catch (ResourceException e) {
+            return false;
+        }
     }
 
     /**
@@ -626,22 +640,10 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     }
 
     @Override
-    public ResourceDTO offlineDownload(String url) {
-        File file = new File("C:\\Users\\Young\\Desktop\\local", "download");
-        if (!file.exists()) file.mkdir();
-        long length = 0;
-        try {
-            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-            connection.connect();
-            length = connection.getContentLengthLong();
-            connection.disconnect();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        // long len = Long.valueOf(res.header("Content-length"));
-        // System.out.println("长度：" + len);
-
-        return null;
+    public DlTaskInfo offlineDownload(String name, String url, int bucketId) {
+        DlTaskInfo taskInfo = downloadService.build(name, url, 1L, bucketId).start();
+        System.out.println(taskInfo.progress());
+        return taskInfo;
     }
 
     @Override
@@ -660,5 +662,23 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         return list;
     }
 
-
+    @Override
+    public Resource createDownloadDir(long userId, int bucketId) {
+        QueryWrapper<Resource> wrapper = new QueryWrapper<Resource>();
+        wrapper.eq("name", "download");
+        wrapper.eq("bucket_id", bucketId);
+        Resource db = resourceMapper.selectOne(wrapper);
+        if (db != null) {
+            return db;
+        }
+        Resource resource = new Resource();
+        resource.setName("download");
+        resource.setUserId(userId);
+        resource.setBucketId(bucketId);
+        resource.setType("dir");
+        resource.setDir(true);
+        resource.setParentId(0L);
+        resourceMapper.insert(resource);
+        return resource;
+    }
 }

@@ -41,7 +41,7 @@ const lMap = {
 
 // watch(() => props.resource, (val) => {
 //   resource.value = props.resource;
-//   console.esLog("ref");
+//   console.log("ref");
 //   refreshCode();
 // });
 
@@ -50,14 +50,14 @@ onMounted(() => {
 });
 
 const refreshCode = function() {
-  console.esLog(props.resource, 1);
-  console.esLog(props.url, 2);
+  console.log(props.resource, 1);
+  console.log(props.url, 2);
   http.post(props.url).then(({ data }) => {
     code.value = data;
     language.value = lMap[resource.value.type];
   }).catch(err => {
     code.value = "源资源已被删除";
-    console.esLog(err);
+    console.log(err);
   });
 };
 

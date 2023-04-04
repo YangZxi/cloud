@@ -35,7 +35,7 @@ public class UploadConfig {
     /**
      * 项目文件在机器上的绝对路径
      */
-    public static final String PROJECT_PATH = new ApplicationHome(Application.class).getSource().getParent();
+    // public static final String PROJECT_PATH = new ApplicationHome(Application.class).getSource().getParent();
     /**
      * 文件存储目录
      */

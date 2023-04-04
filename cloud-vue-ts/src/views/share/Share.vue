@@ -102,7 +102,7 @@ const list = function(path) {
   window.$loadingBar.start();
   return API.getShareList(id.value, path).then(res => {
     shareData.value = res;
-    console.esLog(shareData.value);
+    console.log(shareData.value);
     window.$loadingBar.finish();
   });
 };

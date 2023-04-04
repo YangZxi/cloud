@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
  * @since 1.0.0
  */
 @Data
-public class Chunk {
+public class Chunk implements Serializable {
 
     @TableId(type = IdType.AUTO)
     private Integer id;

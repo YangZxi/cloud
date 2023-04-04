@@ -4,6 +4,7 @@ import cn.xiaosm.cloud.core.admin.service.BaseService;
 import cn.xiaosm.cloud.core.entity.Resource;
 import cn.xiaosm.cloud.core.entity.dto.ResourceDTO;
 import cn.xiaosm.cloud.core.entity.dto.UploadDTO;
+import cn.xiaosm.cloud.core.util.download.DlTaskInfo;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
@@ -38,6 +39,10 @@ public interface ResourceService extends BaseService<Resource> {
 
     Boolean merge(UploadDTO uploadDTO);
 
+    boolean checkName(String fileName);
+
+    boolean checkNameAndNoExist(String fileName, String path, int bucketId);
+
     boolean existCurrentPath(UploadDTO dto);
 
     ResourceDTO download(ResourceDTO resource);
@@ -51,7 +56,9 @@ public interface ResourceService extends BaseService<Resource> {
 
     boolean copy(List<Resource> children, Resource target);
 
-    ResourceDTO offlineDownload(String url);
+    DlTaskInfo offlineDownload(String name, String url, int bucketId);
 
     List<Resource> search(ResourceDTO dto);
+
+    Resource createDownloadDir(long userId, int bucketId);
 }

@@ -43,7 +43,7 @@ import store from "@/store/temp";
 const $router = useRouter();
 
 const resource = store().$state.resource;
-console.esLog(resource);
+console.log(resource);
 
 onMounted(() => {
 

@@ -192,10 +192,10 @@ const editorRef = ref();
 const tableRef = ref(null);
 const tableHeight = ref(500);
 onMounted(() => {
-  // console.esLog($route);
+  // console.log($route);
   explorerPath.value = $route.query.path ? ($route.query.path as string).split("/") : [];
   intoPath(null);
-  // if (tableOperation.value) console.esLog(tableOperation.value);
+  // if (tableOperation.value) console.log(tableOperation.value);
   // 此处计算 需要减去头部的 头部的 110 和面包屑的 30
   nextTick(() => {
     tableHeight.value = tableRef.value ? tableRef.value.$el.clientHeight : 500;
@@ -276,7 +276,7 @@ const options = [
 ];
 const handleSelect = function() {
   showMenu.value = false;
-  // console.esLog("handleSelect");
+  // console.log("handleSelect");
 };
 
 const onClickoutside = function() {

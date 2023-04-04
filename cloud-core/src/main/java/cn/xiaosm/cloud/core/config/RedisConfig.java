@@ -1,5 +1,7 @@
 package cn.xiaosm.cloud.core.config;
 
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONUtil;
 import cn.xiaosm.cloud.common.util.SerializeUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,12 +20,21 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 public class RedisConfig {
 
     @Bean("redisObject")
-    public RedisTemplate<String, Object> serEntity(RedisConnectionFactory factory) {
-        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setConnectionFactory(factory);
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new ObjectRedisSerializer());
-        return redisTemplate;
+    public RedisTemplate<String, Object> redisObject(RedisConnectionFactory factory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(factory);
+        template.setDefaultSerializer(new StringRedisSerializer());
+        template.setValueSerializer(new ObjectRedisSerializer());
+        return template;
+    }
+
+    @Bean("redisJson")
+    public RedisTemplate<String, JSON> redisJson(RedisConnectionFactory factory) {
+        RedisTemplate<String, JSON> template = new RedisTemplate<>();
+        template.setConnectionFactory(factory);
+        template.setDefaultSerializer(new StringRedisSerializer());
+        template.setValueSerializer(new JsonRedisSerializer());
+        return template;
     }
 }
 
@@ -39,4 +50,25 @@ class ObjectRedisSerializer implements RedisSerializer<Object> {
         return SerializeUtils.deserialize(bytes);
     }
 
+}
+
+class JsonRedisSerializer implements RedisSerializer<JSON> {
+
+    @Override
+    public byte[] serialize(JSON o) throws SerializationException {
+        assert o != null;
+        return o.toString().getBytes();
+    }
+
+    @Override
+    public JSON deserialize(byte[] bytes) throws SerializationException {
+        String s = new String(bytes);
+        if (s.startsWith("{")) {
+            return JSONUtil.parseObj(s);
+        } else if (s.startsWith("[")) {
+            return JSONUtil.parseArray(s);
+        } else {
+            return null;
+        }
+    }
 }

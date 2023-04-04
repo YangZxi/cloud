@@ -32,10 +32,6 @@ public class Range {
      * 是否分段
      */
     private boolean part = true;
-    /**
-     * 分段顺序
-     */
-    private int order = -1;
 
     private Range() { }
 
@@ -51,7 +47,6 @@ public class Range {
         this.end = total - 1;
         this.total = total;
         this.contentLength = total - start;
-        this.order = order;
         // if (this.contentLength == this.total) this.part = false;
     }
 
@@ -60,7 +55,6 @@ public class Range {
         this.end = start + size - 1;
         this.total = total;
         this.contentLength = size;
-        this.order = order;
         // if (this.contentLength == this.total) this.part = false;
     }
 
@@ -88,9 +82,9 @@ public class Range {
         String[] se = value[0].split("-");
         Assert.isTrue(se.length == 2, "Range不合法");
         Range range = new Range();
-        range.setStart(Long.valueOf(se[0]));
-        range.setEnd(Long.valueOf(se[1]));
-        range.setTotal(Long.valueOf(value[1]));
+        range.setStart(Long.parseLong(se[0]));
+        range.setEnd(Long.parseLong(se[1]));
+        range.setTotal(Long.parseLong(value[1]));
         range.setContentLength(range.end - range.start + 1);
         if (range.contentLength == range.total) range.part = false;
         return range;

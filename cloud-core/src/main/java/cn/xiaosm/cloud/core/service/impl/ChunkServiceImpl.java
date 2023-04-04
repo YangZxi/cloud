@@ -1,11 +1,18 @@
 package cn.xiaosm.cloud.core.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.io.file.FileNameUtil;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestUtil;
+import cn.hutool.crypto.digest.MD5;
 import cn.xiaosm.cloud.common.exception.CanShowException;
+import cn.xiaosm.cloud.common.exception.ResourceException;
 import cn.xiaosm.cloud.common.util.FileUtil;
 import cn.xiaosm.cloud.common.util.SpringContextUtils;
+import cn.xiaosm.cloud.common.util.StringUtils;
+import cn.xiaosm.cloud.common.util.cache.CacheUtils;
 import cn.xiaosm.cloud.core.config.UploadConfig;
-import cn.xiaosm.cloud.core.config.security.SecurityUtils;
 import cn.xiaosm.cloud.core.entity.Bucket;
 import cn.xiaosm.cloud.core.entity.Chunk;
 import cn.xiaosm.cloud.core.entity.Resource;
@@ -13,15 +20,18 @@ import cn.xiaosm.cloud.core.entity.dto.UploadDTO;
 import cn.xiaosm.cloud.core.mapper.ChunkMapper;
 import cn.xiaosm.cloud.core.service.ChunkService;
 import cn.xiaosm.cloud.core.service.ResourceService;
+import cn.xiaosm.cloud.core.util.download.DlChunk;
+import cn.xiaosm.cloud.core.util.download.DlTaskInfo;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Young
@@ -34,6 +44,10 @@ public class ChunkServiceImpl implements ChunkService {
 
     @Autowired
     ChunkMapper chunkMapper;
+    @Autowired
+    RedisTemplate<String, String> redis;
+    @Autowired
+    ResourceService resourceService;
 
     @Override
     @Transactional
@@ -107,20 +121,10 @@ public class ChunkServiceImpl implements ChunkService {
             return false;
         }
 
-        chunks.sort(Comparator.comparingInt(Chunk::getOrder));
         String suffixPath = ResourceServiceImpl.suffixPath();
         String filename = dto.getIdentifier() + "." + FileUtil.extName(dto.getFilename());
-        File dest = ResourceServiceImpl.transformFile(filename);
-        try (RandomAccessFile raf = new RandomAccessFile(dest, "rw");) {
-            for (Chunk chunk : chunks) {
-                File temp = new File(UploadConfig.CHUNK_PATH, chunk.getHash() + ".data");
-                if (!temp.exists()) throw new CanShowException("文件 chunk 不存在", 400);
-                integrateFile(raf, new FileInputStream(temp));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new CanShowException("文件整合出现问题", 400);
-        }
+        File dest = this.integrateFile(chunks, filename);
+
         // 写完以后保存至数据库
         Resource resource = new Resource();
         resource.setPath(suffixPath + "/" + filename);
@@ -135,8 +139,115 @@ public class ChunkServiceImpl implements ChunkService {
         SpringContextUtils.getBean(ResourceService.class).save(resource);
         // 删除所有chunk，注：故意这么写的，为了不走事物，即时生效 // 先不删除，后期考虑怎么处理
         // this.deleteByIds(chunks.stream().map(Chunk::getId).toList());
-        log.info("文件整合完成");
+        log.info("分块上传，文件保存成功，文件id：{}", resource.getId());
         return true;
+    }
+
+    @Override
+    @Transactional
+    public void integrateDownloadFile(DlTaskInfo taskInfo) {
+        // 没有扩展名，需要判断类型后添加后缀
+        String filename = IdUtil.simpleUUID();
+        String suffix = FileNameUtil.getSuffix(taskInfo.getName());
+        if (StrUtil.isNotBlank(suffix)) {
+            filename = filename + "." + suffix;
+        }
+        // 合并文件
+        File file = integrateFile(taskInfo.getFinishedChunks(), filename);
+        String type = FileUtil.getType(file);
+        if (StrUtil.isNotBlank(type)) {
+            String originName = filename;
+            filename = IdUtil.simpleUUID() + "." + type;
+            File newFile = new File(file.getParentFile(), filename);
+            file.renameTo(newFile);
+            file = newFile;
+            log.info("文件：{} 重命名为：{}", originName, filename);
+        }
+        String path = null;
+        if (taskInfo.getPath() != null) {
+            path = taskInfo.getPath();
+        } else {
+            path = file.getParentFile().getName() + "/" + filename;
+            taskInfo.setPath(path);
+            synchronized (taskInfo.getHash()) {
+                CacheUtils.set(taskInfo.getHash(), taskInfo);
+            }
+        }
+        // 在数据库中插入文件
+        Set<String> userIds = redis.opsForSet().members(taskInfo.userOfTaskName());
+        if (userIds == null || userIds.size() == 0) {
+            log.info("需要保存的用户列表为空，{}", taskInfo.userOfTaskName());
+            return;
+        }
+        log.info("需要写入数据的bucket个数：{}", userIds.size());
+        long size = file.getTotalSpace();
+        String hash = MD5.create().digestHex(file);
+        for (String s : userIds) {
+            String[] ss = s.split("_");
+            if (ss.length != 2) continue;
+            Resource r = new Resource();
+            StringBuilder realName = new StringBuilder(taskInfo.getName());
+            long userId = Long.parseLong(ss[0]);
+            int bucketId = Integer.parseInt(ss[1]);
+            Resource downloadDir = resourceService.createDownloadDir(userId, bucketId);
+            log.info("检查在 download 下是否有重名文件");
+            // 如果是根目录，需要根据 bucketId 和 parentId 来进行检索
+            List<String> names =  resourceService.list(new QueryWrapper<Resource>()
+                .eq("bucket_id", bucketId)
+                .eq("parent_id", downloadDir.getId())
+                .select("name"))
+                .stream().map(Resource::getName).toList();
+            while (StringUtils.contains(names, realName.toString())) {
+                int dot = realName.lastIndexOf(".");
+                if (dot != -1) {
+                    realName.insert(dot, "-副本");
+                } else {
+                    realName.append("-副本");
+                }
+            }
+            r.setName(realName.toString());
+            r.setPath(path);
+            r.setUserId(Long.parseLong(ss[0]));
+            r.setBucketId(bucketId);
+            r.setParentId(downloadDir.getId());
+            r.setSize(size);
+            r.setType(type);
+            r.setHash(hash);
+            log.info("{} 将保存至bucket {}，文件名：{}", (taskInfo.getHash()), bucketId, realName);
+            resourceService.save(r);
+            redis.opsForSet().remove(taskInfo.userOfTaskName(), s);
+        }
+    }
+
+    private File integrateFile(List<? extends Chunk> chunks, String filename) {
+        chunks.sort(Comparator.comparingInt(Chunk::getOrder));
+        File dest = ResourceServiceImpl.transformFile(filename);
+        try (RandomAccessFile raf = new RandomAccessFile(dest, "rw");) {
+            for (Chunk chunk : chunks) {
+                File temp = null;
+                if (chunk instanceof DlChunk dlChunk) {
+                    temp = new File(dlChunk.getPath());
+                } else {
+                    temp = new File(UploadConfig.CHUNK_PATH, chunk.getHash() + ".data");
+                }
+                if (!temp.exists()) throw new CanShowException("文件 chunk 不存在", 400);
+                integrateFile(raf, new FileInputStream(temp));
+            }
+            log.info("文件整合完成：{}，{}", filename, dest.getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new CanShowException("文件整合出现问题", 400);
+        }
+        return dest;
+    }
+
+    private void integrateFile(RandomAccessFile raf, InputStream in) throws IOException {
+        byte[] buff = new byte[4096];
+        int len = 0;
+        while ((len = in.read(buff)) != -1) {
+            raf.write(buff, 0, len);
+        }
+        in.close();
     }
 
     @Override
@@ -147,17 +258,6 @@ public class ChunkServiceImpl implements ChunkService {
     @Override
     public int deleteByIds(Collection ids) {
         return chunkMapper.deleteBatchIds(ids);
-    }
-
-    private void integrateFile(RandomAccessFile raf, InputStream in) throws IOException {
-        byte[] buff = new byte[4096];
-        int len = 0;
-        while ((len = in.read(buff)) != -1) {
-            raf.write(buff, 0, len);
-        }
-        if (in != null) {
-            in.close();
-        }
     }
 
     @Override
