@@ -62,10 +62,15 @@ const RES_CODE: RES_CODE_TYPE =  {
 instance.interceptors.response.use(
   function (response: YAxiosResponse) {
     // 对响应数据做点什么
-    if (response.data.code === 200) {
-      return response.data
+    console.log(response);
+    if (response.headers["content-type"] === "application/json") {
+      if (response.data.code === 200) {
+        return response.data
+      } else {
+        return Promise.reject(response);
+      }
     } else {
-      return Promise.reject(response);
+      return response.data;
     }
   },
   function (error) {
@@ -161,7 +166,7 @@ function request(method: Method, url: string, data: any, option: Option = {}): P
       alertErrMsg(err);
     }
     loadingBar.error();
-    return Promise.reject(err);
+    return Promise.reject(err.data ? err.data : { code: err.status, msg: "请求出错，请联系管理员", data: null });
   });
 }
 

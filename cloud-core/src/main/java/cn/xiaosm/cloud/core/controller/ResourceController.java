@@ -50,7 +50,7 @@ public class ResourceController {
      * @return
      */
     @GetMapping
-    public RespBody getResource(ResourceDTO resource) {
+    public RespBody listResource(ResourceDTO resource) {
         if (StrUtil.isBlank(resource.getBucketName())) return RespUtils.success("仓库名称不可以为空");
         List<Resource> list = resourceService.list(resource);
         return RespUtils.success(list);

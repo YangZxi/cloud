@@ -121,7 +121,7 @@ public class PreviewController {
         return previewHandler(resourceDTO, request, response);
     }
 
-    private final Long MAX_SIZE = (1 << 20) * 10l; // 10MB
+    private final Long MAX_SIZE = (1 << 20) * 10L; // 10MB
 
     public RespBody previewHandler(ResourceDTO resourceDTO, HttpServletRequest request, HttpServletResponse response) {
         if (resourceDTO == null) {
@@ -132,9 +132,9 @@ public class PreviewController {
             || !(file = new File(resourceDTO.getFileAbPath())).exists())
             return RespUtils.fail("文件不存在");
         // if (resourceDTO.getSize() > MAX_SIZE) return RespUtils.fail("文件过大，暂不支持在线预览");
-        response.reset();
         String contentType = getContentType(resourceDTO.getType());
         if (StrUtil.isBlank(contentType)) return RespUtils.fail("当前文件类型暂不支持预览");
+        response.reset();
         response.setContentType(contentType);
         response.setHeader("Access-Control-Allow-Origin", "*");
         // GET 请求直接在浏览器中能够展示
@@ -145,20 +145,24 @@ public class PreviewController {
         else if (ArrayUtil.contains(TEXT_TYPE, resourceDTO.getType())) {
             return RespUtils.success("", IoUtil.read(FileUtil.getInputStream(file), Charset.defaultCharset()));
         }
-        return null;
+        return RespUtils.fail("非文本文件请使用 GET 请求");
     }
 
-    private static Map<String, String> RESOURCE_TYPE = new HashMap(){{
+    private static final Map<String, String> RESOURCE_TYPE = new HashMap(){{
        put("plain", "text/plain;charset=UTF-8");
        put("jpg", "image/jpeg");
        put("jpeg", "image/jpeg");
        put("gif", "image/gif");
        put("png", "image/png");
-       put("pdf", "application/pdf");
        put("xml", "text/xml");
        put("mp4", "video/mp4");
        put("mp3", "audio/mpeg");
        put("ogg", "audio/ogg");
+       put("pdf", "application/pdf");
+       put("docx", "application/octet-stream");
+       put("doc", "application/octet-stream");
+       put("xls", "application/octet-stream");
+       put("xlsx", "application/octet-stream");
     }};
 
     private static String[] TEXT_TYPE = new String[]{

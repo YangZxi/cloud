@@ -46,17 +46,15 @@ const lMap = {
 // });
 
 onMounted(() => {
-  refreshCode();
+  refreshText();
 });
 
-const refreshCode = function() {
-  console.log(props.resource, 1);
-  console.log(props.url, 2);
+const refreshText = function() {
   http.post(props.url).then(({ data }) => {
     code.value = data;
     language.value = lMap[resource.value.type];
   }).catch(err => {
-    code.value = "源资源已被删除";
+    code.value = err.msg;
     console.log(err);
   });
 };

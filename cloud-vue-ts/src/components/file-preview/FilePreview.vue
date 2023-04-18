@@ -6,17 +6,26 @@
       :resource="props.resource"
       :url="url"
     />
+    
+    <div class="maximize-btn">
+      <n-button tertiary circle @click="maximize">
+        <template #icon>
+          <c-icon name="fa-expand" color="#999" />
+        </template>
+      </n-button>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { computed, watch, ref } from "vue";
 import Default from "./Default.vue";
-import YImage from "./YImage.vue";
-import YImageM from "./YImage-m.vue";
-import YText from "./YText.vue";
-import YVideo from "./YVideo.vue";
-import YAudio from "./YAudio.vue";
+import YImage from "./Image.vue";
+import YImageM from "./Image-m.vue";
+import YText from "./Text.vue";
+import YVideo from "./Video.vue";
+import YAudio from "./Audio.vue";
+import YOffice from "./Office.vue";
 import { preview } from "@/http/Explore";
 import store from "@/store/temp";
 
@@ -73,6 +82,10 @@ const viewType = computed({
   set: () => { }
 });
 
+const maximize = function() {
+
+}
+
 function getView(type) {
   if (filetype.value === null) return Default;
   if (filetype.value.image.indexOf(type) !== -1) {
@@ -83,6 +96,8 @@ function getView(type) {
     return YVideo;
   } else if (filetype.value.audio.indexOf(type) !== -1) {
     return YAudio;
+  } else if (filetype.value.office.indexOf(type) !== -1) {
+    return YOffice;
   } else {
     return Default;
   }
@@ -90,7 +105,7 @@ function getView(type) {
 
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .preview {
   height: 380px;
   background-color: #F7F7F7;
@@ -99,5 +114,16 @@ function getView(type) {
   align-items: center;
   padding: 10px;
   box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+
+  .maximize-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 5px;
+  }
 }
+
+
 </style>

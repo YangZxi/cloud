@@ -2,7 +2,7 @@
   <div>
     <n-empty description="当前文件类型暂不支持预览">
       <template #icon>
-        <y-icon name="user" />
+        <c-icon name="user" />
       </template>
     </n-empty>
   </div>
