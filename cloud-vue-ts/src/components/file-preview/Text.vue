@@ -1,43 +1,26 @@
 <template>
-  <n-config-provider
-    :hljs="hljs"
-    class="code-preview"
-  >
-    <n-scrollbar
-      x-scrollable
-      style="max-height: calc(100% - 2px)"
-    >
-      <n-code
-        :code="code"
-        :language="language"
-        :show-line-numbers="true"
-      />
-    </n-scrollbar>
-  </n-config-provider>
+  <TextEditor
+    ref="editorRef"
+    height="calc(70vh - 40px)"
+    content=""
+    read-only
+  />
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, inject, defineExpose } from "vue";
 import http from "@/http/XMLHttpRequest";
-import hljs from "highlight.js/lib/core";
-import java from "highlight.js/lib/languages/java";
-import javascript from "highlight.js/lib/languages/javascript";
-
-hljs.registerLanguage("java", java);
-hljs.registerLanguage("javascript", javascript);
+import TextEditor from "@/components/TextEditor/TextEditor.vue";
+import { saveContent as saveContentHttp } from "@/http/Explore";
 
 const props = defineProps({
   resource: Object,
   url: String
 });
 
+const edit = ref(false);
 const resource = ref(props.resource);
-const code = ref("");
-const language = ref("");
-const lMap = {
-  java: "java",
-  js: "javascript"
-};
+const editorRef = ref(null);
 
 // watch(() => props.resource, (val) => {
 //   resource.value = props.resource;
@@ -46,19 +29,39 @@ const lMap = {
 // });
 
 onMounted(() => {
-  refreshText();
+  refreshContent();
 });
 
-const refreshText = function() {
+const refreshContent = function() {
   http.post(props.url).then(({ data }) => {
-    code.value = data;
-    language.value = lMap[resource.value.type];
+    editorRef.value.setValue(data);
   }).catch(err => {
-    code.value = err.msg;
+    editorRef.value.setValue(err.msg);
     console.log(err);
   });
 };
 
+const setReadOnly = function() {
+  editorRef.value.setReadOnly(false);
+};
+
+/**
+ * 保存文件内容
+ * @param resource
+ */
+const saveContent = function() {
+  if (!resource.value) return;
+  return saveContentHttp(resource.value.id, editorRef.value.getValue()).then(() => {
+    window.$message.success("保存成功");
+  }).catch((err) => {
+    return Promise.reject(err);
+  });
+};
+
+defineExpose({
+  setReadOnly,
+  saveContent
+});
 </script>
 
 <style scoped>

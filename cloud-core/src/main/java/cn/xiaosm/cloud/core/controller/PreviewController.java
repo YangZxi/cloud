@@ -165,7 +165,7 @@ public class PreviewController {
        put("xlsx", "application/octet-stream");
     }};
 
-    private static String[] TEXT_TYPE = new String[]{
+    private static final String[] TEXT_TYPE = new String[]{
         "txt", "html", "css", "java", "ts", "js", "py", "c", "cpp", "md", "sql"
     };
 

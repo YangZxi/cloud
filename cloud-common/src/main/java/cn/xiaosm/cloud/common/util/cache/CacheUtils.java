@@ -19,12 +19,15 @@ public class CacheUtils {
             boolean b = ClassLoaderUtil.isPresent("org.springframework.data.redis.core.RedisTemplate");
             if (b) {
                 handler = (CacheHandler) SpringContextUtils.createClass("cn.xiaosm.cloud.common.util.cache.RedisCache");
+                System.out.println("Redis 连接成功");
             } else {
                 // 未使用则用java来进行存储对象
                 handler = new JavaCache();
+                System.out.println("Redis未配置，将使用 Java 缓存");
             }
         } catch (Exception e) {
-            System.err.println(e.getMessage() + "\nRedis连接失败，将使用其他方式缓存数据");
+            System.err.println(e.getMessage());
+            System.err.println("Redis 连接失败，将使用其他方式缓存数据");
             handler = new JavaCache();
         }
         // handler = new JavaCache();

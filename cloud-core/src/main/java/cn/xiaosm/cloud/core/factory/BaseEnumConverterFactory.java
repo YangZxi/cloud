@@ -30,9 +30,9 @@ public class BaseEnumConverterFactory implements ConverterFactory<String, BaseEn
         return converter;
     }
 
-    class IntegerStrToEnum<T extends BaseEnum> implements Converter<String, T> {
+    static class IntegerStrToEnum<T extends BaseEnum> implements Converter<String, T> {
         // private final Class<T> enumType;
-        private Map<String, T> enumMap = new HashMap<>();
+        private final Map<String, T> enumMap = new HashMap<>();
 
         public IntegerStrToEnum(Class<T> enumType) {
             // this.enumType = enumType;

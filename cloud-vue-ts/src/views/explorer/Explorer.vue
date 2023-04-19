@@ -425,14 +425,6 @@ const download = function(row: Resource | undefined) {
   API.download(row.id);
 };
 
-const showEditor = function(id: string, filename: string, content: string) {
-  editorDialog.id = id;
-  editorDialog.title = filename;
-  editorDialog.content = content;
-  editorDialog.visible = true;
-};
-
-provide("showEditor", showEditor);
 </script>
 
 <style scoped>

@@ -22,6 +22,7 @@
     "terser": "^5.4.0",
     "vue": "3",
     "vue-axios": "^3.5.1",
+    "vue-demi": "^0.14.0",
     "vue-router": "^4.0.14",
     "vue-simple-uploader": "1.0.0-beta.5",
     "vue3-audio-player": "^1.0.6"

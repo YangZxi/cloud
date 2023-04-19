@@ -152,7 +152,6 @@ import type { UploadCustomRequestOptions } from "naive-ui";
 import CIcon from "@/components/mie-ui/CIcon.vue";
 import CUploader from "@/components/mie-ui/CUploader/CUploader.vue";
 
-const showEditor = inject<Function>("showEditor");
 const props = defineProps({
   name: {
     type: String,
@@ -226,10 +225,10 @@ const makeDirHandler = function(fileName: string) {
   }).then((resourceId) => {
     console.log(resourceId);
     refresh();
-    // 如果是文件类型，将在文件创建成功后打开编辑器
-    if (popselect.value === "file") {
-      showEditor(resourceId, fileName, "");
-    }
+    // 如果是文件类型，将在文件创建成功后打开编辑器 （改显示逻辑了，该功能暂不开启）
+    // if (popselect.value === "file") {
+    //   showEditor(resourceId, fileName, "");
+    // }
   }).catch(() => {
     renameDialog.status = "error";
     return Promise.reject(new Error());

@@ -1,7 +1,11 @@
 <template>
   <div class="file-details">
     <!-- 文件预览 -->
-    <Preview :resource="props.resource" />
+    <!-- <Preview :resource="props.resource" /> -->
+    <Preview
+      :resource="props.resource"
+      style="height: 280px;"
+    />
     <div style="margin: 10px;text-align: center;">
       <n-tag
         :bordered="false"
@@ -36,15 +40,6 @@
     </n-descriptions>
 
     <div class="operator">
-      <n-button
-        v-if="resource.edit === true"
-        strong
-        round
-        color="#ff69b4"
-        @click="editFile"
-      >
-        编辑
-      </n-button>
       <n-button
         v-if="user().user && user().user?.username !== 'guest'"
         strong
@@ -173,40 +168,27 @@
 </template>
 
 <script setup>
-import { ref, reactive, inject } from "vue";
-import Preview from "@/components/file-preview/FilePreview.vue";
-import http from "@/http/XMLHttpRequest";
-import { preview as HttpPreview } from "@/http/Explore";
+import { ref, reactive } from "vue";
+import Preview from "@/components/file-preview/PreviewDialog.vue";
 import { user } from "@/store/user";
 import VueQrcode from "@chenfengyuan/vue-qrcode";
 import { shareDialog, shareHandler } from "./index";
 import { copyText } from "@/utils/Tools";
 
-const showEditor = inject("showEditor");
 const props = defineProps({
   resource: {
     type: Object,
     required: true
   }
 });
-const MB = 1048576;
 
+const MB = 1048576;
 const oneDay = 24 * 60 * 60 * 1000;
 const shortcuts = reactive({
   一天: () => new Date().getTime() + oneDay,
   七天: new Date().getTime() + oneDay * 7,
   一个月: () => new Date().getTime() + oneDay * 31
 });
-
-const editFile = function() {
-  HttpPreview(props.resource.id).then(url => {
-    http.post(url).then(({ data }) => {
-      showEditor(props.resource.id, props.resource.name, data);
-    }).catch(() => {
-      window.$message.error("资源已被删除");
-    });
-  });
-};
 
 const openShare = function() {
   shareDialog.visible = true;
@@ -219,6 +201,7 @@ const copyUrl = async function() {
   await copyText(shareDialog.url);
   window.$message.success("复制成功");
 };
+
 </script>
 
 <style scoped lang="scss">
@@ -233,6 +216,7 @@ const copyUrl = async function() {
       margin: 0 10px;
     }
   }
+
 }
 
 .share-content {

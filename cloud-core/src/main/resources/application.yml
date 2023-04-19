@@ -9,7 +9,7 @@ spring:
         enable-storage: true  #启用存储
         enable-access: false #启用访问（线上请使用 Nginx 配置，效率更高）
         domain: "" # 访问域名，例如：“http://127.0.0.1:8030/test/file/”，注意后面要和 path-patterns 保持一致，“/”结尾，本地存储建议使用相对路径，方便后期更换域名
-        base-path: C:\Users\Young\Desktop\local\ # 存储地址
+        base-path: C:\Users\Young\Desktop\cloud\local\ # 存储地址
   #数据库连接配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -22,7 +22,7 @@ spring:
     druid:
       filters: stat,wall
   redis:
-    host: 127.0.0.1
+    host: ${REDIS_HOST:127.0.0.1}
     port: 6379
     database: 0
     jedis:

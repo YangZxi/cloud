@@ -55,7 +55,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      * 文件名不可用字符
      */
     public final static String ILLEGAL_CHAR = "\\/:*\"<>|";
-    private final static Long ROOT_ID = 0l;
+    private final static Long ROOT_ID = 0L;
 
     @Autowired
     LocalBucketServiceImpl bucketService;
@@ -336,7 +336,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             throw new ResourceException("目标文件夹下有重名文件");
         }
         // 如果是根目录，校验 t 是否属于 o 的子文件
-        if (origin.isDir() && !Long.valueOf(ROOT_ID).equals(target.getId())) {
+        if (origin.isDir() && !ROOT_ID.equals(target.getId())) {
             // 判断目标文件夹是否是源文件夹的子文件夹
             Assert.isFalse(isChildren(origin, target), "目标文件夹是源文件夹的子文件夹");
         }
@@ -352,7 +352,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     private boolean isChildren(Resource origin, Resource target) {
         if (null == target || null == target.getId()) return false;
         Long targetId = target.getId();
-        if (Long.valueOf(ROOT_ID).equals(targetId)) return false;
+        if (ROOT_ID.equals(targetId)) return false;
             // 如果源 id == 目标 id
         else if (origin.getId().equals(targetId)) return true;
         // 获取 target 的父级目录
@@ -374,7 +374,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         if (null == db) throw new ResourceException("资源不存在");
         // 如果是目录，递归删除子文件
         if (db.isDir()) {
-            QueryWrapper<Resource> wrapper = new QueryWrapper();
+            QueryWrapper<Resource> wrapper = new QueryWrapper<>();
             wrapper.select("id", "type").eq("parent_id", db.getId());
             resourceMapper.selectList(wrapper).forEach(el -> {
                 ((ResourceService) AopContext.currentProxy()).delete(el);
@@ -383,7 +383,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         resourceMapper.deleteById(db.getId());
         if (
             // 如果不为目录 && 当前资源没有引用，则删除本地资源
-            db.isDir() == false && (resourceMapper.countByHash(db.getHash()) == 0)) {
+            !db.isDir() && (resourceMapper.countByHash(db.getHash()) == 0)) {
             File file = this.getLocalFile(db);
             if (file.exists() && file.delete()) {
                 // 文件删除成功后删除数据库数据

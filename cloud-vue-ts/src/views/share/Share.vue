@@ -71,7 +71,7 @@ import { sharePinia } from "@/store/share";
 import API from "@/http/Share";
 import { NButton } from "naive-ui";
 import { fileIcon } from "@/components/file-table/common.js";
-import Preview from "@/components/file-preview/FilePreview.vue";
+import Preview from "@/components/file-preview/PreviewDialog.vue";
 
 const $route = useRoute();
 const id = ref($route.params.id);
