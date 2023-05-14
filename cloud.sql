@@ -253,11 +253,11 @@ CREATE TABLE `properties`  (
 -- ----------------------------
 -- Records of properties
 -- ----------------------------
-INSERT INTO `properties` VALUES (13, 'email_username', 'cn.xiaosm.step.ocr.service@xiaosm.cn', 'email', '2020-06-28 19:43:56');
-INSERT INTO `properties` VALUES (14, 'email_password', 'yangzxservice..', 'email', '2020-06-28 19:43:56');
-INSERT INTO `properties` VALUES (15, 'email_send_name', 'YAdmin-易后台管理系统', 'email', '2020-06-28 19:43:56');
-INSERT INTO `properties` VALUES (16, 'email_server_host', 'smtp.ym.163.com', 'email', '2020-06-28 19:43:56');
-INSERT INTO `properties` VALUES (17, 'email_server_port', '994', 'email', '2020-06-28 19:43:56');
+INSERT INTO `properties` VALUES (13, 'email_username', '', 'email', '2020-06-28 19:43:56');
+INSERT INTO `properties` VALUES (14, 'email_password', null, 'email', '2020-06-28 19:43:56');
+INSERT INTO `properties` VALUES (15, 'email_send_name', 'Cloud-Xiaosm', 'email', '2020-06-28 19:43:56');
+INSERT INTO `properties` VALUES (16, 'email_server_host', null, 'email', '2020-06-28 19:43:56');
+INSERT INTO `properties` VALUES (17, 'email_server_port', null, 'email', '2020-06-28 19:43:56');
 INSERT INTO `properties` VALUES (18, 'email_ssl', 'true', 'email', '2020-06-28 19:43:56');
 INSERT INTO `properties` VALUES (19, 'filetype_video', 'mp4', 'filetype', NULL);
 INSERT INTO `properties` VALUES (20, 'filetype_image', 'jpg,jpeg,gif,png', 'filetype', NULL);
