@@ -28,7 +28,7 @@
       </template>
     </var-app-bar>
     <div>
-      <Preview :resource="(resource as any)" />
+      <!-- <Preview :resource="(resource as any)" />npm r -->
     </div>
   </div>
 </template>
@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
-import Preview from "@/components/file-preview/PreviewDialog.vue";
+// import Preview from "@/components/file-preview/PreviewDialog.vue";
 import store from "@/store/temp";
 
 // const $route = useRoute();

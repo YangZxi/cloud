@@ -16,7 +16,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>cn.xiaosm.cloud</groupId>
-    <artifactId>cloud-all</artifactId>
+    <artifactId>cloud</artifactId>
     <version>1.0</version>
     <name>Cloud</name>
     <description>Demo project for Spring Boot</description>

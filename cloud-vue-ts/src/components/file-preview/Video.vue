@@ -50,12 +50,12 @@ function getType(type) {
 
 <style scoped>
 .video-box {
-  width: 55%;
+  width: 100%;
 }
 
-@media screen and (max-width: 1400px) {
+/* @media screen and (max-width: 1400px) {
   .video-box {
     width: 100%;
   }
-}
+} */
 </style>

@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8999
 spring:
   file-storage: #文件存储配置
     default-platform: local #默认使用的存储平台
@@ -9,13 +9,13 @@ spring:
         enable-storage: true  #启用存储
         enable-access: false #启用访问（线上请使用 Nginx 配置，效率更高）
         domain: "" # 访问域名，例如：“http://127.0.0.1:8030/test/file/”，注意后面要和 path-patterns 保持一致，“/”结尾，本地存储建议使用相对路径，方便后期更换域名
-        base-path: C:\Users\Young\Desktop\cloud\local\ # 存储地址
+        base-path: ~/.cloud/local/ # 存储地址
   #数据库连接配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/ycloud?characterEncoding=utf-8&useSSL=false&serverTimezone=GMT%2B8
-    username: root
-    password: 123123
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/cloud?characterEncoding=utf-8&useSSL=false&serverTimezone=GMT%2B8
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PWD:123456}
     # 连接池类型
     type: com.alibaba.druid.pool.DruidDataSource
     filters: stat
@@ -62,6 +62,6 @@ logging:
 
 ## 项目自定义配置
 cloud:
-  local-path: C:\Users\Young\Desktop\cloud\local\
-  chunk-path: C:\Users\Young\Desktop\cloud\chunk\
+  local-path: ~/.cloud/local/
+  chunk-path: ~/.cloud/chunk/
   max-upload-size: 120MB

@@ -1,10 +1,17 @@
 <template>
-  <TextEditor
-    ref="editorRef"
-    height="calc(70vh - 40px)"
-    content=""
-    read-only
-  />
+  <div>
+    <TextEditor
+      ref="editorRef"
+      height="calc(70vh - 20px)"
+      content=""
+      read-only
+    />
+    <div class="operateor">
+      <n-button size="small" v-if="edit == false" @click="toggleEdit(true)" color="#ff69b4">编辑</n-button>
+      <n-button size="small" v-if="edit" @click="toggleEdit(false)">取消</n-button>
+      <n-button size="small" v-if="edit" type="primary" @click="saveContent">保存</n-button>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -41,9 +48,14 @@ const refreshContent = function() {
   });
 };
 
-const setReadOnly = function() {
-  editorRef.value.setReadOnly(false);
+const setReadOnly = function(flag = false) {
+  editorRef.value.setReadOnly(flag);
 };
+
+const toggleEdit = function(flag) {
+  edit.value = flag;
+  editorRef.value.setReadOnly(!flag);
+}
 
 /**
  * 保存文件内容
@@ -53,6 +65,7 @@ const saveContent = function() {
   if (!resource.value) return;
   return saveContentHttp(resource.value.id, editorRef.value.getValue()).then(() => {
     window.$message.success("保存成功");
+    toggleEdit(false);
   }).catch((err) => {
     return Promise.reject(err);
   });
@@ -64,9 +77,16 @@ defineExpose({
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .code-preview {
   width: 100%;
   height: 100%;
+}
+.operateor {
+  text-align: right;
+
+  button {
+    margin: 0 5px;
+  }
 }
 </style>
