@@ -8,7 +8,6 @@ import cn.xiaosm.cloud.common.exception.CanShowException;
 import cn.xiaosm.cloud.common.exception.ResourceException;
 import cn.xiaosm.cloud.common.util.FileUtil;
 import cn.xiaosm.cloud.core.config.EditableType;
-import cn.xiaosm.cloud.core.config.UploadConfig;
 import cn.xiaosm.cloud.core.config.security.SecurityUtils;
 import cn.xiaosm.cloud.core.entity.Bucket;
 import cn.xiaosm.cloud.core.entity.Resource;
@@ -18,10 +17,10 @@ import cn.xiaosm.cloud.core.entity.dto.UploadDTO;
 import cn.xiaosm.cloud.core.mapper.ResourceMapper;
 import cn.xiaosm.cloud.core.service.ChunkService;
 import cn.xiaosm.cloud.core.service.ResourceService;
+import cn.xiaosm.cloud.core.storage.FileStorageUtil;
+import cn.xiaosm.cloud.core.storage.UploadConfig;
 import cn.xiaosm.cloud.core.util.download.DlTaskInfo;
 import cn.xiaosm.cloud.core.util.download.DownloadService;
-import cn.xuyanwu.spring.file.storage.FileStorageService;
-import cn.xuyanwu.spring.file.storage.platform.LocalFileStorage;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.NonNull;
@@ -63,8 +62,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     ChunkService chunkService;
     @Autowired
     ResourceMapper resourceMapper;
-    @Autowired
-    FileStorageService fileStorageService;
     @Autowired
     DownloadService downloadService;
 
@@ -180,7 +177,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             if (resourceMapper.insert(db) == 1) {
                 // 创建文件
                 if (!db.isDir()) {
-                    fileStorageService.of(new byte[1]).setPath(path).setSaveFilename(fileName).upload();
+                    FileStorageUtil.of(new byte[1]).setPath(path).setFilename(fileName).upload();
                 }
                 log.info("文件创建成功");
             }
@@ -402,9 +399,8 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      */
     @Override
     public File getLocalFile(Resource resource) {
-        String basePath = ((LocalFileStorage) fileStorageService.getFileStorage()).getBasePath();
         // 根据仓库地址和文件相对地址创建文件对象
-        return new File(basePath, resource.getPath());
+        return new File(UploadConfig.LOCAL_PATH, resource.getPath());
     }
 
     @Transactional
@@ -439,7 +435,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         resource.setParentId(parentId);
         if (resourceMapper.insert(resource) == 1) {
             // 转存至本地文件
-            fileStorageService.of(file).setPath(path).setSaveFilename(fileName).upload();
+            FileStorageUtil.of(file.getBytes()).setPath(path).setFilename(fileName).upload();
             log.info("{}-文件保存成功，{}", dto.getIdentifier(), path);
             return true;
         } else {

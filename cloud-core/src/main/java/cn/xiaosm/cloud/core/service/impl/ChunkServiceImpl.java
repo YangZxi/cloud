@@ -1,18 +1,15 @@
 package cn.xiaosm.cloud.core.service.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.file.FileNameUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import cn.hutool.crypto.digest.MD5;
 import cn.xiaosm.cloud.common.exception.CanShowException;
-import cn.xiaosm.cloud.common.exception.ResourceException;
 import cn.xiaosm.cloud.common.util.FileUtil;
 import cn.xiaosm.cloud.common.util.SpringContextUtils;
 import cn.xiaosm.cloud.common.util.StringUtils;
 import cn.xiaosm.cloud.common.util.cache.CacheUtils;
-import cn.xiaosm.cloud.core.config.UploadConfig;
 import cn.xiaosm.cloud.core.entity.Bucket;
 import cn.xiaosm.cloud.core.entity.Chunk;
 import cn.xiaosm.cloud.core.entity.Resource;
@@ -20,6 +17,7 @@ import cn.xiaosm.cloud.core.entity.dto.UploadDTO;
 import cn.xiaosm.cloud.core.mapper.ChunkMapper;
 import cn.xiaosm.cloud.core.service.ChunkService;
 import cn.xiaosm.cloud.core.service.ResourceService;
+import cn.xiaosm.cloud.core.storage.UploadConfig;
 import cn.xiaosm.cloud.core.util.download.DlChunk;
 import cn.xiaosm.cloud.core.util.download.DlTaskInfo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -30,8 +28,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Young

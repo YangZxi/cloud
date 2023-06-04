@@ -2,8 +2,8 @@ package cn.xiaosm.cloud.core.entity;
 
 import cn.xiaosm.cloud.common.util.FileUtil;
 import cn.xiaosm.cloud.core.admin.entity.BaseEntity;
-import cn.xiaosm.cloud.core.config.UploadConfig;
 import cn.xiaosm.cloud.core.entity.enums.BucketType;
+import cn.xiaosm.cloud.core.storage.UploadConfig;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
