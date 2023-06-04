@@ -1,4 +1,4 @@
-package cn.xiaosm.cloud.core.config;
+package cn.xiaosm.cloud.core.storage;
 
 import cn.hutool.core.io.unit.DataUnit;
 import cn.hutool.core.util.StrUtil;
@@ -49,19 +49,31 @@ public class UploadConfig {
      */
     public static Long MAX_UPLOAD_SIZE;
 
-    public void setLocalPath(String path) {
-        File file;
-        file = new File(path);
+    private File getFile(String path) {
+        path = path.replaceAll("\\\\", "/");
+        String prefix = "";
+        if (path.startsWith("~/")) {
+            // get a path of homedir
+            prefix = System.getenv("HOME");
+        } else  if (path.startsWith("./")) {
+            // get a path of absolute
+            prefix = new ApplicationHome(Application.class).getSource().getParent();
+        }
+        path = path.substring(1, path.length());
+        path = prefix + path;
+        File file = new File(path);
         if (!file.exists()) file.mkdirs();
+        return file;
+    }
+
+    public void setLocalPath(String path) {
+        File file = getFile(path);
         LOCAL_PATH = file.getAbsolutePath();
         logger.info("当前存储路径：{}", LOCAL_PATH);
     }
 
     public void setChunkPath(String path) {
-        path = path.replaceAll("\\\\", "/");
-        File file;
-        file = new File(path);
-        if (!file.exists()) file.mkdirs();
+        File file = getFile(path);
         CHUNK_PATH = file.getAbsolutePath();
         logger.info("当前分块路径：{}", CHUNK_PATH);
     }
@@ -77,7 +89,7 @@ public class UploadConfig {
             MAX_UPLOAD_SIZE = Long.parseLong(arg) * mb;
             logger.info("当前最大上传文件大小：{}", MAX_UPLOAD_SIZE);
         } catch (NumberFormatException e) {
-            throw new NumberFormatException("MAX_UPLOAD_SIZE 格式化错误");
+            throw new NumberFormatException("max-upload-size 格式化错误");
         }
     }
 
