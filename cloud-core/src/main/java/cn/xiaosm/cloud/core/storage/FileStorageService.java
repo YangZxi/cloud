@@ -1,5 +1,6 @@
 package cn.xiaosm.cloud.core.storage;
 
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import cn.xiaosm.cloud.common.exception.ResourceException;
 import lombok.Data;
@@ -22,7 +23,7 @@ public class FileStorageService {
 
     public FileStorageService(File file) {
         if (!file.isFile()) {
-            new IllegalArgumentException("file 不是文件类型");
+            throw new IllegalArgumentException("file 不是文件类型");
         }
         try (FileInputStream in = new FileInputStream(file)) {
             this.in = in;
@@ -35,7 +36,7 @@ public class FileStorageService {
         this.content = bytes;
     }
 
-    public boolean upload() {
+    public void upload() {
         if (StrUtil.isBlank(path)) {
             throw new IllegalArgumentException("path 存储路径为空");
         }
@@ -47,7 +48,7 @@ public class FileStorageService {
             throw new ResourceException(path + "文件已存在");
         }
         try {
-            file.createNewFile();
+            Assert.isTrue(file.createNewFile());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -58,7 +59,6 @@ public class FileStorageService {
             throw new RuntimeException(e);
         }
         log.info("文件[{}]上传成功，路径：{}", this.filename, this.path);
-        return true;
     }
 
     public FileStorageService setPath(String path) {

@@ -1,6 +1,7 @@
 package cn.xiaosm.cloud.core.storage;
 
 import cn.hutool.core.io.unit.DataUnit;
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import cn.xiaosm.cloud.Application;
 import lombok.Data;
@@ -33,10 +34,6 @@ public class UploadConfig {
      */
     public static final String LOCAL_BUCKET = "local";
     /**
-     * 项目文件在机器上的绝对路径
-     */
-    // public static final String PROJECT_PATH = new ApplicationHome(Application.class).getSource().getParent();
-    /**
      * 文件存储目录
      */
     public static String LOCAL_PATH;
@@ -59,10 +56,10 @@ public class UploadConfig {
             // get a path of absolute
             prefix = new ApplicationHome(Application.class).getSource().getParent();
         }
-        path = path.substring(1, path.length());
+        path = path.substring(1);
         path = prefix + path;
         File file = new File(path);
-        if (!file.exists()) file.mkdirs();
+        if (!file.exists()) Assert.isTrue(file.mkdirs());
         return file;
     }
 

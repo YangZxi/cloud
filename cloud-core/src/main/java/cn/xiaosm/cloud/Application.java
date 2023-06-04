@@ -25,10 +25,6 @@ public class Application {
         // loadTask();
     }
 
-    private static void loadLogService() {
-
-    }
-
     /**
      * 加载菜单
      */

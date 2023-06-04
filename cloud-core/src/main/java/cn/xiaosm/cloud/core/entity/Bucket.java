@@ -1,17 +1,13 @@
 package cn.xiaosm.cloud.core.entity;
 
-import cn.xiaosm.cloud.common.util.FileUtil;
 import cn.xiaosm.cloud.core.admin.entity.BaseEntity;
 import cn.xiaosm.cloud.core.entity.enums.BucketType;
-import cn.xiaosm.cloud.core.storage.UploadConfig;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import java.io.File;
 
 /**
  * 文件存储仓库
@@ -49,11 +45,4 @@ public class Bucket extends BaseEntity {
         return this;
     }
 
-    public File getPathFile() {
-        // 获取到仓库在本地的存储路径
-        File bucketPath = FileUtil.file(UploadConfig.LOCAL_PATH);
-        // 如果仓库目录不存在，则进行创建
-        if (!bucketPath.exists()) bucketPath.mkdirs();
-        return bucketPath;
-    }
 }

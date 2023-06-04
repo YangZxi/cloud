@@ -4,20 +4,16 @@ import cn.hutool.core.io.FileUtil;
 import cn.xiaosm.cloud.common.exception.ResourceException;
 import cn.xiaosm.cloud.core.config.security.SecurityUtils;
 import cn.xiaosm.cloud.core.entity.Bucket;
-import cn.xiaosm.cloud.core.entity.Resource;
 import cn.xiaosm.cloud.core.mapper.BucketMapper;
 import cn.xiaosm.cloud.core.mapper.ResourceMapper;
 import cn.xiaosm.cloud.core.service.BucketService;
 import cn.xiaosm.cloud.core.storage.UploadConfig;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -25,34 +21,14 @@ import java.util.Objects;
  * @create 2022/3/24
  * @since 1.0.0
  */
+@Slf4j
 @Service
 public class LocalBucketServiceImpl extends ServiceImpl<BucketMapper, Bucket> implements BucketService {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     BucketMapper bucketMapper;
     @Autowired
     ResourceMapper resourceMapper;
-
-    /**
-     * 本例仓库处理方法
-     * @param path
-     * @return
-     */
-    public List<Resource> localBucket(String path) {
-        return null;
-    }
-
-    public List<Resource> cloudBucket(Bucket bucket) {
-        // 判断当前登录用户是否拥有此仓库
-        Bucket bucketB = this.getBucket(bucket.getName());
-        if (Objects.isNull(bucketB)) {
-            logger.info("仓库[{}]不存在", bucket.getName());
-            throw new ResourceException("仓库不存在");
-        }
-        return new ArrayList<>();
-    }
 
     @Override
     public Bucket getLocalBucket() {
@@ -81,13 +57,10 @@ public class LocalBucketServiceImpl extends ServiceImpl<BucketMapper, Bucket> im
 
     /**
      * 将 Bucket 转换转换成本地磁盘中映射的文件目录
-     * @param bucket
-     * @return
      */
     @Override
     public File transformBucketToFile(Bucket bucket) {
-        File file = FileUtil.file(UploadConfig.LOCAL_PATH);
-        return file;
+        return FileUtil.file(UploadConfig.LOCAL_PATH);
     }
 
     @Override

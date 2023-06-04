@@ -1,6 +1,7 @@
 package cn.xiaosm.cloud.core.service.impl;
 
 import cn.hutool.core.io.file.FileNameUtil;
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestUtil;
@@ -58,7 +59,7 @@ public class ChunkServiceImpl implements ChunkService {
             log.error("文件大小不一致");
             return false;
         }
-        String hash = "";
+        String hash;
         try {
             hash = DigestUtil.md5Hex(dto.getFile().getInputStream());
         } catch (IOException e) {
@@ -97,10 +98,6 @@ public class ChunkServiceImpl implements ChunkService {
 
     /**
      * 合并分块
-     * @param dto
-     * @param bucket
-     * @param parentId
-     * @return
      */
     @Override
     public boolean integrateFile(UploadDTO dto, Bucket bucket, Long parentId) {
@@ -159,11 +156,11 @@ public class ChunkServiceImpl implements ChunkService {
             String originName = filename;
             filename = IdUtil.simpleUUID() + "." + type;
             File newFile = new File(file.getParentFile(), filename);
-            file.renameTo(newFile);
+            Assert.isTrue(file.renameTo(newFile));
             file = newFile;
             log.info("文件：{} 重命名为：{}", originName, filename);
         }
-        String path = null;
+        String path;
         if (taskInfo.getPath() != null) {
             path = taskInfo.getPath();
         } else {
@@ -222,9 +219,9 @@ public class ChunkServiceImpl implements ChunkService {
     private File integrateFile(List<? extends Chunk> chunks, String filename) {
         chunks.sort(Comparator.comparingInt(Chunk::getOrder));
         File dest = ResourceServiceImpl.transformFile(filename);
-        try (RandomAccessFile raf = new RandomAccessFile(dest, "rw");) {
+        try (RandomAccessFile raf = new RandomAccessFile(dest, "rw")) {
             for (Chunk chunk : chunks) {
-                File temp = null;
+                File temp;
                 if (chunk instanceof DlChunk dlChunk) {
                     temp = new File(dlChunk.getPath());
                 } else {
@@ -243,7 +240,7 @@ public class ChunkServiceImpl implements ChunkService {
 
     private void integrateFile(RandomAccessFile raf, InputStream in) throws IOException {
         byte[] buff = new byte[4096];
-        int len = 0;
+        int len;
         while ((len = in.read(buff)) != -1) {
             raf.write(buff, 0, len);
         }
@@ -256,7 +253,7 @@ public class ChunkServiceImpl implements ChunkService {
     }
 
     @Override
-    public int deleteByIds(Collection ids) {
+    public int deleteByIds(Collection<Integer> ids) {
         return chunkMapper.deleteBatchIds(ids);
     }
 

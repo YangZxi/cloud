@@ -67,9 +67,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 
     /**
      * 通过 id 获取当前登录用户的资源
-     *
-     * @param id
-     * @return
      */
     @Override
     public Resource getByCurrentUser(Long id) {
@@ -93,7 +90,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         // 后续的接口不需要再使用 userId 来查询，因为在上面的仓库查询中使用过 userId 筛选过了
         List<Resource> resources = new ArrayList<>();
         if (resource.getParentId() != null && resource.getParentId() > 0) { // 如果有父级 id，则根据父级 id 查询
-            QueryWrapper<Resource> wrapper = new QueryWrapper();
+            QueryWrapper<Resource> wrapper = new QueryWrapper<>();
             wrapper.select("id").eq("id", resource.getParentId())
                 .eq("user_id", SecurityUtils.getLoginUserId());
             Resource db = resourceMapper.selectOne(wrapper);
@@ -168,7 +165,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
                 db.setType(fileType);
             }
             db.setPath(path + "/" + fileName);
-            db.setSize(0l);
+            db.setSize(0L);
             // 因为刚开始创建的是空文件，所以不计算hash，使用 uuid
             db.setHash(uuid);
         }
@@ -234,10 +231,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 
     /**
      * 复制文件
-     *
-     * @param originId
-     * @param targetId
-     * @return
      */
     @Override
     @Transactional
@@ -319,9 +312,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      * 检查文件名是否合法
      * 检查目标文件夹下是否有重名文件
      * 检查 t 是否属于 o 的子文件
-     *
-     * @param origin
-     * @param target
      */
     public void checkMoveOrCopy(Resource origin, Resource target) {
         // 目标目录和被复制的文件的父级需要不相同，否则抛出异常
@@ -341,10 +331,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 
     /**
      * 判断 t 是否属于 o 的子文件 或 两个资源是否相等
-     *
-     * @param origin
-     * @param target
-     * @return
      */
     private boolean isChildren(Resource origin, Resource target) {
         if (null == target || null == target.getId()) return false;
@@ -373,9 +359,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         if (db.isDir()) {
             QueryWrapper<Resource> wrapper = new QueryWrapper<>();
             wrapper.select("id", "type").eq("parent_id", db.getId());
-            resourceMapper.selectList(wrapper).forEach(el -> {
-                ((ResourceService) AopContext.currentProxy()).delete(el);
-            });
+            resourceMapper.selectList(wrapper).forEach(el -> ((ResourceService) AopContext.currentProxy()).delete(el));
         }
         resourceMapper.deleteById(db.getId());
         if (
@@ -611,15 +595,11 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      */
     public Resource getAndCheckHashInPath(String hash, String filename, Long parentId, Integer bucketId) {
         // 检查是否同名
-        try {
-            Assert.isTrue(this.checkNameAndUnique(filename, parentId, bucketId), "文件名含有非法字符");
-        } catch (ResourceException e) {
-            throw e;
-        }
+        Assert.isTrue(this.checkNameAndUnique(filename, parentId, bucketId), "文件名含有非法字符");
         // 检查当前文件在数据库中是否存在
         Resource db = resourceMapper.selectByHash(hash);
         if (null != db) {
-            /**
+            /*
              * 校验文件在当前路径下是否存在
              * 如果 hash 冲突，且处于同一用户、同一仓库、同一目录，则拒绝本次提交
              */
@@ -648,7 +628,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     public ResourceDTO preview(ResourceDTO resourceDTO) {
         // 获取资源信息
         Resource resource = resourceMapper.selectByIdAndUser(resourceDTO.getId(), resourceDTO.getUserId());
-        Assert.isTrue(resource != null, "资源已被删除");
+        Assert.notNull(resource, "资源已被删除");
         // 目录类型文件不进行预览
         Assert.isTrue(!resource.isDir(), "文件夹不允许预览");
         // 如果文件过大，不进行预览
@@ -685,7 +665,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 
     @Override
     public Resource createDownloadDir(long userId, int bucketId) {
-        QueryWrapper<Resource> wrapper = new QueryWrapper<Resource>();
+        QueryWrapper<Resource> wrapper = new QueryWrapper<>();
         wrapper.eq("name", "download");
         wrapper.eq("bucket_id", bucketId);
         Resource db = resourceMapper.selectOne(wrapper);

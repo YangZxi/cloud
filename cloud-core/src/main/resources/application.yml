@@ -9,7 +9,6 @@ spring:
     password: ${MYSQL_PWD:123456}
     # 连接池类型
     type: com.alibaba.druid.pool.DruidDataSource
-    filters: stat
     druid:
       filters: stat,wall
   redis:
@@ -20,9 +19,6 @@ spring:
       pool:
         max-active: 50 # 连接池最大连接数（使用负值表示没有限制）
         max-wait: 3000 # 连
-  resources:
-  # 静态资源地址，多个以逗号分割
-  # static-locations: classpath:static/,file:static/
 
   servlet:
     multipart:
