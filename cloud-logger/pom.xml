@@ -17,5 +17,10 @@
             <groupId>cn.xiaosm.cloud</groupId>
             <artifactId>cloud-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>co.elastic.clients</groupId>
+            <artifactId>elasticsearch-java</artifactId>
+            <version>8.6.1</version>
+        </dependency>
     </dependencies>
 </project>

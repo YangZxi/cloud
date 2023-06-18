@@ -13,11 +13,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
-/**
- * @author Young
- * @create 2021/4/16
- * @since 1.0.0
- */
 @Configuration
 public class JacksonConfig {
 

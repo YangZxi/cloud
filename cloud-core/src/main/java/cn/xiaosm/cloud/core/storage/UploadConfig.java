@@ -2,7 +2,6 @@ package cn.xiaosm.cloud.core.storage;
 
 import cn.hutool.core.io.unit.DataUnit;
 import cn.hutool.core.lang.Assert;
-import cn.hutool.core.util.StrUtil;
 import cn.xiaosm.cloud.Application;
 import lombok.Data;
 import org.slf4j.Logger;
@@ -10,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.system.ApplicationHome;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 import java.io.File;
 
@@ -75,18 +75,17 @@ public class UploadConfig {
         logger.info("当前分块路径：{}", CHUNK_PATH);
     }
 
-    public void setMaxUploadSize(String arg) {
+    public void setMaxUploadSize(Long arg) {
         long mb = DataUnit.MEGABYTES.ordinal();
-        if (StrUtil.isBlank(arg)) {
+        if (ObjectUtils.isEmpty(arg)) {
             MAX_UPLOAD_SIZE = mb * 100;
-            return;
-        }
-        arg = arg.replace("MB", "");
-        try {
-            MAX_UPLOAD_SIZE = Long.parseLong(arg) * mb;
-            logger.info("当前最大上传文件大小：{}", MAX_UPLOAD_SIZE);
-        } catch (NumberFormatException e) {
-            throw new NumberFormatException("max-upload-size 格式化错误");
+        } else {
+            try {
+                MAX_UPLOAD_SIZE = arg * mb;
+                logger.info("当前最大上传文件大小：{}", MAX_UPLOAD_SIZE);
+            } catch (NumberFormatException e) {
+                throw new NumberFormatException("max-upload-size 格式化错误");
+            }
         }
     }
 

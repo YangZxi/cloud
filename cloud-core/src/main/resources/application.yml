@@ -51,4 +51,4 @@ logging:
 cloud:
   local-path: ~/.cloud/local/
   chunk-path: ~/.cloud/chunk/
-  max-upload-size: 120MB
+  max-upload-size: 120

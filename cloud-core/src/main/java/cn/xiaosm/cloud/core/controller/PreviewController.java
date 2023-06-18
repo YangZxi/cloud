@@ -156,6 +156,7 @@ public class PreviewController {
        put("png", "image/png");
        put("xml", "text/xml");
        put("mp4", "video/mp4");
+       put("mov", "video/quicktime");
        put("mp3", "audio/mpeg");
        put("ogg", "audio/ogg");
        put("pdf", "application/pdf");
