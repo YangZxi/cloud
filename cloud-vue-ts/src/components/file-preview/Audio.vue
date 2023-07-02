@@ -1,12 +1,13 @@
 <template>
-  <div class="audio-box">
-    <AudioPlayer
-      :option="{
-        src: props.url,
-        title: getTitle,
-        coverImage: 'https://img2.baidu.com/it/u=3895119537,2684520677&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
-      }"
-    />
+  <div class="preview-audio">
+      <AudioPlayer
+        class="audio-player"
+        :option="{
+          src: props.url,
+          title: getTitle,
+          coverImage: 'https://img2.baidu.com/it/u=3895119537,2684520677&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
+        }"
+      />
   </div>
 </template>
 
@@ -31,13 +32,24 @@ const getTitle = computed({
 
 </script>
 
-<style scoped>
-.audio-box {
-  background-color: #FFF;
-  padding: 10px 20px;
-  border-radius: 10px;
+<style scoped lang="scss">
+.preview-audio {
   width: 90%;
+  height: 100%;
+  margin: auto;
   max-width: 500px;
+  display: flex;
+  align-items: center;
+
+  .audio-player {
+    height: 170px;
+    width: 100%;
+    padding: 10px 20px;
+    background-color: #FFF;
+    border-radius: 10px;
+    box-sizing: border-box;
+
+  }
 }
 
 :deep(.audio__player-play-cont) {

@@ -1,49 +1,31 @@
 <template>
-  <div class="preview">
-    <component
-      :is="viewType"
-      v-if="isQuickView"
-      :resource="props.resource"
-      :url="url"
-    />
-    <div v-else-if="viewType !== Default">
-      当前文件不支持直接预览，请点击右下角放大按钮查看详情
+  <div class="preview" >
+    <!-- <Transition name="preview"> -->
+    <div class="preview-content" ref="previewRef">
+      <component
+        v-if="url"
+        style="width: 100%;overflow-y: auto;"
+        :is="viewType"
+        :resource="props.resource"
+        :maximize="maximize"
+        :url="url"
+      />
     </div>
-    <div v-else>
-      当前文件类型暂不支持在线预览，请下载后查看
-    </div>
+    <!-- </Transition> -->
+    <div class="overlay" v-if="maximize" @click="close"></div>
     
     <div v-if="viewType !== Default" class="maximize-btn">
-      <n-button tertiary circle @click="maximize">
+      <n-button tertiary circle @click="open">
         <template #icon>
           <c-icon name="fa-expand" color="#999" />
         </template>
       </n-button>
     </div>
-
-    <n-modal
-      v-model:show="dialog.visible"
-      class="preview-dialog"
-      style="width: 70%;"
-      preset="card"
-      :title="dialog.title"
-      :bordered="false"
-    >
-      <div class="preview-dialog-content">
-        <component
-          style="margin: auto;"
-          :is="viewType"
-          v-if="url"
-          :resource="props.resource"
-          :url="url"
-        />
-      </div>
-    </n-modal>
   </div>
 </template>
 
 <script setup>
-import { computed, watch, ref } from "vue";
+import { computed, watch, ref, Transition } from "vue";
 import Default from "./Default.vue";
 import YImage from "./Image.vue";
 import YImageM from "./Image-m.vue";
@@ -74,11 +56,6 @@ store().getFiletype().then(res => {
 const isMobile = window.sessionStorage.getItem("isMobile");
 
 const url = ref("");
-const dialogRaw = {
-  visible: false,
-  title: ""
-}
-const dialog = ref(dialogRaw);
 
 watch(() => props.resource, () => {
   url.value = "";
@@ -112,21 +89,24 @@ const viewType = computed({
   set: () => { }
 });
 
-const isQuickView = computed({
-  get: () => {
-    let type = props.resource.type;
-    if (filetype.value === null) return false;
-    if (filetype.value.image.indexOf(type) !== -1) {
-      return true;
-    }
-    return false;
-  },
-  set: () => { }
-});
+const previewRef = ref(null);
+const maximize = ref(false);
+const offsetTop = ref(0);
+const offsetLeft = ref(0);
+const open = function() {
+  const el = previewRef.value;
+  const { top, left } = el.getBoundingClientRect(el);
+  // el.style.top = `${top}px`;
+  // el.style.left = `${left}px`;
+  el.classList.toggle("fixed");
+  maximize.value = true;
+}
 
-const maximize = function() {
-  dialog.value.visible = true;
-  dialog.value.title = props.resource.name;
+const close = function() {
+  const el = previewRef.value;
+  // el.style.transition = `unset`;
+  el.classList.toggle("fixed");
+  maximize.value = false;
 }
 
 function getView(type) {
@@ -152,15 +132,46 @@ function getView(type) {
 .preview {
   width: 100%;
   height: 100%;
+  padding: 10px;
   background-color: #f7f7f7;
   display: flex;
-  padding: 10px;
   box-sizing: border-box;
   color: #555;
   font-weight: 700;
   justify-content: center;
   align-items: center;
   position: relative;
+  overflow: hidden;
+
+  .preview-content {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    top: 0;
+    left: 0;
+  }
+  .preview-content.fixed {
+    position: fixed;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 999;
+    width: 80vw;
+    height: 80vh;
+    padding: 10px 20px;
+    background-color: #FFF;
+    border-radius: 10px;
+  }
+
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+  }
 
   .maximize-btn {
     position: absolute;
@@ -168,15 +179,20 @@ function getView(type) {
     right: 0;
     padding: 5px;
   }
-}
 
-.preview-dialog {
-  .preview-dialog-content {
-    width: 100%;
-    min-height: 100px;
-    max-height: 80vh;
-    overflow-y: auto;
-  }
 }
+// .preview-enter-from {
+//   top: 0;
+// }
 
+// .preview-leave-to {
+//   top: 0;
+// }
+
+// .preview-enter-from ,
+// .preview-leave-to {
+//   top: unset;
+//   bottom: 0;
+//   left: 0;
+// }
 </style>

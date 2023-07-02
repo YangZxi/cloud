@@ -401,10 +401,14 @@ export default {
 .uploader-list {
   min-width: 300px;
   width: 35%;
+  max-width: 900px;
+  padding: 5px 20px;
+  border-radius: 7px;
   position: fixed;
   z-index: 2;
-  bottom: 60px;
-  right: 10px;
+  bottom: 65px;
+  right: 5px;
+  background: #deeee3;
 
   .uploader-file {
     height: unset;

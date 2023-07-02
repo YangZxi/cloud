@@ -17,12 +17,14 @@ const props = defineProps({
 
 <style lang="scss" scoped>
 .preview-img {
+  height: 100%;
   max-width: 100%;
   max-height: 100%;
 
   :deep(img) {
     max-width: 100%;
     max-height: 100%;
+    margin: auto;
   }
 }
 </style>

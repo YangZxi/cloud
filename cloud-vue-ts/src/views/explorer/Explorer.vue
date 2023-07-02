@@ -8,7 +8,7 @@
       ref="listTable"
       style="display: flex;height: calc(100% - 60px);"
     >
-      <div style="flex: 0 0 720px">
+      <div style="flex: 0 0 920px">
         <explorer-tool-bar
           :name="(bucket.name as string)"
           :path="explorerPath"
@@ -37,7 +37,7 @@
       </div>
       <div
         v-if="previewResource"
-        style="width: calc(100% - 720px - 20px);padding: 20px 0 20px 20px;"
+        style="flex: 1;padding: 20px 0 20px 20px;"
       >
         <FileDetails :resource="previewResource" />
       </div>

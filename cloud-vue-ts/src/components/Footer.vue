@@ -1,6 +1,6 @@
 <template>
   <div style="font-size: 12px;text-align: center;">
-    ©2020 - 2022 Power by WWW.XIAOSM.CN <br>
+    ©2021 - {{ new Date().getFullYear() }} Power by <a href="//www.xiaosm.cn" target="_blank">WWW.XIAOSM.CN</a> <br>
     <a
       target="_blank"
       rel="noopener"

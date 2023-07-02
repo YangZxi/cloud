@@ -1,39 +1,45 @@
 <template>
   <div>
-    <TextEditor
-      ref="editorRef"
-      height="calc(70vh - 20px)"
-      content=""
-      read-only
-    />
-    <div class="operateor">
-      <n-button size="small" v-if="edit == false" @click="toggleEdit(true)" color="#ff69b4">编辑</n-button>
-      <n-button size="small" v-if="edit" @click="toggleEdit(false)">取消</n-button>
-      <n-button size="small" v-if="edit" type="primary" @click="saveContent">保存</n-button>
+    <div v-show="props.maximize">
+      <TextEditor
+        ref="editorRef"
+        height="calc(70vh - 20px)"
+        content=""
+        read-only
+      />
+      <div class="operateor">
+        <n-button size="small" v-if="edit == false" @click="toggleEdit(true)" color="#ff69b4">编辑</n-button>
+        <n-button size="small" v-if="edit" @click="toggleEdit(false)">取消</n-button>
+        <n-button size="small" v-if="edit" type="primary" @click="saveContent">保存</n-button>
+      </div>
+    </div>
+    <div v-show="!props.maximize" >
+      {{ content }}
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref, inject, defineExpose } from "vue";
+import { onMounted, ref, defineExpose, watch, nextTick } from "vue";
 import http from "@/http/XMLHttpRequest";
 import TextEditor from "@/components/TextEditor/TextEditor.vue";
 import { saveContent as saveContentHttp } from "@/http/Explore";
 
 const props = defineProps({
   resource: Object,
-  url: String
+  url: String,
+  maximize: Boolean
+});
+
+watch(() => props.maximize, (val) => {
+  console.log();
+  setContent(content.value);
 });
 
 const edit = ref(false);
 const resource = ref(props.resource);
 const editorRef = ref(null);
-
-// watch(() => props.resource, (val) => {
-//   resource.value = props.resource;
-//   console.log("ref");
-//   refreshCode();
-// });
+const content = ref("");
 
 onMounted(() => {
   refreshContent();
@@ -41,11 +47,18 @@ onMounted(() => {
 
 const refreshContent = function() {
   http.post(props.url).then(({ data }) => {
-    editorRef.value.setValue(data);
+    setContent(data);
   }).catch(err => {
-    editorRef.value.setValue(err.msg);
     console.log(err);
+    setContent(err);
   });
+};
+
+const setContent = function(text) {
+  if (props.maximize) {
+    editorRef.value.setValue(text);
+  }
+  content.value = text;
 };
 
 const setReadOnly = function(flag = false) {

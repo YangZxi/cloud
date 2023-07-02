@@ -1,7 +1,7 @@
 <template>
   <div class="video-box">
     <Player
-      style="--vm-player-theme: #e86c8b;height: 100%;"
+      style="--vm-player-theme: #e86c8b;"
     >
       <Video
         cross-origin
@@ -50,7 +50,8 @@ function getType(type) {
 
 <style scoped>
 .video-box {
-  width: 100%;
+  width: 600px;
+  max-height: 100%;
 }
 
 /* @media screen and (max-width: 1400px) {

@@ -4,7 +4,7 @@
     <!-- <Preview :resource="props.resource" /> -->
     <Preview
       :resource="props.resource"
-      style="height: 280px;"
+      style="height: 330px;"
     />
     <div style="margin: 10px;text-align: center;">
       <n-tag

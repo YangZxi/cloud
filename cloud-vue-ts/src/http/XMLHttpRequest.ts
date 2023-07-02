@@ -89,9 +89,15 @@ instance.interceptors.response.use(
   }
 );
 
+const msgCache: { [key: string]: string } = {};
+
 function alertErrMsg(err: YAxiosResponse) {
   if (!err.data) return;
   if (err.data && err.data.code == 200) return;
+  const url = err.config.url || "";
+  if (msgCache[url]) return;
+  msgCache[url] = url;
+  setTimeout(() => { delete msgCache[url] }, 1000);
   if (err.data!.msg) window.$message.warning(err.data.msg);
   else if (err.data!.error) window.$message.warning(err.data.error);
   else window.$message.warning(RES_CODE[err.status]);
