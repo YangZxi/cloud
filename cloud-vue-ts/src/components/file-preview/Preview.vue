@@ -2,14 +2,19 @@
   <div class="preview" >
     <!-- <Transition name="preview"> -->
     <div class="preview-content" ref="previewRef">
-      <component
-        v-if="url"
-        style="width: 100%;overflow-y: auto;"
-        :is="viewType"
-        :resource="props.resource"
-        :maximize="maximize"
-        :url="url"
-      />
+      <div class="preview-title">
+        {{ props.resource.name }}
+      </div>
+      <div class="preview-body">
+        <component
+          v-if="url"
+          style="width: 100%; height: 100%;"
+          :is="viewType"
+          :resource="props.resource"
+          :maximize="maximize"
+          :url="url"
+        />
+      </div>
     </div>
     <!-- </Transition> -->
     <div class="overlay" v-if="maximize" @click="close"></div>
@@ -125,7 +130,6 @@ function getView(type) {
     return Default;
   }
 }
-
 </script>
 
 <style scoped lang="scss">
@@ -146,9 +150,22 @@ function getView(type) {
   .preview-content {
     width: 100%;
     height: 100%;
+    padding: 0 25px;
     position: relative;
     top: 0;
     left: 0;
+
+    .preview-title {
+      height: 30px;
+      display: none;
+      font-size: 18px;
+      font-weight: 700;
+      text-align: center;
+    }
+    .preview-body {
+      width: 100%;
+      height: 100%;
+    }
   }
   .preview-content.fixed {
     position: fixed;
@@ -157,11 +174,20 @@ function getView(type) {
     transform: translate(-50%, -50%) !important;
     z-index: 999;
     width: 80vw;
-    height: 80vh;
+    height: calc(80vh + 30px);
     padding: 10px 20px;
     background-color: #FFF;
     border-radius: 10px;
+
+    .preview-title {
+      display: block;
+    }
+    .preview-body {
+      height: calc(100% - 30px);
+      overflow-y: auto;
+    }
   }
+
 
   .overlay {
     position: fixed;

@@ -1,9 +1,10 @@
 <template>
   <div>
-    <div v-show="props.maximize">
+    <div v-show="props.maximize" style="width: 100%; height: calc(100% - 35px)">
       <TextEditor
         ref="editorRef"
-        height="calc(70vh - 20px)"
+        style="border: 1px #ececec solid; box-sizing: border-box;"
+        height="100%"
         content=""
         read-only
       />
@@ -96,10 +97,16 @@ defineExpose({
   height: 100%;
 }
 .operateor {
+  height: 30px;
+  padding-top: 5px;
+  box-sizing: border-box;
   text-align: right;
 
   button {
     margin: 0 5px;
   }
+}
+#editor {
+  margin-top: unset;
 }
 </style>

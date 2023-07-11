@@ -1,7 +1,6 @@
 <template>
   <vue-office-docx
     :src="props.url"
-    style="height: 100%; width: 100%;"
     @rendered="rendered"
   />
 </template>

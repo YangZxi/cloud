@@ -169,7 +169,7 @@
 
 <script setup>
 import { ref, reactive } from "vue";
-import Preview from "@/components/file-preview/PreviewDialog.vue";
+import Preview from "@/components/file-preview/Preview.vue";
 import { user } from "@/store/user";
 import VueQrcode from "@chenfengyuan/vue-qrcode";
 import { shareDialog, shareHandler } from "./index";

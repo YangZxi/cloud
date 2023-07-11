@@ -1,39 +1,28 @@
 <template>
-  <div class="video-box">
-    <Player
-      style="--vm-player-theme: #e86c8b;"
-    >
-      <Video
-        cross-origin
-        :poster="videoBg"
-      >
-        <source
-          :data-src="props.url"
-          type="video/mp4"
-        >
-        <!-- <track
-          default
-          kind="subtitles"
-          src="https://media.vimejs.com/subs/english.vtt"
-          srclang="en"
-          label="English"
-        > -->
-      </Video>
-
-      <DefaultUi />
-    </Player>
+  <div class="preview-video flex-center">
+    <div id="dplayer"></div>
   </div>
 </template>
 
 <script setup>
-import videoBg from "@/assets/video-bg.jpg";
-import "@vime/core/themes/default.css";
-import { Player, Video, DefaultUi } from "@vime/vue-next";
+import { onMounted } from "vue";
+import videoBg from '@/assets/video-bg.jpg';
+import DPlayer from 'dplayer';
 
 const props = defineProps({
   resource: Object,
   url: String
 });
+
+onMounted(() => {
+  const dp = new DPlayer({
+    container: document.getElementById('dplayer'),
+    video: {
+      url: props.url,
+      theme: "#d8eadc"
+    },
+  });
+})
 
 function getType(type) {
   switch (type) {
@@ -48,11 +37,17 @@ function getType(type) {
 
 </script>
 
-<style scoped>
-.video-box {
-  width: 600px;
-  max-height: 100%;
+<style scoped lang="scss">
+.preview-video {
+  height: 100%;
+
+  #dplayer {
+    width: 100%;
+    max-width: 70vw;
+  }
 }
+
+
 
 /* @media screen and (max-width: 1400px) {
   .video-box {

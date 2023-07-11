@@ -5,17 +5,18 @@
   "scripts": {
     "dev": "vite",
     "prod": "vite --mode production",
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
+    "fix": "eslint --fix",
     "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
     "@chenfengyuan/vue-qrcode": "2",
     "@varlet/ui": "^2.3.1",
-    "@vime/core": "^5.4.0",
-    "@vime/vue-next": "^5.4.0",
     "@vue-office/docx": "^0.2.4",
     "axios": "^0.27.2",
     "crypto-js": "^4.1.1",
+    "dplayer": "^1.27.1",
     "highlight.js": "^11.6.0",
     "pinia": "^2.0.13",
     "qrcode": "^1.5.1",
