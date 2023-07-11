@@ -16,7 +16,6 @@
     <properties>
         <mybatis-plus.version>3.5.1</mybatis-plus.version>
         <mysql.version>8.0.28</mysql.version>
-        <ali-pool.version>1.1.22</ali-pool.version>
         <justauth.version>1.15.6</justauth.version>
         <poi.version>4.1.2</poi.version>
         <quartz.version>2.3.2</quartz.version>
@@ -88,15 +87,6 @@
             <version>${mysql.version}</version>
         </dependency>
         <!-- mysql END -->
-
-        <!-- alibaba connection pool -->
-        <!-- https://mvnrepository.com/artifact/com.alibaba/druid-spring-boot-starter -->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid-spring-boot-starter</artifactId>
-            <version>${ali-pool.version}</version>
-        </dependency>
-        <!-- alibaba END -->
 
         <!-- 集成快捷登录插件 -->
         <dependency>

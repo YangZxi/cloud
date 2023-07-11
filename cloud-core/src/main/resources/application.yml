@@ -7,10 +7,6 @@ spring:
     url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/cloud?${MYSQL_PARAMS:characterEncoding=utf-8}
     username: ${MYSQL_USER:root}
     password: ${MYSQL_PWD:123456}
-    # 连接池类型
-    type: com.alibaba.druid.pool.DruidDataSource
-    druid:
-      filters: stat,wall
   redis:
     host: ${REDIS_HOST:127.0.0.1}
     port: 6379

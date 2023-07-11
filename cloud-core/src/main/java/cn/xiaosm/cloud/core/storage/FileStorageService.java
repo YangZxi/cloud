@@ -19,6 +19,7 @@ public class FileStorageService {
     private InputStream in;
     private byte[] content;
     private String path;
+    private String name;
     private String filename;
 
     public FileStorageService(File file) {
@@ -43,20 +44,21 @@ public class FileStorageService {
         if (StrUtil.isBlank(filename)) {
             throw new IllegalArgumentException("filename 为空");
         }
-        File file = new File(path + "/" + filename);
+        String localStorePath = UploadConfig.LOCAL_PATH;
+        File file = new File(localStorePath + "/" + path, filename);
         if (file.exists()) {
             throw new ResourceException(path + "文件已存在");
         }
         try {
-            Assert.isTrue(file.createNewFile());
+            Assert.isTrue(file.createNewFile(), "文件【" + name + "】创建失败");
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ResourceException("文件【" + name + "】创建失败");
         }
-        try(FileOutputStream out = new FileOutputStream(file)) {
+        try (FileOutputStream out = new FileOutputStream(file)) {
             out.write(this.content);
         } catch (IOException e) {
             log.error("文件[{}]上传失败，{}", this.filename, e.getMessage());
-            throw new RuntimeException(e);
+            throw new ResourceException("文件【" + name + "】创建失败");
         }
         log.info("文件[{}]上传成功，路径：{}", this.filename, this.path);
     }

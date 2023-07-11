@@ -2,12 +2,10 @@ package cn.xiaosm.cloud.core.aspect;
 
 import cn.hutool.extra.servlet.ServletUtil;
 import cn.hutool.json.JSONUtil;
+import cn.xiaosm.cloud.common.annotation.LogRecord;
 import cn.xiaosm.cloud.common.entity.Log;
-import cn.xiaosm.cloud.common.exception.CanShowException;
-import cn.xiaosm.cloud.common.exception.ResourceException;
 import cn.xiaosm.cloud.common.service.LoggerService;
 import cn.xiaosm.cloud.common.util.ServletUtils;
-import cn.xiaosm.cloud.common.annotation.LogRecord;
 import cn.xiaosm.cloud.core.config.security.service.TokenService;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -17,14 +15,12 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.security.Principal;
 import java.time.LocalDateTime;
 
 @Aspect
@@ -65,25 +61,19 @@ public class LogAspect {
         String className = joinPoint.getSignature().getDeclaringTypeName();
         esLog.setMethod(className + "." + joinPoint.getSignature().getName());
         // 执行方法 得到的对象是返回值
-        Object returnObj;
+        Object returnObj = null;
         try {
-            returnObj= joinPoint.proceed();
+            returnObj = joinPoint.proceed();
             esLog.setType("INFO");
-        } catch (CanShowException e) {
+            logger.info("{}", esLog);
+        } catch (Exception e) {
             esLog.setType("ERROR");
-            esLog.setError(this.getStackTrace(e));
-            throw e;
-        } catch (Throwable throwable) {
-            esLog.setType("ERROR");
-            esLog.setError(this.getStackTrace(throwable));
-            throwable.printStackTrace();
-            throw throwable;
+            esLog.setError(e.getMessage());
+            logger.error("{}", esLog);
         } finally {
             // 设置请求耗时
             esLog.setTime((int) (System.currentTimeMillis() - start));
-            // logService.save(log);
             esLog.setCreateTime(LocalDateTime.now());
-            logger.info("{}", esLog);
             loggerService.insert(esLog);
         }
         return returnObj;

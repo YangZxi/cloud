@@ -21,6 +21,7 @@ import cn.xiaosm.cloud.security.entity.TokenType;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -138,17 +139,19 @@ public class PreviewController {
         response.setContentType(contentType);
         response.setHeader("Access-Control-Allow-Origin", "*");
         // GET 请求直接在浏览器中能够展示
-        if ("GET".equalsIgnoreCase(request.getMethod())) {
+        if (HttpMethod.GET.matches(request.getMethod())) {
             DownloadUtil.outputData(request, response, file);
+            return null;
         }
         // 如果非 GET 请求，且文件类型是文本时，直接把内容放在 json 中传回
         else if (ArrayUtil.contains(TEXT_TYPE, resourceDTO.getType())) {
             return RespUtils.success("", IoUtil.read(FileUtil.getInputStream(file), Charset.defaultCharset()));
+        } else {
+            return RespUtils.fail("非文本文件请使用 GET 请求");
         }
-        return RespUtils.fail("非文本文件请使用 GET 请求");
     }
 
-    private static final Map<String, String> RESOURCE_TYPE = new HashMap(){{
+    private static final Map<String, String> RESOURCE_TYPE = new HashMap<>(){{
        put("plain", "text/plain;charset=UTF-8");
        put("jpg", "image/jpeg");
        put("jpeg", "image/jpeg");

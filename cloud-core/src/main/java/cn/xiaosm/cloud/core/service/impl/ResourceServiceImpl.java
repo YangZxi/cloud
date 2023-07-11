@@ -131,6 +131,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     }
 
     @Override
+    @Transactional
     public Long create(ResourceDTO resource) {
         // 校验文件名
         if (!checkName(resource.getName())) throw new ResourceException("文件名不能包含：" + ILLEGAL_CHAR);
@@ -169,24 +170,19 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             // 因为刚开始创建的是空文件，所以不计算hash，使用 uuid
             db.setHash(uuid);
         }
-        try {
-            // 数据库中创建数据后创建文件
-            if (resourceMapper.insert(db) == 1) {
-                // 创建文件
-                if (!db.isDir()) {
-                    FileStorageUtil.of(new byte[1]).setPath(path).setFilename(fileName).upload();
-                }
-                log.info("文件创建成功");
+        // 数据库中创建数据后创建文件
+        if (resourceMapper.insert(db) == 1) {
+            if (!db.isDir()) {
+                FileStorageUtil.of(new byte[0]).setPath(path).setFilename(fileName).setName(resource.getName()).upload();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("文件创建失败");
-            throw new ResourceException("文件【" + resource.getName() + "】创建失败");
+            // 创建文件
+            log.info("文件创建成功");
         }
         return db.getId();
     }
 
     @Override
+    @Transactional
     public boolean saveContent(ResourceDTO dto) {
         // 获取数据库中的数据
         QueryWrapper<Resource> wrapper = new QueryWrapper<>();

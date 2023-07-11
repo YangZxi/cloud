@@ -13,7 +13,6 @@ import cn.xiaosm.cloud.common.entity.enums.RespStatus;
 import cn.xiaosm.cloud.common.exception.CanShowException;
 import cn.xiaosm.cloud.common.util.RespUtils;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
@@ -37,10 +36,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public RespBody catchException(Throwable e) {
         e.printStackTrace();
-        log.error(e.getMessage());
-        if (e.getMessage() != null && e.getMessage().startsWith("@")) {
-            return RespUtils.error(e.getMessage().substring(1));
-        }
+        log.error("catchException: {}", e.getMessage());
         return RespUtils.error("请求出错，请稍后再试\n" + e.getMessage());
     }
 
@@ -51,13 +47,15 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public RespBody catchValidException(MethodArgumentNotValidException e) {
-        log.error(e.getMessage());
+        e.printStackTrace();
+        log.error("catchValidException: {}", e.getMessage());
         return RespUtils.error(e.getBindingResult().getFieldError().getDefaultMessage(), null);
     }
 
     @ExceptionHandler(AuthenticationException.class)
     public RespBody catchLoginException(AuthenticationException e) {
-        log.error(e.getMessage());
+        e.printStackTrace();
+        log.error("catchLoginException: {}", e.getMessage());
         return RespUtils.error(e.getMessage(), null);
     }
 
@@ -68,21 +66,23 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(AccessDeniedException.class)
     public RespBody catchAuthorizationException(AccessDeniedException e) {
-        log.error(e.getMessage());
+        e.printStackTrace();
+        log.error("catchAuthorizationException: {}", e.getMessage());
         return RespUtils.build(RespStatus.AUTHORITIES_DENIED, "非法权限访问");
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)
     public RespBody catchUsernameNotFoundException(UsernameNotFoundException e) {
-        log.error(e.getMessage());
-        return RespUtils.error(e.getMessage());
+        e.printStackTrace();
+        log.error("catchUsernameNotFoundException: {}", e.getMessage());
+        return RespUtils.error(e.getCause().getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public RespBody illegalArgumentException(IllegalArgumentException e) {
         e.printStackTrace();
-        log.error(e.getMessage());
-        return RespUtils.error(e.getMessage());
+        log.error("illegal: {}", e.getMessage());
+        return RespUtils.error(e.getCause().getMessage());
     }
 
     @ExceptionHandler(CanShowException.class)
