@@ -87,11 +87,11 @@
 </template>
 
 <script lang="ts">
-import { SERVER_UPLOAD } from "@/http/API";
+import {SERVER_UPLOAD} from "@/http/API";
 import uploader from "vue-simple-uploader";
 import "vue-simple-uploader/dist/style.css";
 import user from "@/store/user";
-import { uploadCheck, mergeChunk } from "@/http/Explore";
+import {mergeChunk, uploadCheck} from "@/http/Explore";
 
 // 分片大小，20MB
 const CHUNK_SIZE = 30 * 1024 * 1024;
@@ -282,7 +282,7 @@ export default {
         } else {
           // 该文件的md5值
           let md5 = spark.end();
-          console.log(`MD5计算完毕：${md5}，耗时：${new Date().getTime() - startTime} ms.`);
+          console.log(`MD5计算完毕: ${md5}，耗时：${new Date().getTime() - startTime} ms.`);
           // 回调传值md5
           callback(md5);
         }
@@ -359,11 +359,6 @@ export default {
       } else {
         return "#2684FE";
       }
-    },
-    // 点击下载
-    download(file, _id) {
-      console.log("file:>> ", file);
-      window.location.href = `/fileStorage/download/${file.uniqueIdentifier}`;
     },
     formatFileSize(bytes, decimalPoint = 2) {
       if (bytes === 0) return "0 B";

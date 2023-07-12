@@ -1,8 +1,5 @@
-import { h } from "vue";
-import {
-  SERVER_BASE,
-  EXCEL_EXPORT
-} from "../http/API";
+import {h} from "vue";
+import {EXCEL_EXPORT, SERVER_BASE} from "../http/API";
 
 /**
  * @param {*} source 需要重置的对象
@@ -123,6 +120,7 @@ export const download = function(url) {
       content: () => h("a", {
         href: url,
         target: "_blank",
+        type: "download",
         style: "font-weight: bold;font-size: 1rem"
       }, "点我下载"),
       positiveText: "确定"
@@ -141,7 +139,7 @@ export const download = function(url) {
       evt.initEvent("click", true, true);
       a.dispatchEvent(evt);
     }
-    document.removeChild(a);
+    document.body.removeChild(a);
   }
 };
 

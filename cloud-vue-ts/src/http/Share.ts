@@ -1,10 +1,9 @@
-import http, { axios, API, alertErrMsg } from "./XMLHttpRequest"
-import { AxiosResponse, AxiosRequestConfig } from 'axios'
+import http, {alertErrMsg, API, axios} from "./XMLHttpRequest"
+import {AxiosRequestConfig, AxiosResponse} from 'axios'
 import $router from '@/router/index'
-import { sharePinia } from '@/store/share'
-import { download as DL } from "@/utils/Tools"
-import type { RespBody } from "./XMLHttpRequest"
-import { SERVER_PREVIEW } from "./API"
+import {sharePinia} from '@/store/share'
+import {download as DL} from "@/utils/Tools"
+import {SERVER_DOWNLOAD, SERVER_PREVIEW} from "./API"
 
 export const instance = axios.create({
   headers: {
@@ -19,7 +18,7 @@ instance.defaults.withCredentials = false;
 instance.interceptors.request.use(
   function (config: AxiosRequestConfig) {
     if (!config.headers) config.headers = {};
-    config.headers["Authorization"] = "Bearer " + sharePinia().token;
+    config.headers["Authorization"] = "Bearer " + (sharePinia().token || "");
     return config;
   }
 );
@@ -100,25 +99,30 @@ export const getShareList = (id: string, path: string) => {
   });
 }
 
-export const download = (id: string | number, path: string) => {
-  return instance.post(API("/share/pre_download"), {
-    resourceId: id,
-    path
-  }).then((res: any) => {
-    if (res.code == 200) {
-      const url = `${API("/resource/download", false)}?entry=${res.data}`;
-      DL(url);
+function getLink(id: string, path: string) {
+  return instance.post(API(`/share/link`), {
+    resourceId: id, path
+  }).then(res => res.data);
+}
+
+export const download = (id: string, path: string) => {
+  return getLink(id, path).then((url) => {
+    if (!url.startsWith("http")) {
+      url = `${SERVER_DOWNLOAD}${url}`;
     }
+    DL(url);
   });
 }
 
-export const preview = (id: string) => {
-  return sharePinia().getUnsafeToken().then(token => {
-    // window.open(`${SERVER_PREVIEW}/${uuid}?token=${token}`);
-    return `${SERVER_PREVIEW}/${id}?token=${token}`;
+export const preview = (id: string, path: string) => {
+  return getLink(id, path).then(url => {
+    console.log(url);
+    if (!url.startsWith("http")) {
+      url = `${SERVER_PREVIEW}${url}`;
+    }
+    return url;
   });
 }
-
 
 export default {
   createShare,

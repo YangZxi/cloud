@@ -1,8 +1,7 @@
 package cn.xiaosm.cloud.core.controller;
 
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import cn.xiaosm.cloud.common.entity.RespBody;
@@ -12,16 +11,14 @@ import cn.xiaosm.cloud.core.config.security.SecurityUtils;
 import cn.xiaosm.cloud.core.config.security.service.TokenService;
 import cn.xiaosm.cloud.core.entity.Resource;
 import cn.xiaosm.cloud.core.entity.dto.ResourceDTO;
-import cn.xiaosm.cloud.core.service.ResourceService;
 import cn.xiaosm.cloud.core.service.ShareService;
+import cn.xiaosm.cloud.core.service.impl.ResourceService;
 import cn.xiaosm.cloud.core.util.download.DownloadUtil;
-import cn.xiaosm.cloud.security.annotation.AnonymousAccess;
 import cn.xiaosm.cloud.security.entity.AuthUser;
 import cn.xiaosm.cloud.security.entity.TokenType;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,7 +39,7 @@ import java.util.Map;
  */
 @Log4j2
 @RestController
-@RequestMapping("resource")
+@RequestMapping
 public class PreviewController {
 
     @Autowired
@@ -53,26 +50,62 @@ public class PreviewController {
     TokenService tokenService;
 
     /**
-     * 文件下载请求
-     * @param entry
-     * @param request
-     * @param response
-     * @return
+     * 创建用于文件预览的链接
      */
-    @AnonymousAccess
-    @GetMapping("download")
+    @PostMapping("api/resource/link/{id}")
+    @PreAuthorize("hasAuthority('resource:preview')")
+    public RespBody buildLink(
+            @PathVariable("id") String id
+    ) {
+        AuthUser authUser = ((AuthUser) SecurityUtils.getAuthentication().getPrincipal());
+        TokenType type = authUser.getTokenType();
+        ResourceDTO resourceDTO = new ResourceDTO();
+        switch (type) {
+            case LOGIN -> {
+                resourceDTO.setId(Long.valueOf(id));
+                resourceDTO.setUserId(SecurityUtils.getLoginUserId());
+                String url = resourceService.buildLink(resourceDTO);
+                return RespUtils.success("OK", url);
+            }
+            case SHARE -> {
+                Resource res = (Resource) CacheUtils.get("S" + id);
+                if (res != null) {
+                    BeanUtils.copyProperties(res, resourceDTO);
+                    File file = resourceService.getLocalFile(res);
+                    if (!file.exists()) {
+                        return RespUtils.fail("资源不存在");
+                    }
+                    resourceDTO.setFileAbPath(file.getAbsolutePath());
+                }
+
+                String uuid = IdUtil.fastSimpleUUID();
+                String url = resourceDTO.getUrl();
+                CacheUtils.set(uuid, resourceDTO, authUser.expired() - System.currentTimeMillis());
+                return RespUtils.success("OK", url);
+            }
+        }
+        return RespUtils.fail("获取预览链接失败");
+    }
+
+    /**
+     * 文件下载请求
+     */
+    @GetMapping("download/{uuid}")
     public Object download(
-        @RequestParam("entry") String entry,
-        HttpServletRequest request,
-        HttpServletResponse response) {
-        ResourceDTO resource = (ResourceDTO) CacheUtils.get(entry, true);
+            @PathVariable("uuid") String uuid,
+            @RequestParam("token") String token,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        String key = getCacheKey(token, uuid);
+        ResourceDTO resource = (ResourceDTO) CacheUtils.get(key, true);
         if (resource == null) {
             log.info("资源已过期");
             return RespUtils.fail("资源已过期");
         }
         File file = new File(resource.getFileAbPath());
         if (!file.exists()) {
-            CacheUtils.del(entry);
+            CacheUtils.del(key);
             log.info("资源已被删除");
             return RespUtils.fail("资源已被删除");
         }
@@ -92,37 +125,23 @@ public class PreviewController {
         return null;
     }
 
-    @RequestMapping("preview/{id}")
+    @GetMapping("preview/{uuid}")
     @PreAuthorize("hasAuthority('resource:preview')")
     public RespBody preview(
-        @PathVariable("id") String id,
+        @PathVariable("uuid") String uuid,
+        @RequestParam("token") String token,
         HttpServletRequest request,
         HttpServletResponse response
     ) {
-        TokenType type = ((AuthUser) SecurityUtils.getAuthentication().getPrincipal()).getTokenType();
-        ResourceDTO resourceDTO = new ResourceDTO();
-        switch (type) {
-            case LOGIN -> {
-                resourceDTO.setId(Long.valueOf(id));
-                resourceDTO.setUserId(SecurityUtils.getLoginUserId());
-                resourceDTO = resourceService.preview(resourceDTO);
-            }
-            case SHARE -> {
-                Resource res = (Resource) CacheUtils.get("S" + id);
-                if (res != null) {
-                    BeanUtils.copyProperties(res, resourceDTO);
-                    File file = resourceService.getLocalFile(res);
-                    if (!file.exists()) {
-                        return RespUtils.fail("资源不存在");
-                    }
-                    resourceDTO.setFileAbPath(file.getAbsolutePath());
-                }
-            }
-        }
+        ResourceDTO resourceDTO = (ResourceDTO) CacheUtils.get(getCacheKey(token, uuid), true);
         return previewHandler(resourceDTO, request, response);
     }
 
     private final Long MAX_SIZE = (1 << 20) * 10L; // 10MB
+
+    public String getCacheKey(String token, String uuid) {
+        return String.format("%s:%s", token, uuid);
+    }
 
     public RespBody previewHandler(ResourceDTO resourceDTO, HttpServletRequest request, HttpServletResponse response) {
         if (resourceDTO == null) {
@@ -138,17 +157,9 @@ public class PreviewController {
         response.reset();
         response.setContentType(contentType);
         response.setHeader("Access-Control-Allow-Origin", "*");
-        // GET 请求直接在浏览器中能够展示
-        if (HttpMethod.GET.matches(request.getMethod())) {
-            DownloadUtil.outputData(request, response, file);
-            return null;
-        }
-        // 如果非 GET 请求，且文件类型是文本时，直接把内容放在 json 中传回
-        else if (ArrayUtil.contains(TEXT_TYPE, resourceDTO.getType())) {
-            return RespUtils.success("", IoUtil.read(FileUtil.getInputStream(file), Charset.defaultCharset()));
-        } else {
-            return RespUtils.fail("非文本文件请使用 GET 请求");
-        }
+
+        DownloadUtil.outputData(request, response, file);
+        return null;
     }
 
     private static final Map<String, String> RESOURCE_TYPE = new HashMap<>(){{

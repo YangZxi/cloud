@@ -6,8 +6,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.stream.Collectors;
 
 /**
@@ -21,6 +21,7 @@ public class ShareUser implements AuthUser {
     private TokenType tokenType = TokenType.SHARE;
     private String shareId;
     private Collection<SimpleGrantedAuthority> authorities;
+    private Date expireTime = null;
 
     public ShareUser(String shareId) {
         this.shareId = shareId;
@@ -64,6 +65,12 @@ public class ShareUser implements AuthUser {
     @Override
     public boolean isEnabled() {
         return false;
+    }
+
+
+
+    public long expired() {
+        return this.expireTime.getTime() - System.currentTimeMillis();
     }
 
     @Override

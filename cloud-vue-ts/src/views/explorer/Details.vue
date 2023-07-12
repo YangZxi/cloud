@@ -50,6 +50,27 @@
       >
         分享
       </n-button>
+      
+      <n-popconfirm 
+        v-if="user().user && user().user?.username !== 'guest'"
+        positive-text="确定" negative-text="算了"
+        @positive-click="useCdn"
+      >
+        <template #icon>
+          <c-icon name="fa-bolt" />
+        </template>
+        <template #trigger>
+          <n-button
+            strong
+            secondary
+            round
+            type="warning"
+          >
+          {{ resource.cdn ? "禁用 CDN" : "开启 CDN" }}
+          </n-button>
+        </template>
+        {{ resource.cdn ? "禁用 CDN" : "开启 CDN" }}
+      </n-popconfirm>
       <!-- <n-button strong secondary round type="error">
         删除资源
       </n-button> -->
@@ -168,12 +189,12 @@
 </template>
 
 <script setup>
-import { ref, reactive } from "vue";
+import {reactive, ref} from "vue";
 import Preview from "@/components/file-preview/Preview.vue";
-import { user } from "@/store/user";
+import {user} from "@/store/user";
 import VueQrcode from "@chenfengyuan/vue-qrcode";
-import { shareDialog, shareHandler } from "./index";
-import { copyText } from "@/utils/Tools";
+import {shareDialog, shareHandler, toggleCdn} from "./index";
+import {copyText} from "@/utils/Tools";
 
 const props = defineProps({
   resource: {
@@ -193,6 +214,14 @@ const shortcuts = reactive({
 const openShare = function() {
   shareDialog.visible = true;
   shareDialog.form.resourceIds = props.resource.id + "";
+};
+
+const useCdn = function() {
+  if (props.resource.cdn) {
+    console.log("have been CDN");
+    return;
+  }
+  toggleCdn(props.resource.id);
 };
 
 const shareUrlRef = ref(null);

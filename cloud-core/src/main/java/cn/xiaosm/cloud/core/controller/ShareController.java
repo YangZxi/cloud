@@ -1,29 +1,32 @@
 package cn.xiaosm.cloud.core.controller;
 
-import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.lang.Assert;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.xiaosm.cloud.common.annotation.Api;
 import cn.xiaosm.cloud.common.annotation.LogRecord;
 import cn.xiaosm.cloud.common.entity.RespBody;
 import cn.xiaosm.cloud.common.exception.ShareException;
 import cn.xiaosm.cloud.common.util.RespUtils;
 import cn.xiaosm.cloud.common.util.cache.CacheUtils;
-import cn.xiaosm.cloud.common.annotation.Api;
 import cn.xiaosm.cloud.core.config.security.SecurityUtils;
 import cn.xiaosm.cloud.core.config.security.service.TokenService;
 import cn.xiaosm.cloud.core.entity.Resource;
 import cn.xiaosm.cloud.core.entity.Share;
-import cn.xiaosm.cloud.core.entity.dto.ResourceDTO;
 import cn.xiaosm.cloud.core.entity.dto.ShareDTO;
 import cn.xiaosm.cloud.core.entity.vo.ShareVO;
 import cn.xiaosm.cloud.core.service.ShareService;
 import cn.xiaosm.cloud.security.annotation.AnonymousAccess;
 import cn.xiaosm.cloud.security.entity.ShareUser;
+import cn.xiaosm.cloud.security.entity.TokenType;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
  * @create 2022/4/9
  * @since 1.0.0
  */
+@Slf4j
 @Api("share")
 public class ShareController {
 
@@ -42,6 +46,8 @@ public class ShareController {
     TokenService tokenService;
     @Autowired
     PreviewController previewController;
+
+    private static final String SHARE_LIST_CACHE = "share:";
 
     @RequestMapping("create")
     @LogRecord("资源分享")
@@ -56,25 +62,35 @@ public class ShareController {
      */
     @RequestMapping("pass")
     @AnonymousAccess
-    public RespBody pass(@RequestBody ShareDTO dto, HttpServletRequest request, HttpServletResponse response) {
-        if (StrUtil.isBlank(dto.getId())) return RespUtils.fail("当前分享的资源在地球找不到啦!");
-        // 如果当前token还没有过期，直接返回
+    public ResponseEntity<RespBody> pass(@RequestBody ShareDTO dto, HttpServletRequest request, HttpServletResponse response) {
         String token = tokenService.getToken(request);
+        // token 为空，验证密码
+        if (StrUtil.isBlank(token)) {
+            Share share = shareService.checkPass(dto);
+            RespUtils.sendToken(response, tokenService.createShareToken(share.getId()));
+            return null;
+        }
+        // token 不为空，验证token
+        if (!tokenService.verifyToken(token)) {
+            return new ResponseEntity<>(RespUtils.build(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED"), HttpStatus.UNAUTHORIZED);
+        }
+        if (StrUtil.isBlank(dto.getId())) return new ResponseEntity<>(RespUtils.fail("当前分享的资源在地球找不到啦!"), HttpStatus.OK);
+        TokenType type = tokenService.getType(request);
+        if (!TokenType.SHARE.equals(type)) {
+            log.error("不是 Share token, token={}, type={}", token, type);
+            return new ResponseEntity<>(RespUtils.fail("error"), HttpStatus.OK);
+        }
+        // 验证 token 中的参数是否和当前分享 id 相同
         if (dto.getId().equals(tokenService.getClaim(token, "shareId"))) {
             RespUtils.sendToken(response, token);
             return null;
         }
-        Share share = shareService.checkPass(dto);
-        if (null != share) {
-            RespUtils.sendToken(response, tokenService.createShareToken(share.getId()));
-            return null;
-        }
-        return RespUtils.fail("当前分享资源暂不可访问");
+        return new ResponseEntity<>(RespUtils.fail("当前分享资源暂不可访问"), HttpStatus.OK);
     }
 
     @RequestMapping("list")
     @PreAuthorize("hasRole('ROLE_share')")
-    public RespBody preview(@RequestBody ShareDTO share, HttpServletRequest request) {
+    public RespBody preview(@RequestBody ShareDTO share) {
         Assert.isTrue(hasShare(share.getId()), () -> new ShareException("当前分享的资源在地球找不到啦！"));
         ShareDTO dto = shareService.info(share);
         if (dto.getResourceList().size() == 1) {
@@ -91,16 +107,13 @@ public class ShareController {
      * @param shareDTO
      * @return
      */
-    @PostMapping("pre_download")
+    @PostMapping("link")
     @PreAuthorize("hasRole('ROLE_share')")
-    public RespBody makeDownload(@RequestBody ShareDTO shareDTO) {
+    public RespBody buildLink(@RequestBody ShareDTO shareDTO) {
         if (null == shareDTO.getResourceId()) return RespUtils.fail("资源ID不可以为空");
         shareDTO.setId(((ShareUser) SecurityUtils.getAuthentication().getPrincipal()).getShareId());
-        ResourceDTO resource = shareService.download(shareDTO);
-        String uuid = IdUtil.simpleUUID();
-        // 3 分钟后过期
-        CacheUtils.set(uuid, resource, DateUnit.MINUTE.getMillis() * 3);
-        return RespUtils.success("OK", uuid);
+        String url = shareService.buildLink(shareDTO);
+        return RespUtils.success("OK", url);
     }
 
     @RequestMapping("/short_url")
@@ -115,9 +128,7 @@ public class ShareController {
     private boolean hasShare(String shareId) {
         if (StrUtil.isBlank(shareId)) return false;
         ShareUser principal = (ShareUser) SecurityUtils.getAuthentication().getPrincipal();
-        if (null != principal && shareId.equals(principal.getShareId())) {
-            return true;
-        }
-        return false;
+        // 不为空，且 id 相等
+        return null != principal && shareId.equals(principal.getShareId());
     }
 }

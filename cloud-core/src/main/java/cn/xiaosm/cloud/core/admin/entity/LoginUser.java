@@ -14,7 +14,6 @@ import cn.xiaosm.cloud.security.entity.AuthUser;
 import cn.xiaosm.cloud.security.entity.TokenType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import lombok.experimental.Accessors;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -30,7 +29,6 @@ import java.util.stream.Collectors;
  * @since 1.0.0
  */
 @Data
-@Accessors(chain = true)
 public class LoginUser extends User implements AuthUser {
 
     private TokenType tokenType = TokenType.LOGIN;
@@ -47,6 +45,7 @@ public class LoginUser extends User implements AuthUser {
     private List<Menu> menusOriginal; // 源菜单列表
     private List<UserLoginTrack> userLoginTracks;
     private Collection<SimpleGrantedAuthority> authorities;
+    private Date expireTime = null;
 
     public void setLoginId(String loginId) {
         this.loginId = loginId;
@@ -91,4 +90,7 @@ public class LoginUser extends User implements AuthUser {
             .sorted(Comparator.comparingInt(Menu::getOrder)).collect(Collectors.toList());
     }
 
+    public long expired() {
+        return this.expireTime.getTime() - System.currentTimeMillis();
+    }
 }

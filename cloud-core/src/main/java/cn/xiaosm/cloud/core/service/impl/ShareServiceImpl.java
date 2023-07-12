@@ -9,15 +9,19 @@ import cn.hutool.core.util.StrUtil;
 import cn.xiaosm.cloud.common.exception.CanShowException;
 import cn.xiaosm.cloud.common.exception.ResourceException;
 import cn.xiaosm.cloud.common.exception.ShareException;
+import cn.xiaosm.cloud.common.util.cache.CacheUtils;
 import cn.xiaosm.cloud.core.config.security.SecurityUtils;
+import cn.xiaosm.cloud.core.config.security.service.TokenService;
 import cn.xiaosm.cloud.core.entity.Resource;
 import cn.xiaosm.cloud.core.entity.Share;
 import cn.xiaosm.cloud.core.entity.dto.ResourceDTO;
 import cn.xiaosm.cloud.core.entity.dto.ShareDTO;
 import cn.xiaosm.cloud.core.mapper.ResourceMapper;
 import cn.xiaosm.cloud.core.mapper.ShareMapper;
-import cn.xiaosm.cloud.core.service.ResourceService;
 import cn.xiaosm.cloud.core.service.ShareService;
+import cn.xiaosm.cloud.core.storage.FileStorageUtil;
+import cn.xiaosm.cloud.core.storage.StorageType;
+import cn.xiaosm.cloud.security.entity.AuthUser;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +29,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -45,6 +50,8 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements
     ResourceMapper resourceMapper;
     @Autowired
     ShareMapper shareMapper;
+    @Autowired
+    TokenService tokenService;
 
     @Override
     public ShareDTO create(ShareDTO dto) {
@@ -84,6 +91,7 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements
     }
 
     @Override
+    @NotNull
     public Share checkPass(ShareDTO dto) {
         Share db = this.getByUuidAndDeadline(dto);
         // 分享有密码，但是未提供密码，或密码不正确
@@ -112,7 +120,7 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements
     }
 
     @Override
-    public ResourceDTO download(ShareDTO shareDTO) {
+    public String buildLink(ShareDTO shareDTO) {
         // 获取所有分享资源时判断是否过期
         Share db = this.getByUuidAndDeadline(shareDTO);
         Resource resource;
@@ -122,19 +130,30 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements
                 () -> new ShareException("当前分享的资源在地球找不到啦！"));
             resource = resourceMapper.selectById(shareDTO.getResourceId());
         } else {
-            List<Resource> resourceList = resourceService.listByIds(db.getResourceIds());
-            Long parentId = this.getResourceIdByPath(shareDTO.getPath(), resourceList);
-            resource = resourceMapper.selectByParentAndIdNotDir(parentId, shareDTO.getResourceId());
+            // 文件夹内的资源
+            logger.error("暂不支持的操作，文件夹内的资源");
+            throw new ShareException("暂不支持的操作");
         }
         if (null == resource) {
             throw new ShareException("当前分享的资源在地球找不到啦！");
         }
-        File file = resourceService.getLocalFile(resource);
-        if (!file.exists()) throw new ShareException("当前分享的源文件已被删除！");;
         ResourceDTO resourceDTO = new ResourceDTO();
-        resourceDTO.setName(resource.getName());
-        resourceDTO.setFileAbPath(file.getAbsolutePath());
-        return resourceDTO;
+        if (StrUtil.isNotBlank(resource.getCdn())) {
+            String url = FileStorageUtil.download(resource.getCdn(), StorageType.TENCENT);
+            return url;
+        } else {
+            File file = resourceService.getLocalFile(resource);
+            if (!file.exists()) throw new ResourceException("当前资源在地球找不到啦！1001");
+            resourceDTO.setName(resource.getName());
+            resourceDTO.setType(resource.getType());
+            resourceDTO.setSize(resource.getSize());
+            resourceDTO.setFileAbPath(file.getAbsolutePath());
+            String uuid = tokenService.getUUID(tokenService.getToken());
+            String url = "/" + resource.getId() + "?token=" + uuid;
+            AuthUser authUser = ((AuthUser) SecurityUtils.getAuthentication().getPrincipal());
+            CacheUtils.set(uuid + ":" + resource.getId(), resourceDTO, authUser.expired());
+            return url;
+        }
     }
 
     @Override

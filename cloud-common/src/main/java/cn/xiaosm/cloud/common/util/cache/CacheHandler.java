@@ -14,6 +14,8 @@ public interface CacheHandler {
 
     boolean set(@NotNull String key, @NotNull Object value, long exp);
 
+    boolean put(String key, Map<String, Object> value, long exp);
+
     Object get(String key);
 
     Object get(String key, boolean update);

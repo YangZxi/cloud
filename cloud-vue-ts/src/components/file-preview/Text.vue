@@ -21,10 +21,10 @@
 </template>
 
 <script setup>
-import { onMounted, ref, defineExpose, watch, nextTick } from "vue";
+import {defineExpose, onMounted, ref, watch} from "vue";
 import http from "@/http/XMLHttpRequest";
 import TextEditor from "@/components/TextEditor/TextEditor.vue";
-import { saveContent as saveContentHttp } from "@/http/Explore";
+import {saveContent as saveContentHttp} from "@/http/Explore";
 
 const props = defineProps({
   resource: Object,
@@ -47,7 +47,7 @@ onMounted(() => {
 });
 
 const refreshContent = function() {
-  http.post(props.url).then(({ data }) => {
+  http.get(props.url).then(data => {
     setContent(data);
   }).catch(err => {
     console.log(err);

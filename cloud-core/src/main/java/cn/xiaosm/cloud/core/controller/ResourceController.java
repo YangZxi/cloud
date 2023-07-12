@@ -1,24 +1,18 @@
 package cn.xiaosm.cloud.core.controller;
 
-import cn.hutool.core.date.DateUnit;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.xiaosm.cloud.common.entity.RespBody;
-import cn.xiaosm.cloud.common.util.RespUtils;
-import cn.xiaosm.cloud.common.util.cache.CacheUtils;
 import cn.xiaosm.cloud.common.annotation.Api;
 import cn.xiaosm.cloud.common.annotation.LogRecord;
+import cn.xiaosm.cloud.common.entity.RespBody;
+import cn.xiaosm.cloud.common.util.RespUtils;
 import cn.xiaosm.cloud.core.entity.Resource;
 import cn.xiaosm.cloud.core.entity.dto.ResourceDTO;
 import cn.xiaosm.cloud.core.entity.dto.UploadDTO;
 import cn.xiaosm.cloud.core.entity.vo.ResourceVO;
 import cn.xiaosm.cloud.core.service.ChunkService;
-import cn.xiaosm.cloud.core.service.ResourceService;
+import cn.xiaosm.cloud.core.service.impl.ResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -172,20 +166,12 @@ public class ResourceController {
     }
 
     /**
-     * 文件预下载处理
-     * @param resource
-     * @return
+     * 加速文件，将文件上传至 oos
      */
-    @PostMapping("pre_download")
-    // @PreAuthorize("hasRole('ROLE_normal')")
-    public RespBody makeDownload(
-        @RequestBody ResourceDTO resource) {
-        if (null == resource.getId()) return RespUtils.fail("文件ID不可以为空");
-        resource = resourceService.download(resource);
-        String uuid = IdUtil.simpleUUID();
-        // 3 分钟后过期
-        CacheUtils.set(uuid, resource, DateUnit.MINUTE.getMillis() * 3);
-        return RespUtils.success("OK", uuid);
+    @PostMapping("toggle_cdn/{id}")
+    public RespBody toggleCdn(@PathVariable Long id) {
+        resourceService.toggleCdn(id);
+        return RespUtils.success();
     }
 
 }

@@ -1,8 +1,6 @@
 package cn.xiaosm.cloud.security.service;
 
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.extra.servlet.ServletUtil;
-import cn.xiaosm.cloud.common.exception.CanShowException;
 import cn.xiaosm.cloud.common.factory.YamlSourceFactory;
 import cn.xiaosm.cloud.common.util.ServletUtils;
 import cn.xiaosm.cloud.common.util.cache.CacheUtils;
@@ -20,6 +18,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Objects;
 
@@ -50,14 +49,14 @@ public class DefaultTokenService {
     // 单位 分钟
     private final int MINUTE = 60 * 1000;
     // 设置 Token 到期时间 秒
-    private int EXPIRES;
+    private long EXPIRES;
     // Token 验证器
     private JWTVerifier verifier = null;
 
 
     @Value("${spring.security.token.expires}")
     public void setEXPIRES(int EXPIRES) {
-        this.EXPIRES = EXPIRES * MINUTE;
+        this.EXPIRES = (long) EXPIRES * MINUTE;
     }
 
     @Value("${spring.security.token.secret-key}")
@@ -71,35 +70,22 @@ public class DefaultTokenService {
      * @param
      * @return
      */
-    public String createToken(String uuid) {
-        return this.createToken(uuid, TokenType.LOGIN);
-    }
-
-    /**
-     * 创建 Token
-     * @param
-     * @return
-     */
-    public String createToken(String uuid, TokenType type) {
-        return createToken(uuid, type, null);
-    }
-
-    /**
-     * 创建 Token
-     * @param
-     * @return
-     */
-    public String createToken(String uuid, TokenType type, Object data) {
+    public String createToken(String uuid, TokenType type, @NotNull AuthUser user) {
+        Date expireTime = new Date(System.currentTimeMillis() + EXPIRES);
         String token = JWT.create()
             .withAudience(uuid)
             .withClaim("TYPE", type.name())
             .withClaim(JWT_CLAIM_UUID, uuid)
-            .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRES))
+            .withExpiresAt(expireTime)
             .sign(Algorithm.HMAC256(SECRET_KEY));
-        if (null != data) {
-            CacheUtils.set(uuid, data);
-        }
+        user.setExpireTime(expireTime);
+        CacheUtils.set(uuid, user, user.expired());
         return token;
+    }
+
+    public String getToken() {
+        String token = ServletUtils.getRequest().getHeader(AUTH_HEADER);
+        return Objects.isNull(token) ? "" : token.replace(TOKEN_PREFIX, "").trim();
     }
 
     /**
@@ -120,6 +106,9 @@ public class DefaultTokenService {
      * @return
      */
     public boolean verifyToken(String token) {
+        if (StrUtil.isBlank(token)) {
+            return false;
+        }
         try {
             verifier.verify(token);
             return true;

@@ -7,8 +7,11 @@ import cn.hutool.crypto.digest.DigestUtil;
 import cn.xiaosm.cloud.common.exception.CanShowException;
 import cn.xiaosm.cloud.common.exception.ResourceException;
 import cn.xiaosm.cloud.common.util.FileUtil;
+import cn.xiaosm.cloud.common.util.cache.CacheUtils;
+import cn.xiaosm.cloud.core.admin.entity.User;
 import cn.xiaosm.cloud.core.config.EditableType;
 import cn.xiaosm.cloud.core.config.security.SecurityUtils;
+import cn.xiaosm.cloud.core.config.security.service.TokenService;
 import cn.xiaosm.cloud.core.entity.Bucket;
 import cn.xiaosm.cloud.core.entity.Resource;
 import cn.xiaosm.cloud.core.entity.dto.ResourceDTO;
@@ -16,11 +19,12 @@ import cn.xiaosm.cloud.core.entity.dto.ResourceParentDTO;
 import cn.xiaosm.cloud.core.entity.dto.UploadDTO;
 import cn.xiaosm.cloud.core.mapper.ResourceMapper;
 import cn.xiaosm.cloud.core.service.ChunkService;
-import cn.xiaosm.cloud.core.service.ResourceService;
 import cn.xiaosm.cloud.core.storage.FileStorageUtil;
+import cn.xiaosm.cloud.core.storage.StorageType;
 import cn.xiaosm.cloud.core.storage.UploadConfig;
 import cn.xiaosm.cloud.core.util.download.DlTaskInfo;
 import cn.xiaosm.cloud.core.util.download.DownloadService;
+import cn.xiaosm.cloud.security.entity.AuthUser;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.NonNull;
@@ -39,6 +43,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -48,7 +54,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
-public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> implements ResourceService {
+public class ResourceService extends ServiceImpl<ResourceMapper, Resource> {
 
     /**
      * 文件名不可用字符
@@ -64,26 +70,24 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     ResourceMapper resourceMapper;
     @Autowired
     DownloadService downloadService;
+    @Autowired
+    TokenService tokenService;
 
     /**
      * 通过 id 获取当前登录用户的资源
      */
-    @Override
     public Resource getByCurrentUser(Long id) {
         return resourceMapper.selectByIdAndUser(id, SecurityUtils.getLoginUserId());
     }
 
-    @Override
     public List<Resource> getByCurrentUser(String ids) {
         return resourceMapper.selectByIdsAndUser(ids, SecurityUtils.getLoginUserId());
     }
 
-    @Override
     public List<Resource> listByIds(String ids) {
         return resourceMapper.selectByIdsAndUser(ids, null);
     }
 
-    @Override
     public List<Resource> list(ResourceDTO resource) {
         // 查询当前仓库
         Bucket bucket = bucketService.getBucket(resource.getBucketName());
@@ -130,7 +134,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         return parentId;
     }
 
-    @Override
     @Transactional
     public Long create(ResourceDTO resource) {
         // 校验文件名
@@ -173,7 +176,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         // 数据库中创建数据后创建文件
         if (resourceMapper.insert(db) == 1) {
             if (!db.isDir()) {
-                FileStorageUtil.of(new byte[0]).setPath(path).setFilename(fileName).setName(resource.getName()).upload();
+                FileStorageUtil.local(new byte[0]).setPath(path).setFilename(fileName).setName(resource.getName()).upload();
             }
             // 创建文件
             log.info("文件创建成功");
@@ -181,7 +184,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         return db.getId();
     }
 
-    @Override
     @Transactional
     public boolean saveContent(ResourceDTO dto) {
         // 获取数据库中的数据
@@ -208,7 +210,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         return true;
     }
 
-    @Override
     public boolean rename(ResourceDTO resource) {
         // 获取数据库中的文件
         Resource db = resourceMapper.selectByIdAndUser(resource.getId(), SecurityUtils.getLoginUserId());
@@ -228,7 +229,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     /**
      * 复制文件
      */
-    @Override
     @Transactional
     public boolean copy(Long originId, Long targetId) {
         // 复制原有的存储信息
@@ -263,7 +263,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         return true;
     }
 
-    @Override
     @Transactional
     public boolean copy(List<Resource> resources, Resource parent) {
         Resource save;
@@ -284,7 +283,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         return true;
     }
 
-    @Override
     public boolean move(Long originId, Long targetId) {
         Resource origin = this.getByCurrentUser(originId);
         Assert.notNull(origin, "源资源不存在");
@@ -345,7 +343,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      * @param resource
      * @return
      */
-    @Override
     @Transactional
     public boolean delete(Resource resource) {
         // 获取数据库中的文件
@@ -377,7 +374,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      * @param resource
      * @return
      */
-    @Override
     public File getLocalFile(Resource resource) {
         // 根据仓库地址和文件相对地址创建文件对象
         return new File(UploadConfig.LOCAL_PATH, resource.getPath());
@@ -415,7 +411,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         resource.setParentId(parentId);
         if (resourceMapper.insert(resource) == 1) {
             // 转存至本地文件
-            FileStorageUtil.of(file.getBytes()).setPath(path).setFilename(fileName).upload();
+            FileStorageUtil.local(file.getBytes()).setPath(path).setFilename(fileName).setName(resource.getName()).upload();
             log.info("{}-文件保存成功，{}", dto.getIdentifier(), path);
             return true;
         } else {
@@ -427,7 +423,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      * 当数据库存在同样的文件，执行复制操作
      * @return
      */
-    @Override
     public Resource quickUpload(long resourceId, UploadDTO dto) {
         // 查询当前仓库
         Bucket bucket = bucketService.getBucket(dto.getBucketName());
@@ -453,7 +448,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      * @param upload
      * @return
      */
-    @Override
     public String upload(UploadDTO upload) {
         // 查询当前仓库
         Bucket bucket = bucketService.getBucket(upload.getBucketName());
@@ -525,7 +519,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      * @param fileName
      * @return
      */
-    @Override
     public boolean checkName(String fileName) {
         if (StrUtil.isBlank(fileName)) return false;
         for (int i = 0; i < fileName.length(); i++) {
@@ -567,7 +560,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      * @param dto
      * @return
      */
-    @Override
     public Resource checkByHashOrNameInPath(UploadDTO dto) {
         // 查询当前仓库
         Bucket bucket = bucketService.getBucket(dto.getBucketName());
@@ -609,41 +601,40 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         return db;
     }
 
-    @Override
-    public ResourceDTO download(ResourceDTO condition) {
-        Resource resource = this.getByCurrentUser(condition.getId());
-        if (null == resource || resource.isDir()) throw new ResourceException("当前分享的资源在地球找不到啦！");
-        File file = this.getLocalFile(resource);
-        if (!file.exists()) throw new ResourceException("当前分享的资源在地球找不到啦！1001");
-        condition.setName(resource.getName());
-        condition.setFileAbPath(file.getAbsolutePath());
-        return condition;
-    }
-
-    @Override
-    public ResourceDTO preview(ResourceDTO resourceDTO) {
+    /**
+     * 创建临时链接
+     */
+    public String buildLink(ResourceDTO resourceDTO) {
         // 获取资源信息
         Resource resource = resourceMapper.selectByIdAndUser(resourceDTO.getId(), resourceDTO.getUserId());
         Assert.notNull(resource, "资源已被删除");
         // 目录类型文件不进行预览
-        Assert.isTrue(!resource.isDir(), "文件夹不允许预览");
-        // 如果文件过大，不进行预览
-        File file = this.getLocalFile(resource);
-        resourceDTO.setName(resource.getName());
-        resourceDTO.setType(resource.getType());
-        resourceDTO.setSize(resource.getSize());
-        resourceDTO.setFileAbPath(file.getAbsolutePath());
-        return resourceDTO;
+        Assert.isTrue(!resource.isDir(), "不支持的文件类型 DIR");
+        if (StrUtil.isNotBlank(resource.getCdn())) {
+            String url = FileStorageUtil.download(resource.getCdn(), StorageType.TENCENT);
+            resourceDTO.setUrl(url);
+        } else {
+            File file = this.getLocalFile(resource);
+            if (!file.exists()) throw new ResourceException("当前资源在地球找不到啦！1001");
+            resourceDTO.setName(resource.getName());
+            resourceDTO.setType(resource.getType());
+            resourceDTO.setSize(resource.getSize());
+            resourceDTO.setFileAbPath(file.getAbsolutePath());
+            String uuid = tokenService.getUUID(tokenService.getToken());
+            String url = "/" + resource.getId() + "?token=" + uuid;
+            AuthUser authUser = ((AuthUser) SecurityUtils.getAuthentication().getPrincipal());
+            CacheUtils.set(uuid + ":" + resource.getId(), resourceDTO, authUser.expired());
+            resourceDTO.setUrl(url);
+        }
+        return resourceDTO.getUrl();
     }
 
-    @Override
     public DlTaskInfo offlineDownload(String name, String url, int bucketId) {
         DlTaskInfo taskInfo = downloadService.build(name, url, 1L, bucketId).start();
         System.out.println(taskInfo.progress());
         return taskInfo;
     }
 
-    @Override
     public List<Resource> search(ResourceDTO dto) {
         Long userId = SecurityUtils.getLoginUserId();
         Bucket bucket = bucketService.getBucket(dto.getBucketName());
@@ -659,7 +650,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         return list;
     }
 
-    @Override
     public Resource createDownloadDir(long userId, int bucketId) {
         QueryWrapper<Resource> wrapper = new QueryWrapper<>();
         wrapper.eq("name", "download");
@@ -677,5 +667,42 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         resource.setParentId(0L);
         resourceMapper.insert(resource);
         return resource;
+    }
+
+    public void toggleCdn(Long id) {
+        Resource resource = this.getByCurrentUser(id);
+        if (Objects.isNull(resource)) {
+            throw new ResourceException("资源不存在");
+        }
+        File file = this.getLocalFile(resource);
+        if (!file.exists()) {
+            throw new ResourceException("实体资源已被删除");
+        }
+        resource.setCdn("loading");
+        // resourceMapper.updateById(resource);
+        User user = SecurityUtils.getLoginUser();
+        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+            String filename = resource.getPath();
+            try {
+                return FileStorageUtil.tencent(file, filename)
+                        .setName(resource.getName())
+                        .setUser(user)
+                        .upload();
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.error("开启 CDN 失败，{}", e.getMessage());
+                throw new ResourceException("开启 CDN 失败");
+            }
+        });
+        future.thenAccept((path) -> {
+            resource.setCdn(path);
+            try {
+                resourceMapper.updateById(resource);
+                log.info("cdn 数据保存至数据库, id: {}, path: {}", resource.getId(), path);
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.error("cdn 数据保存至数据库失败, id: {}, path: {}", resource.getId(), path);
+            }
+        });
     }
 }

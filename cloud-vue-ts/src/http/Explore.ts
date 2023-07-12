@@ -1,10 +1,8 @@
 import http from "./XMLHttpRequest"
-import API from "./API"
-import { SERVER_PREVIEW } from "./API"
-import { user } from '@/store/user'
-import { download as DL } from "@/utils/Tools"
+import API, {SERVER_DOWNLOAD, SERVER_PREVIEW} from "./API"
+import {download as DL} from "@/utils/Tools"
 import $router from "@/router/index";
-import { Resource } from "@/type/type";
+import {Resource} from "@/type/type";
 
 const isMobile = window.sessionStorage.getItem("isMobile");
 
@@ -108,20 +106,32 @@ export const saveContent = (id: string, content: string) => {
   });
 }
 
-export const download = (id: string, autoDownload = true) => {
-  return http.post(API("/resource/pre_download"), {
-    id: id
-  }).then((res) => {
-    const url = `${API("/resource/download", false)}?entry=${res.data}`;
-    if (autoDownload) DL(url);
-    return url;
+function getLink(id: string) {
+  return http.post(API(`/resource/link/${id}`)).then(res => res.data);
+}
+
+export const download = (id: string) => {
+  return getLink(id).then((url) => {
+    if (!url.startsWith("http")) {
+      url = `${SERVER_DOWNLOAD}${url}`;
+    }
+    DL(url);
   });
 }
 
-export const preview = (uuid: string) => {
-  return user().getUnsafeToken().then(token => {
-    // window.open(`${SERVER_PREVIEW}/${uuid}?token=${token}`);
-    return `${SERVER_PREVIEW}/${uuid}?token=${token}`;
+export const preview = (id: string) => {
+  return getLink(id).then(url => {
+    if (url.startsWith("http")) {
+      return url;
+    } else if (url.startsWith("//")) {
+      url = location.protocol + url;
+      console.log(url);
+      return url;
+    } else {
+      url = `${SERVER_PREVIEW}${url}`;
+      console.log(url);
+      return url;
+    }  
   });
 }
 
@@ -147,6 +157,15 @@ export function search(data: any): Promise<Resource[]> {
   });
 }
 
+/**
+ * 开启或关闭 cdn
+ */
+export function toggleCdn(id: string): Promise<Resource[]> {
+  return http.post(API(`/resource/toggle_cdn/${id}`)).then(res => {
+    return res.data;
+  });
+}
+
 
 export default {
   listResource,
@@ -156,5 +175,6 @@ export default {
   moveOrCopyFile,
   saveContent,
   download,
-  preview
+  preview,
+  toggleCdn
 }

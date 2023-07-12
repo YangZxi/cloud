@@ -3,6 +3,8 @@ package cn.xiaosm.cloud.common.util.cache;
 import cn.hutool.core.util.ClassLoaderUtil;
 import cn.xiaosm.cloud.common.util.SpringContextUtils;
 
+import java.util.Map;
+
 /**
  * 〈一句话功能简述〉
  * 〈〉
@@ -53,6 +55,10 @@ public class CacheUtils {
      */
     public static boolean set(String key, Object value, long exp) {
         return handler.set(key, value, exp);
+    }
+
+    public static boolean put(String key, Map<String, Object> value, long exp) {
+        return handler.put(key, value, exp);
     }
 
     /**

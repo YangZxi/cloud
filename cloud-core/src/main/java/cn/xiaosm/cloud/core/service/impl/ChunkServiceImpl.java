@@ -17,7 +17,6 @@ import cn.xiaosm.cloud.core.entity.Resource;
 import cn.xiaosm.cloud.core.entity.dto.UploadDTO;
 import cn.xiaosm.cloud.core.mapper.ChunkMapper;
 import cn.xiaosm.cloud.core.service.ChunkService;
-import cn.xiaosm.cloud.core.service.ResourceService;
 import cn.xiaosm.cloud.core.storage.UploadConfig;
 import cn.xiaosm.cloud.core.util.download.DlChunk;
 import cn.xiaosm.cloud.core.util.download.DlTaskInfo;
@@ -111,14 +110,14 @@ public class ChunkServiceImpl implements ChunkService {
             return false;
         }
         // 合并之前，检查当前用户的仓库中是否文件存在
-        Resource db = SpringContextUtils.getBean(ResourceServiceImpl.class)
+        Resource db = SpringContextUtils.getBean(ResourceService.class)
             .getAndCheckHashInPath(dto.getIdentifier(), dto.getFilename(), parentId, bucket.getId());
         if (db != null) {
             log.error("当前目录下已有相同文件-{}", db.getName());
             return false;
         }
 
-        String suffixPath = ResourceServiceImpl.suffixPath();
+        String suffixPath = ResourceService.suffixPath();
         String filename = dto.getIdentifier() + "." + FileUtil.extName(dto.getFilename());
         File dest = this.integrateFile(chunks, filename);
 
@@ -218,7 +217,7 @@ public class ChunkServiceImpl implements ChunkService {
 
     private File integrateFile(List<? extends Chunk> chunks, String filename) {
         chunks.sort(Comparator.comparingInt(Chunk::getOrder));
-        File dest = ResourceServiceImpl.transformFile(filename);
+        File dest = ResourceService.transformFile(filename);
         try (RandomAccessFile raf = new RandomAccessFile(dest, "rw")) {
             for (Chunk chunk : chunks) {
                 File temp;

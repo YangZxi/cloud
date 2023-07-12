@@ -65,8 +65,8 @@ const apis: apiType = {
 
 const SERVER_UPLOAD: string = SERVER_API + "/resource/upload";   // 上传地址
 const SERVER_PRE_DOWNLOAD: string = SERVER_API + "/resource/pre_download";   // 预下载处理地址
-const SERVER_DOWNLOAD: string = SERVER_BASE + "/resource/download";   // 下载地址
-const SERVER_PREVIEW: string = SERVER_BASE + "/resource/preview";   // 下载地址
+const SERVER_DOWNLOAD: string = SERVER_BASE + "/download";   // 下载地址
+const SERVER_PREVIEW: string = SERVER_BASE + "/preview";   // 预览地址
 const EXCEL_EXPORT: string = SERVER_API + apis.EXCEL_EXPORT;   // 导出为表格地址
 
 const apisBuild = function () {

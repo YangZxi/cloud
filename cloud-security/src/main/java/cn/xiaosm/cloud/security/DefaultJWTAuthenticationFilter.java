@@ -12,7 +12,7 @@ package cn.xiaosm.cloud.security;
 
 import cn.hutool.core.util.StrUtil;
 import cn.xiaosm.cloud.common.util.cache.CacheUtils;
-import cn.xiaosm.cloud.security.entity.*;
+import cn.xiaosm.cloud.security.entity.AuthUser;
 import cn.xiaosm.cloud.security.service.DefaultTokenService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.*;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -48,10 +49,11 @@ public class DefaultJWTAuthenticationFilter extends OncePerRequestFilter {
         }
         // 获取请求头中的token
         String token = tokenService.getToken(request);
-        if (StrUtil.isNotBlank(token) && tokenService.verifyToken(token)) {
+        if (tokenService.verifyToken(token)) {
             log.info("一次授权的请求 => {}", request.getRequestURI());
             // 检验 Token
-            if (!this.verifyAndAuth(token, request)) {};
+            this.verifyAndAuth(token, request);
+            ;
         } else if (StrUtil.isNotBlank((token = request.getParameter("token"))) && DefaultSecurityUtils.verifyUUIDToken(token)) {
             /**
              * 获取请求参数中的token

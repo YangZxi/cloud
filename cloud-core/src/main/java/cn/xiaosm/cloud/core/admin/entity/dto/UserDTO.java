@@ -15,6 +15,7 @@ import cn.xiaosm.cloud.core.admin.entity.Role;
 import cn.xiaosm.cloud.core.admin.entity.User;
 import cn.xiaosm.cloud.core.admin.entity.UserLoginTrack;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.List;
@@ -27,6 +28,7 @@ import java.util.List;
  * @create 2020/6/14
  * @since 1.0.0
  */
+@Data
 public class UserDTO extends User implements Serializable {
 
     @JsonIgnore
@@ -36,50 +38,4 @@ public class UserDTO extends User implements Serializable {
     private List<Menu> menus;
     private List<UserLoginTrack> userLoginTracks;
 
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public UserDTO setPassword(String password) {
-        this.password = password;
-        return this;
-    }
-
-    public String getRoleIds() {
-        return roleIds;
-    }
-
-    public UserDTO setRoleIds(String roleIds) {
-        this.roleIds = roleIds;
-        return this;
-    }
-
-    public List<Role> getRoles() {
-        return roles;
-    }
-
-    public UserDTO setRoles(List<Role> roles) {
-        this.roles = roles;
-        return this;
-    }
-
-    public List<Menu> getMenus() {
-        return menus;
-    }
-
-    public UserDTO setMenus(List<Menu> menus) {
-        this.menus = menus;
-        return this;
-    }
-
-    public List<UserLoginTrack> getUserLoginTracks() {
-        return userLoginTracks;
-    }
-
-    public UserDTO setUserLoginTracks(List<UserLoginTrack> userLoginTracks) {
-        this.userLoginTracks = userLoginTracks;
-        return this;
-    }
 }

@@ -8,7 +8,6 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -29,7 +28,7 @@ public class Resource extends BaseEntity {
     private Long id;
     // 文件名
     private String name;
-    // 文件保存的目录，不带文件名
+    // 文件保存的路径名，包含文件名和扩展名
     private String path;
     // 文件uuid
     private String hash;
@@ -43,6 +42,7 @@ public class Resource extends BaseEntity {
     private Long refId;
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long parentId;
+    private String cdn;
     @TableField(exist = false)
     private boolean dir = false;
 
@@ -66,7 +66,7 @@ public class Resource extends BaseEntity {
 
     public Resource setType(String type) {
         this.type = type;
-        this.dir = type.equalsIgnoreCase("DIR") ? true : false;
+        this.dir = type.equalsIgnoreCase("DIR");
         // 判断文件是否可编辑
         this.edit = EditableType.isEditable(type);
         return this;
@@ -75,12 +75,6 @@ public class Resource extends BaseEntity {
     public void setPath(String path) {
         this.path = path == null ? "" : path.replaceAll("/+|\\+", "/");
     }
-
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    public String getFullPath() {
-        return (this.path + "/" + this.name).replaceAll("/+", "/");
-    }
-
 
     @Override
     public boolean equals(Object o) {

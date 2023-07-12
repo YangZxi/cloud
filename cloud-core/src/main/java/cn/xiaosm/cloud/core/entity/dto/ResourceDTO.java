@@ -17,6 +17,7 @@ public class ResourceDTO extends Resource {
     private String content;
     // 目标资源 id
     private Long targetId;
+    private String url;
 
     @Override
     public String getPath() {

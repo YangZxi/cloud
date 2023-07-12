@@ -1,5 +1,5 @@
 <template>
-  <span class="y-icon">
+  <span class="cloud-icon">
     <slot>
       <i
         :class="getIconClass"
@@ -41,7 +41,7 @@ export default {
 </script>
 
 <style>
-.y-icon {
+.cloud-icon {
   display: inline-flex;
   align-items: center;
   text-align: center;

@@ -36,6 +36,11 @@ public class JavaCache implements CacheHandler {
     }
 
     @Override
+    public boolean put(String key, Map<String, Object> value, long exp) {
+        throw new UnsupportedOperationException("不支持的操作");
+    }
+
+    @Override
     public Object get(String key) {
         return ObjectUtil.clone(cache.get(key, false));
     }

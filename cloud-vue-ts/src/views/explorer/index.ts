@@ -1,7 +1,7 @@
-import { reactive, ref, inject, watch } from "vue";
+import {inject, reactive, ref, watch} from "vue";
 import API from "@/http/Explore";
-import type { Resource } from "@/type/type";
-import { useRoute } from "vue-router";
+import type {Resource} from "@/type/type";
+import {useRoute} from "vue-router";
 import shareHttp from "@/http/Share";
 import store from "@/store/temp";
 
@@ -73,6 +73,12 @@ export const shareHandler = function() {
     shareDialog.loading = false;
   });
 };
+
+export const toggleCdn = function(id: string) {
+  return API.toggleCdn(id).then(() => {
+    window.$message.success("操作成功");
+  });
+}
 
 export default {
   setup() {

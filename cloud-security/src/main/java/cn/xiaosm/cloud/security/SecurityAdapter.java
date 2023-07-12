@@ -11,7 +11,6 @@
 package cn.xiaosm.cloud.security;
 
 import cn.xiaosm.cloud.security.annotation.AnonymousAccess;
-import cn.xiaosm.cloud.security.annotation.Encrypt;
 import cn.xiaosm.cloud.security.handler.LoginFailHandler;
 import cn.xiaosm.cloud.security.handler.LoginSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +26,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
-import org.springframework.util.Assert;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
@@ -35,10 +33,8 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import org.springframework.web.util.pattern.PathPattern;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 
 /**
@@ -101,7 +97,6 @@ public class SecurityAdapter extends WebSecurityConfigurerAdapter {
         Map<RequestMappingInfo, HandlerMethod> handlerMethodMap = applicationContext.getBean(RequestMappingHandlerMapping.class).getHandlerMethods();
         Set<PathPattern> anonymousUrls = new HashSet<>();
         AnonymousAccess anonymousAccess = null;
-        Encrypt encrypt = null;
         for (Map.Entry<RequestMappingInfo, HandlerMethod> infoEntry : handlerMethodMap.entrySet()) {
             HandlerMethod handlerMethod = infoEntry.getValue();
             anonymousAccess = handlerMethod.getMethodAnnotation(AnonymousAccess.class);
@@ -124,8 +119,6 @@ public class SecurityAdapter extends WebSecurityConfigurerAdapter {
         security.addFilterBefore(defaultSessionAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         // 添加 JWT 过滤器
         security.addFilterBefore(defaultJWTAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        security.addFilterBefore(defaultJWTAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        // security.addFilter(defaultJWTAuthenticationFilter);
         // 登录处理
         security.formLogin()
                 // 登录成功调用
@@ -145,7 +138,7 @@ public class SecurityAdapter extends WebSecurityConfigurerAdapter {
 
         security.authorizeRequests()
             // 自定义匿名访问所有url放行 ： 允许匿名和带权限以及登录用户访问
-            .antMatchers(anonymousUrls.stream().map(el -> el.getPatternString()).toArray(String[]::new)).permitAll();
+            .antMatchers(anonymousUrls.stream().map(PathPattern::getPatternString).toArray(String[]::new)).permitAll();
     }
 
 }

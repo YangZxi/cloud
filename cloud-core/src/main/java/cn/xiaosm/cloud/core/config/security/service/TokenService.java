@@ -35,26 +35,23 @@ public class TokenService extends DefaultTokenService {
      */
     public String createToken(LoginUser loginUser) {
         String loginId = IdUtil.simpleUUID();
-        String token = super.createToken(loginId);
-        // 先通过旧的UUID删除内存中的登录信息，如果存在
-        CacheUtils.del(loginId);
         loginUser.setLoginId(loginId);
-        // 保存登录信息到内存
-        CacheUtils.set(loginId, loginUser, super.getEXPIRES());
-        return token;
+        return super.createToken(loginId, TokenType.LOGIN, loginUser);
     }
 
     public String createShareToken(String shareId) {
         String uuid = IdUtil.simpleUUID();
+        Date expireTime = new Date(System.currentTimeMillis() + super.getEXPIRES());
         String token = JWT.create()
             .withAudience(shareId)
             .withClaim("TYPE", TokenType.SHARE.name())
             .withClaim("shareId", shareId)
             .withClaim(JWT_CLAIM_UUID, uuid)
-            .withExpiresAt(new Date(System.currentTimeMillis() + super.getEXPIRES()))
+            .withExpiresAt(expireTime)
             .sign(Algorithm.HMAC256(super.getSECRET_KEY()));
         ShareUser shareUser = new ShareUser(shareId);
-        CacheUtils.set(uuid, shareUser, super.getEXPIRES());
+        shareUser.setExpireTime(expireTime);
+        CacheUtils.set(uuid, shareUser, shareUser.expired());
         return token;
     }
 

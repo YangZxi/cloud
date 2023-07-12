@@ -40,20 +40,21 @@ public class SecurityConfig extends SecurityAdapter {
 
         // 权限控制
         security.authorizeRequests()
-            .antMatchers("/admin", "/admin/login", "/admin/api/login", "/admin/logout").permitAll()
-            .antMatchers(HttpMethod.POST, "/api/login").permitAll()
-            // 放行静态资源
-            .antMatchers(staticPath).permitAll()
-            // 放行OPTIONS请求
-            .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-            // 后台请求需要认证
-            .antMatchers("/admin/**").authenticated()
-            // 所有API请求都需要认证
-            .antMatchers("/api/**").authenticated()
-            // .anyRequest().authenticated()
-            .and()
-            .headers().frameOptions().disable();
-        // .and().apply(securityConfigurerAdapter())
+                .antMatchers("/admin", "/admin/login", "/admin/api/login", "/admin/logout").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/login").permitAll()
+                // 放行静态资源
+                .antMatchers(staticPath).permitAll()
+                // 放行OPTIONS请求
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                // 后台请求需要认证
+                .antMatchers("/admin/**").authenticated()
+                // 所有API请求都需要认证
+                .antMatchers("/api/**").authenticated()
+                .antMatchers("/preview/**").permitAll()
+                // .anyRequest().authenticated()
+                .and()
+                .headers().frameOptions().disable();
+        System.out.println(1);
     }
 
 }

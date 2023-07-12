@@ -1,26 +1,23 @@
 package cn.xiaosm.cloud.core.controller;
 
 import cn.hutool.core.util.IdUtil;
-import cn.xiaosm.cloud.common.annotation.LogRecord;
+import cn.xiaosm.cloud.common.annotation.Api;
 import cn.xiaosm.cloud.common.entity.RespBody;
 import cn.xiaosm.cloud.common.util.RespUtils;
-import cn.xiaosm.cloud.core.config.security.service.TokenService;
-import cn.xiaosm.cloud.core.config.security.service.UserDetailsServiceImpl;
 import cn.xiaosm.cloud.core.admin.entity.LoginUser;
 import cn.xiaosm.cloud.core.admin.entity.dto.LoginUserDTO;
 import cn.xiaosm.cloud.core.admin.service.RoleService;
 import cn.xiaosm.cloud.core.admin.service.UserService;
-import cn.xiaosm.cloud.common.annotation.Api;
+import cn.xiaosm.cloud.core.config.security.service.TokenService;
+import cn.xiaosm.cloud.core.config.security.service.UserDetailsServiceImpl;
 import cn.xiaosm.cloud.security.annotation.Decrypt;
-import cn.xiaosm.cloud.security.annotation.Encrypt;
 import cn.xiaosm.cloud.security.entity.TokenType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -79,10 +76,10 @@ public class LoginController {
         return null;
     }
 
-    @RequestMapping("unsafeToken")
-    public void unsafeToken(HttpServletRequest request, HttpServletResponse response) {
-        RespUtils.sendToken(response, tokenService.getUUID(tokenService.getToken(request)));
-    }
+    // @RequestMapping("unsafeToken")
+    // public void unsafeToken(HttpServletRequest request, HttpServletResponse response) {
+    //     RespUtils.sendToken(response, tokenService.getUUID(tokenService.getToken(request)));
+    // }
 
     private RespBody publicLogin(LoginUserDTO user, HttpServletResponse response) {
         if (user.getPassword().equals(PUBLIC_LOGIN.getPassword())) {

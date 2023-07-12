@@ -16,11 +16,13 @@ public class ServletUtils {
 
     /**
      * 获取当前请求的 request 对象
-     *
-     * @return HttpServletRequest
      */
     public static HttpServletRequest getRequest() {
         return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+    }
+
+    public static String getScheme() {
+        return getRequest().getScheme();
     }
 
 }

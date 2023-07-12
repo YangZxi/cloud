@@ -3,10 +3,10 @@ package cn.xiaosm.cloud.security.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Date;
 
 /**
  * @author Young
@@ -22,6 +22,8 @@ public interface AuthUser extends UserDetails, Cloneable {
     @JsonIgnore
     TokenType tokenType = null;
     Collection<? extends GrantedAuthority> authorities = null;
+    @JsonIgnore
+    Long expire = null;
 
     default TokenType getTokenType() {
         return tokenType;
@@ -30,6 +32,9 @@ public interface AuthUser extends UserDetails, Cloneable {
     default Long getId() {
         return id;
     }
+
+    void setExpireTime(Date expireTime);
+    long expired();
 
     Object clone();
 }

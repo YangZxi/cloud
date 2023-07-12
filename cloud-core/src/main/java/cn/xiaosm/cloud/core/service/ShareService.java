@@ -2,7 +2,6 @@ package cn.xiaosm.cloud.core.service;
 
 import cn.xiaosm.cloud.core.admin.service.BaseService;
 import cn.xiaosm.cloud.core.entity.Share;
-import cn.xiaosm.cloud.core.entity.dto.ResourceDTO;
 import cn.xiaosm.cloud.core.entity.dto.ShareDTO;
 
 /**
@@ -18,7 +17,7 @@ public interface ShareService extends BaseService<Share> {
 
     ShareDTO info(ShareDTO share);
 
-    ResourceDTO download(ShareDTO shareDTO);
+    String buildLink(ShareDTO shareDTO);
 
     ShareDTO shortUrl(ShareDTO shareDTO);
 }

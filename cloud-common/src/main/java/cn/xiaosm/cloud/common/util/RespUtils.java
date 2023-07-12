@@ -1,7 +1,5 @@
 package cn.xiaosm.cloud.common.util;
 
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.IoUtil;
 import cn.hutool.json.JSONUtil;
 import cn.xiaosm.cloud.common.entity.RespBody;
 import cn.xiaosm.cloud.common.entity.enums.RespStatus;
@@ -9,7 +7,6 @@ import org.springframework.http.HttpStatus;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 
 /**
@@ -19,7 +16,7 @@ import java.util.HashMap;
  * @create 2020/6/13
  * @since 1.0.0
  */
-public class RespUtils {
+public class RespUtils<T> {
 
     public static void sendToken(HttpServletResponse response, String token) {
         writeBody(response, new HashMap<String, Object>(){{
