@@ -9,9 +9,11 @@ import com.qcloud.cos.auth.BasicCOSCredentials;
 import com.qcloud.cos.auth.COSCredentials;
 import com.qcloud.cos.http.HttpMethodName;
 import com.qcloud.cos.http.HttpProtocol;
-import com.qcloud.cos.model.ObjectMetadata;
+import com.qcloud.cos.model.ObjectTagging;
 import com.qcloud.cos.model.PutObjectRequest;
 import com.qcloud.cos.model.PutObjectResult;
+import com.qcloud.cos.model.SetObjectTaggingRequest;
+import com.qcloud.cos.model.Tag.Tag;
 import com.qcloud.cos.region.Region;
 import com.qcloud.cos.utils.Md5Utils;
 import lombok.AccessLevel;
@@ -22,9 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static cn.xiaosm.cloud.core.storage.UploadConfig.Tencent.*;
 
@@ -47,11 +47,10 @@ public class TencentStorageService implements FileStorageService {
         cred = new BasicCOSCredentials(SECRET_ID, SECRET_KEY);
     }
 
-    protected TencentStorageService(String filename) {
-        this.filename = filename;
-    }
-
     protected TencentStorageService(File file, String filename) {
+        if (!file.exists() || file.isDirectory()) {
+            throw new ResourceException("文件不存在");
+        }
         this.file = file;
         this.filename = filename;
     }
@@ -60,17 +59,27 @@ public class TencentStorageService implements FileStorageService {
         ClientConfig clientConfig = new ClientConfig(region);
         // 这里建议设置使用 https 协议
         // 从 5.6.54 版本开始，默认使用了 https
+        clientConfig.setConnectionTimeout(5000);
         clientConfig.setHttpProtocol(HttpProtocol.https);
         // 3 生成 cos 客户端。
         COSClient cosClient = new COSClient(cred, clientConfig);
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.addUserMetadata("user", user.getId().toString());
-        metadata.addUserMetadata("name", name);
         // 指定要上传的文件
-        PutObjectRequest putObjectRequest = new PutObjectRequest(BUCKET, filename, file).withMetadata(metadata);
+        PutObjectRequest putObjectRequest = new PutObjectRequest(BUCKET, filename, file);
+
+        long l = System.currentTimeMillis();
+        log.info("Tencent 上传文件, filename: {}", filename);
         try {
             PutObjectResult result = cosClient.putObject(putObjectRequest);
-            log.info("Tencent 上传成功, filename: {}, hash: {}", filename, result.getContentMd5());
+            log.info("Tencent 上传成功, duration: {} ms, filename: {}, hash: {}",
+                    System.currentTimeMillis() - l, filename, result.getContentMd5());
+
+            // 设置对象标签
+            List<Tag> tags = new ArrayList<>();
+            tags.add(new Tag("user", user.getId().toString()));
+            tags.add(new Tag("name", name));
+            SetObjectTaggingRequest setObjectTaggingRequest = new SetObjectTaggingRequest(BUCKET, filename, new ObjectTagging(tags));
+            cosClient.setObjectTagging(setObjectTaggingRequest);
+
             return filename;
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -88,7 +97,7 @@ public class TencentStorageService implements FileStorageService {
         // 调用 COS 接口之前必须保证本进程存在一个 COSClient 实例，如果没有则创建
         // 详细代码参见本页：简单操作 -> 创建 COSClient
         COSClient cosClient = new COSClient(cred, clientConfig);
-        String newUrl = "";
+        String newUrl;
         if (useCDN) {
             if (!path.startsWith("/")) {
                 path = "/" + path;
@@ -116,8 +125,8 @@ public class TencentStorageService implements FileStorageService {
             newUrl = url.toString();
             // newUrl = newUrl.replace(url.getHost(), DOMAIN);
             // 确认本进程不再使用 cosClient 实例之后，关闭即可
-            cosClient.shutdown();
         }
+        cosClient.shutdown();
         log.info("Tencent 获取下载链接成功, url: {}", newUrl);
         return newUrl;
     }
