@@ -1,8 +1,8 @@
-package cn.xiaosm.cloud.core.entity.vo;
+package cn.xiaosm.cloud.core.entity.request;
 
 import cn.xiaosm.cloud.core.entity.Resource;
 import cn.xiaosm.cloud.core.entity.Share;
-import cn.xiaosm.cloud.core.entity.dto.ShareDTO;
+import cn.xiaosm.cloud.core.entity.response.ShareDTO;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -21,10 +21,6 @@ public class ShareVO {
     private String password;
     private LocalDateTime deadline;
     private List<ResourceVO> resourceList;
-
-    public ShareVO() {
-
-    }
 
     public ShareVO(Share share) {
         this.id = share.getId();

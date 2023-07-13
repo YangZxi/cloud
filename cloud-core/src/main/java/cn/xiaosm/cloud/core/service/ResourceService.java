@@ -1,4 +1,4 @@
-package cn.xiaosm.cloud.core.service.impl;
+package cn.xiaosm.cloud.core.service;
 
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.IdUtil;
@@ -14,11 +14,10 @@ import cn.xiaosm.cloud.core.config.security.SecurityUtils;
 import cn.xiaosm.cloud.core.config.security.service.TokenService;
 import cn.xiaosm.cloud.core.entity.Bucket;
 import cn.xiaosm.cloud.core.entity.Resource;
-import cn.xiaosm.cloud.core.entity.dto.ResourceDTO;
-import cn.xiaosm.cloud.core.entity.dto.ResourceParentDTO;
-import cn.xiaosm.cloud.core.entity.dto.UploadDTO;
+import cn.xiaosm.cloud.core.entity.response.ResourceDTO;
+import cn.xiaosm.cloud.core.entity.response.ResourceParentDTO;
+import cn.xiaosm.cloud.core.entity.response.UploadDTO;
 import cn.xiaosm.cloud.core.mapper.ResourceMapper;
-import cn.xiaosm.cloud.core.service.ChunkService;
 import cn.xiaosm.cloud.core.storage.FileStorageUtil;
 import cn.xiaosm.cloud.core.storage.StorageType;
 import cn.xiaosm.cloud.core.storage.UploadConfig;
@@ -63,7 +62,7 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> {
     private final static Long ROOT_ID = 0L;
 
     @Autowired
-    LocalBucketServiceImpl bucketService;
+    LocalBucketService bucketService;
     @Autowired
     ChunkService chunkService;
     @Autowired

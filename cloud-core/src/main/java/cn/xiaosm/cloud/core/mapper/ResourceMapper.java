@@ -11,7 +11,7 @@
 package cn.xiaosm.cloud.core.mapper;
 
 import cn.xiaosm.cloud.core.entity.Resource;
-import cn.xiaosm.cloud.core.entity.dto.ResourceParentDTO;
+import cn.xiaosm.cloud.core.entity.response.ResourceParentDTO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;

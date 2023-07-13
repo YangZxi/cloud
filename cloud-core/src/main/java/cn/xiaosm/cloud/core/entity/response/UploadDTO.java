@@ -1,4 +1,4 @@
-package cn.xiaosm.cloud.core.entity.dto;
+package cn.xiaosm.cloud.core.entity.response;
 
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;

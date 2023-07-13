@@ -1,4 +1,4 @@
-package cn.xiaosm.cloud.core.entity.dto;
+package cn.xiaosm.cloud.core.entity.response;
 
 import cn.xiaosm.cloud.core.entity.Resource;
 import cn.xiaosm.cloud.core.entity.Share;

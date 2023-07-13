@@ -1,4 +1,4 @@
-package cn.xiaosm.cloud.core.entity.vo;
+package cn.xiaosm.cloud.core.entity.request;
 
 import cn.xiaosm.cloud.core.admin.entity.BaseEntity;
 import cn.xiaosm.cloud.core.entity.Resource;

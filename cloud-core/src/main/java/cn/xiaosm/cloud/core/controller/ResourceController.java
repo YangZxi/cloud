@@ -6,11 +6,11 @@ import cn.xiaosm.cloud.common.annotation.LogRecord;
 import cn.xiaosm.cloud.common.entity.RespBody;
 import cn.xiaosm.cloud.common.util.RespUtils;
 import cn.xiaosm.cloud.core.entity.Resource;
-import cn.xiaosm.cloud.core.entity.dto.ResourceDTO;
-import cn.xiaosm.cloud.core.entity.dto.UploadDTO;
-import cn.xiaosm.cloud.core.entity.vo.ResourceVO;
+import cn.xiaosm.cloud.core.entity.request.ResourceVO;
+import cn.xiaosm.cloud.core.entity.response.ResourceDTO;
+import cn.xiaosm.cloud.core.entity.response.UploadDTO;
 import cn.xiaosm.cloud.core.service.ChunkService;
-import cn.xiaosm.cloud.core.service.impl.ResourceService;
+import cn.xiaosm.cloud.core.service.ResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

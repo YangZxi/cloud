@@ -12,8 +12,8 @@ import cn.xiaosm.cloud.core.config.security.SecurityUtils;
 import cn.xiaosm.cloud.core.config.security.service.TokenService;
 import cn.xiaosm.cloud.core.entity.Resource;
 import cn.xiaosm.cloud.core.entity.Share;
-import cn.xiaosm.cloud.core.entity.dto.ShareDTO;
-import cn.xiaosm.cloud.core.entity.vo.ShareVO;
+import cn.xiaosm.cloud.core.entity.request.ShareVO;
+import cn.xiaosm.cloud.core.entity.response.ShareDTO;
 import cn.xiaosm.cloud.core.service.ShareService;
 import cn.xiaosm.cloud.security.annotation.AnonymousAccess;
 import cn.xiaosm.cloud.security.entity.ShareUser;
@@ -57,6 +57,19 @@ public class ShareController {
         return RespUtils.success(vo);
     }
 
+    @RequestMapping("list")
+    @PreAuthorize("hasRole('ROLE_share')")
+    public RespBody preview(@RequestBody ShareDTO share) {
+        Assert.isTrue(hasShare(share.getId()), () -> new ShareException("当前分享的资源在地球找不到啦！"));
+        ShareDTO dto = shareService.info(share);
+        if (dto.getResourceList().size() == 1) {
+            // CacheUtils.set(dto.getResourceList().get(0).getId(),);
+            Resource resource = dto.getResourceList().get(0);
+            CacheUtils.set("S" + resource.getId(), resource);
+        }
+        return RespUtils.success(new ShareVO(dto));
+    }
+
     /**
      * 获取需要访问分享资源的 Token
      */
@@ -88,24 +101,9 @@ public class ShareController {
         return new ResponseEntity<>(RespUtils.fail("当前分享资源暂不可访问"), HttpStatus.OK);
     }
 
-    @RequestMapping("list")
-    @PreAuthorize("hasRole('ROLE_share')")
-    public RespBody preview(@RequestBody ShareDTO share) {
-        Assert.isTrue(hasShare(share.getId()), () -> new ShareException("当前分享的资源在地球找不到啦！"));
-        ShareDTO dto = shareService.info(share);
-        if (dto.getResourceList().size() == 1) {
-            // CacheUtils.set(dto.getResourceList().get(0).getId(),);
-            Resource resource = dto.getResourceList().get(0);
-            CacheUtils.set("S" + resource.getId(), resource);
-        }
-        return RespUtils.success(new ShareVO(dto));
-    }
-
     /**
      * 分享中的下载不同于登录用户的下载
      * 需要同时提供文件id 和当前访问的 path 路径，以便进行所属权判定
-     * @param shareDTO
-     * @return
      */
     @PostMapping("link")
     @PreAuthorize("hasRole('ROLE_share')")

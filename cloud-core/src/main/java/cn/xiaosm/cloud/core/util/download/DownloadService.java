@@ -1,9 +1,7 @@
 package cn.xiaosm.cloud.core.util.download;
 
 import cn.hutool.core.lang.Assert;
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.IdUtil;
-import cn.hutool.json.JSON;
 import cn.xiaosm.cloud.common.exception.ResourceException;
 import cn.xiaosm.cloud.common.util.SpringContextUtils;
 import cn.xiaosm.cloud.common.util.cache.CacheUtils;
