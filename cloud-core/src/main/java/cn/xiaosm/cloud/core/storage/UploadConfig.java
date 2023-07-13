@@ -25,7 +25,8 @@ public class UploadConfig {
     /**
      * 默认仓库（bucket）的名称
      */
-    public static final String LOCAL_BUCKET = "local";
+    private static final String LOCAL_BUCKET = "local";
+    private static final String LOCAL_CHUNK = "chunk";
     /**
      * 文件存储目录
      */
@@ -108,15 +109,18 @@ public class UploadConfig {
     }
 
     public void setLocalPath(String path) throws FileNotFoundException {
-        File file = getFile(path);
-        LOCAL_PATH = file.getAbsolutePath();
-        log.info("当前存储路径：{}", LOCAL_PATH);
-    }
+        if (!path.endsWith("/")) {
+            path += "/";
+        }
+        String localPath = path + LOCAL_BUCKET;
+        File localFile = getFile(localPath);
+        LOCAL_PATH = localFile.getAbsolutePath();
+        log.info("当前存储文件存放路径：{}", LOCAL_PATH);
 
-    public void setChunkPath(String path) throws FileNotFoundException {
-        File file = getFile(path);
-        CHUNK_PATH = file.getAbsolutePath();
-        log.info("当前分块路径：{}", CHUNK_PATH);
+        String chunkPath = path + LOCAL_CHUNK;
+        File chunkFile = getFile(chunkPath);
+        CHUNK_PATH = chunkFile.getAbsolutePath();
+        log.info("当前分块上传缓存路径：{}", CHUNK_PATH);
     }
 
     public void setMaxUploadSize(Long arg) {

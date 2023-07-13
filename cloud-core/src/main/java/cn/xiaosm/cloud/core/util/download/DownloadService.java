@@ -7,6 +7,7 @@ import cn.xiaosm.cloud.common.util.SpringContextUtils;
 import cn.xiaosm.cloud.common.util.cache.CacheUtils;
 import cn.xiaosm.cloud.core.entity.Range;
 import cn.xiaosm.cloud.core.service.ChunkService;
+import cn.xiaosm.cloud.core.storage.UploadConfig;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.slf4j.Logger;
@@ -34,7 +35,8 @@ import java.util.concurrent.Executors;
 @Service
 public class DownloadService {
     private static final Long chunkSize = 50 * 1024 * 1024L;
-    private static File localPath = new File("C:\\Users\\Young\\Desktop\\cloud", "download");
+    private static final String LOCAL_DOWNLOAD = "download";
+    private static final File localPath = new File(UploadConfig.LOCAL_PATH, LOCAL_DOWNLOAD);
     private static final ExecutorService pool = Executors.newFixedThreadPool(2);
     private static final ConcurrentHashMap<String, DlTaskInfo> map = new ConcurrentHashMap<>();
     private static final String DOWNLOAD_TASK = "download_task";
