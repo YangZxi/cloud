@@ -16,31 +16,26 @@ import java.io.UnsupportedEncodingException;
 
 /**
  * 邮件发送工具类
- *
- * @author Young
- * @create 2020/6/28
- * @since 1.0.0
  */
 @Slf4j
 @Component
 public class MailUtils {
 
     private static String FROM_ADDRESS = "";
-    private static String FROM_NAME = "YAdmin";
+    private static String FROM_NAME = "Cloud";
 
     private static JavaMailSenderImpl javaMailSender;
     private static MailConfig mailConfig;
 
     @Autowired
     public MailUtils(JavaMailSenderImpl javaMailSender, MailConfig mailConfig) {
-        this.javaMailSender = javaMailSender;
-        this.mailConfig = mailConfig;
+        MailUtils.javaMailSender = javaMailSender;
+        MailUtils.mailConfig = mailConfig;
         // updateMail();
     }
 
     /**
      * 公开的邮件发送方法
-     * @param mailVO
      */
     public static void sendMail(MailVO mailVO) {
         if (StrUtil.isNotBlank(mailVO.getTemplate())) {
@@ -54,9 +49,6 @@ public class MailUtils {
 
     /**
      * 公开的邮件发送方法
-     * @param to
-     * @param subject
-     * @param content
      */
     public static void sendMail(String to, String subject, String content) {
         MailUtils.sendMail(to, subject, content, false);

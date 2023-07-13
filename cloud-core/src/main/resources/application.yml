@@ -6,7 +6,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/cloud?characterEncoding=utf-8&serverTimezone=GMT%2B8
     username: ${MYSQL_USERNAME:root}
-    password: ${MYSQL_PASSWORD:123456}
+    password: ${MYSQL_PASSWORD:123123}
   redis:
     host: ${REDIS_HOST:127.0.0.1}
     port: 6379
@@ -37,6 +37,11 @@ mybatis-plus:
     # 下划线转驼峰命名
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+management:
+  health:
+    mail:
+      enabled: false # 启动时关闭邮箱检测
 
 logging:
   #  config: classpath:log4j.properties
