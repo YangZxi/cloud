@@ -1,0 +1,12 @@
+plugins {
+    id("java")
+    id("java-library")
+}
+
+dependencies {
+    implementation(project(":cloud-common"))
+    api("org.springframework.boot:spring-boot-starter-security")
+    api("com.auth0:java-jwt:3.8.0")
+}
+
+description = "cloud-security"

@@ -23,7 +23,7 @@ public class WrapperUtils {
      * @return
      */
     public static QueryWrapper bindSearch(QueryWrapper wrapper, Pager pager) {
-        return bindSearch(wrapper, pager, null);
+        return bindSearch(wrapper, pager, new String[0]);
     }
 
     /**

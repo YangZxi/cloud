@@ -1,0 +1,10 @@
+plugins {
+    id("java")
+}
+
+dependencies {
+    implementation(project(":cloud-common"))
+    implementation("co.elastic.clients:elasticsearch-java:8.6.1")
+}
+
+description = "cloud-logger"

@@ -1,0 +1,10 @@
+plugins {
+    id("java")
+    id("java-library")
+}
+
+dependencies {
+    api("org.springframework.boot:spring-boot-starter-data-redis")
+}
+
+description = "cloud-common"

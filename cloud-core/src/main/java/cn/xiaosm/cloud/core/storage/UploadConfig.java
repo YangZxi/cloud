@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 @Slf4j
 @Data
@@ -86,12 +87,15 @@ public class UploadConfig {
         }
     }
 
-    private File getFile(String path) {
+    private File getFile(String path) throws FileNotFoundException {
         path = path.replaceAll("\\\\", "/");
         String prefix = "";
         if (path.startsWith("~/")) {
             // get a path of homedir
             prefix = System.getenv("HOME");
+            if (prefix == null) {
+                throw new FileNotFoundException("HOME 环境变量未设置");
+            }
         } else  if (path.startsWith("./")) {
             // get a path of absolute
             prefix = new ApplicationHome(Application.class).getSource().getParent();
@@ -103,13 +107,13 @@ public class UploadConfig {
         return file;
     }
 
-    public void setLocalPath(String path) {
+    public void setLocalPath(String path) throws FileNotFoundException {
         File file = getFile(path);
         LOCAL_PATH = file.getAbsolutePath();
         log.info("当前存储路径：{}", LOCAL_PATH);
     }
 
-    public void setChunkPath(String path) {
+    public void setChunkPath(String path) throws FileNotFoundException {
         File file = getFile(path);
         CHUNK_PATH = file.getAbsolutePath();
         log.info("当前分块路径：{}", CHUNK_PATH);

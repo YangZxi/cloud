@@ -1,0 +1,54 @@
+plugins {
+    id("java")
+    id("maven-publish")
+    id("org.springframework.boot") version "2.6.15" apply false
+    id("io.spring.dependency-management") version "1.0.11.RELEASE" apply false
+}
+
+group = "cn.xiaosm.cloud"
+version = "1.0"
+java.sourceCompatibility = JavaVersion.VERSION_17
+java.targetCompatibility = JavaVersion.VERSION_17
+
+subprojects {
+    apply plugin: "java"
+    apply plugin: "maven-publish"
+    apply plugin: "org.springframework.boot"
+    apply plugin: "io.spring.dependency-management"
+
+    version = parent.version
+
+    repositories {
+        mavenLocal()
+        maven {
+            url = uri("https://repo.maven.apache.org/maven2/")
+        }
+    }
+
+    dependencies {
+        implementation("org.springframework.boot:spring-boot-starter")
+        implementation("org.springframework.boot:spring-boot-starter-web")
+        implementation("org.springframework.boot:spring-boot-starter-validation")
+        implementation("org.springframework.boot:spring-boot-devtools")
+        implementation("com.fasterxml.jackson.core:jackson-core:2.12.0")
+        implementation("com.fasterxml.jackson.core:jackson-databind:2.12.7.1")
+        implementation("com.fasterxml.jackson.core:jackson-annotations:2.12.0")
+        implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.0")
+        implementation("javax.validation:validation-api:2.0.1.Final")
+        implementation("cn.hutool:hutool-all:5.8.11")
+
+        testImplementation("org.springframework.boot:spring-boot-starter-test:2.6.15")
+        compileOnly("org.projectlombok:lombok:1.18.26")
+        annotationProcessor("org.projectlombok:lombok:1.18.26")
+    }
+
+    jar {
+        enabled = true
+        bootJar.enabled = false
+        archiveClassifier = ""
+        manifest {
+            attributes('Implementation-Title': 'Gradle', 'Implementation-Version': archiveVersion)
+        }
+    }
+}
+

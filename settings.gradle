@@ -1,0 +1,7 @@
+rootProject.name = "cloud"
+
+include(":cloud-core")
+include(":cloud-logger")
+include(":cloud-security")
+include(":cloud-common")
+

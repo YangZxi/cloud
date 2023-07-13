@@ -1,0 +1,42 @@
+plugins {
+    id("java")
+}
+
+dependencies {
+    implementation(project(":cloud-common"))
+    implementation(project(":cloud-security"))
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+    implementation("org.springframework.boot:spring-boot-starter-aop")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-mail")
+    implementation("org.springframework.boot:spring-boot-configuration-processor")
+    implementation("com.baomidou:mybatis-plus-boot-starter:3.5.1")
+    implementation("com.baomidou:mybatis-plus-generator:3.5.1")
+    implementation("mysql:mysql-connector-java:8.0.28")
+    implementation("me.zhyd.oauth:JustAuth:1.15.6")
+    implementation("org.quartz-scheduler:quartz:2.3.2")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.0")
+    implementation("com.qiniu:qiniu-java-sdk:[7.13.0, 7.13.99]")
+    implementation("com.qcloud:cos_api:5.6.133")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.7.0")
+}
+
+tasks.register("copyProdFile", Copy) {
+    from("${buildDir}/libs/cloud-core-${version}.jar")
+    into("${parent.buildDir}")
+    // 复制 application.yml 文件
+    from("${rootDir}/docker-compose.yml")
+    into("${parent.buildDir}")
+    // 复制 docker-compose.yml
+    from("${rootDir}/docker-compose.yml")
+    into("${parent.buildDir}")
+}
+
+bootJar {
+    enabled = true
+    mainClass.set("cn.xiaosm.cloud.Application")
+    launchScript()
+
+    finalizedBy("copyProdFile")
+    println("bootJar finished")
+}
