@@ -5,7 +5,6 @@ import cn.hutool.core.lang.Assert;
 import cn.xiaosm.cloud.Application;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.system.ApplicationHome;
 import org.springframework.stereotype.Component;
@@ -42,13 +41,9 @@ public class UploadConfig {
     @Component
     @ConfigurationProperties(prefix = "cloud.qiniu")
     static class Qiniu {
-        @Value("${cloud.qiniu.access-key}")
         static String ACCESS_KEY;
-        @Value("${cloud.qiniu.secret-key}")
         static String SECRET_KEY;
-        @Value("${cloud.qiniu.bucket}")
         static String BUCKET;
-        @Value("${cloud.qiniu.domain}")
         static String DOMAIN;
 
         public void setAccessKey(String accessKey) {
@@ -68,15 +63,10 @@ public class UploadConfig {
     @Component
     @ConfigurationProperties(prefix = "cloud.tencent")
     static class Tencent {
-        @Value("${cloud.tencent.secret-id}")
         static String SECRET_ID;
-        @Value("${cloud.tencent.secret-key}")
         static String SECRET_KEY;
-        @Value("${cloud.tencent.bucket}")
         static String BUCKET;
-        @Value("${cloud.tencent.domain}")
         static String DOMAIN;
-        @Value("${cloud.tencent.cdn-key}")
         static String CDN_KEY;
 
         public void setSecretId(String secretId) {
