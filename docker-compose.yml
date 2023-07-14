@@ -10,13 +10,13 @@ services:
     container_name: cloud
     ports:
       - "8080:8999"
-    # command: bash -c "java '-Dloader.path=/home/cloud/lib' -jar /home/cloud/cloud-core-1.0.jar"
-    command: bash -c "java -jar /home/cloud/cloud-core-1.0.jar"
+    command: bash -c "java -jar ./cloud-core-1.0.jar --spring.config.location=file:./application.yml"
+    working_dir: /home/cloud
     volumes:
       - $PWD:/home/cloud
     environment:
       - TZ=Asia/shanghai
-      - GUEST_PWD=123123 #optional
+      - GUEST_PWD=123123
       - REDIS_HOST=cloud_redis
     # restart: unless-stopped
     restart: always
