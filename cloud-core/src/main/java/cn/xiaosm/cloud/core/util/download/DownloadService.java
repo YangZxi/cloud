@@ -17,6 +17,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SetOperations;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,21 +37,24 @@ import java.util.concurrent.Executors;
 public class DownloadService {
     private static final Long chunkSize = 50 * 1024 * 1024L;
     private static final String LOCAL_DOWNLOAD = "download";
-    private static final File localPath = new File(UploadConfig.LOCAL_PATH, LOCAL_DOWNLOAD);
+    private static File localPath;
     private static final ExecutorService pool = Executors.newFixedThreadPool(2);
     private static final ConcurrentHashMap<String, DlTaskInfo> map = new ConcurrentHashMap<>();
     private static final String DOWNLOAD_TASK = "download_task";
     private static final String DOWNLOAD_USER_OF_TASK = "user_";
     private RedisTemplate<String, String> redis;
 
+    @PostConstruct
+    public void post() {
+        localPath = new File(UploadConfig.LOCAL_PATH, LOCAL_DOWNLOAD);
+        System.out.println(localPath);
+        if (!localPath.exists()) localPath.mkdirs();
+    }
+
     @Autowired
     public void setRedis(RedisTemplate<String, String> redis) {
         // redis
         this.redis = redis;
-    }
-
-    static {
-        if (!localPath.exists()) localPath.mkdirs();
     }
 
     public DownloadTask build(String name, String url, long userId, int bucketId) {

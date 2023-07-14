@@ -25,7 +25,10 @@ tasks.register("copyProdFile", Copy) {
     from("${buildDir}/libs/cloud-core-${version}.jar")
     into("${parent.buildDir}")
     // 复制 application.yml 文件
-    from("${rootDir}/docker-compose.yml")
+    def applicationYml = sourceSets.main.resources.find {
+        it.name == 'application.yml'
+    }
+    from(applicationYml)
     into("${parent.buildDir}")
     // 复制 docker-compose.yml
     from("${rootDir}/docker-compose.yml")
