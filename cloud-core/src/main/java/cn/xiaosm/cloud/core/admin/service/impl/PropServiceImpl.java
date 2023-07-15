@@ -10,10 +10,10 @@
  */
 package cn.xiaosm.cloud.core.admin.service.impl;
 
-import cn.xiaosm.cloud.core.admin.service.PropService;
 import cn.xiaosm.cloud.core.admin.entity.Prop;
 import cn.xiaosm.cloud.core.admin.entity.vo.Pager;
 import cn.xiaosm.cloud.core.admin.mapper.PropMapper;
+import cn.xiaosm.cloud.core.admin.service.PropService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -44,6 +44,11 @@ public class PropServiceImpl extends ServiceImpl<PropMapper, Prop> implements Pr
             update = this.save(prop);
         }
         return update;
+    }
+
+    @Override
+    public Prop selectByPropKey(String install) {
+        return propMapper.selectByPropKey(install);
     }
 
     @Override

@@ -16,7 +16,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 〈一句话功能简述〉
@@ -27,6 +29,8 @@ import lombok.Data;
  * @since 1.0.0
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @TableName(value = "role")
 public class Role extends BaseEntity {
 

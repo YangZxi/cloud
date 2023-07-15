@@ -13,19 +13,19 @@ package cn.xiaosm.cloud.core.admin.controller;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.util.StrUtil;
-import cn.xiaosm.cloud.common.entity.RespBody;
-import cn.xiaosm.cloud.common.util.RespUtils;
 import cn.xiaosm.cloud.common.annotation.LogRecord;
 import cn.xiaosm.cloud.common.annotation.YAdmin;
-import cn.xiaosm.cloud.core.config.security.service.TokenService;
+import cn.xiaosm.cloud.common.entity.RespBody;
+import cn.xiaosm.cloud.common.exception.SQLOperateException;
+import cn.xiaosm.cloud.common.util.RespUtils;
+import cn.xiaosm.cloud.common.util.cache.CacheUtils;
 import cn.xiaosm.cloud.core.admin.entity.LoginUser;
 import cn.xiaosm.cloud.core.admin.entity.User;
 import cn.xiaosm.cloud.core.admin.entity.UserOpen;
 import cn.xiaosm.cloud.core.admin.entity.vo.Pager;
 import cn.xiaosm.cloud.core.admin.entity.vo.UserVO;
-import cn.xiaosm.cloud.common.exception.SQLOperateException;
 import cn.xiaosm.cloud.core.admin.service.UserService;
-import cn.xiaosm.cloud.common.util.cache.CacheUtils;
+import cn.xiaosm.cloud.core.config.security.service.TokenService;
 import cn.xiaosm.cloud.core.util.WrapperUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -146,7 +146,7 @@ public class AdminUserController {
     public RespBody modifyUser(@RequestBody UserVO userVO) {
         if (userVO.getId() == 1) throw new SQLOperateException("系统保留数据，请勿操作");
         if (userVO.getIsReset()) {
-            userService.defaultPass(userVO);
+            userVO.setPassword(userService.getDefaultPassword());
             boolean b = userService.updateById(userVO);
             return b ? RespUtils.success("密码重置成功###新密码为123456")
                 : RespUtils.fail("密码重置失败");

@@ -10,9 +10,6 @@
  */
 package cn.xiaosm.cloud.core.admin.entity.enums;
 
-import com.baomidou.mybatisplus.annotation.EnumValue;
-import com.fasterxml.jackson.annotation.JsonValue;
-
 /**
  * 〈一句话功能简述〉
  * 〈〉
@@ -23,20 +20,13 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public enum PropType implements BaseEnum<String> {
 
-    EMAIL("email")
-    , FILE_TYPE("filetype")
+    EMAIL
+    , FILE_TYPE
+    , APP_CONFIG
     ;
 
-    @EnumValue
-    @JsonValue
-    private final String value;
-
-    PropType(String value) {
-        this.value = value;
-    }
-
+    @Override
     public String getValue() {
-        return value;
+        return this.name();
     }
-
 }

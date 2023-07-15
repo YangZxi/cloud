@@ -18,7 +18,7 @@ spring:
   web:
     resources:
       # 静态资源地址，多个以逗号分割
-      static-locations: file:./public/
+      static-locations: classpath:/static/,file:./public/
 
   servlet:
     multipart:

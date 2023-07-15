@@ -16,15 +16,11 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
-/**
- *
- * @author Young
- * @create 2020/6/13
- * @since 1.0.0
- */
 @Data
+@AllArgsConstructor
 @TableName(value = "user")
 public class User extends BaseEntity {
 
@@ -38,8 +34,6 @@ public class User extends BaseEntity {
     private String nickname;
     private String avatar;
     private String email;
-    private String gender;
-    private Integer age;
     private StatusEnum status;
 
     public User() {}

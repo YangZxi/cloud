@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.util.Date;
@@ -30,6 +31,7 @@ import java.util.Date;
  */
 @Data
 @Accessors(chain = true)
+@NoArgsConstructor
 @TableName("properties")
 public class Prop {
 
@@ -41,4 +43,9 @@ public class Prop {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GTM+8")
     private Date createTime;
 
+    public Prop(String propKey, String propValue, PropType type) {
+        this.propKey = propKey;
+        this.propValue = propValue;
+        this.type = type;
+    }
 }

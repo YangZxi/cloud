@@ -1,9 +1,5 @@
 package cn.xiaosm.cloud;
 
-import cn.xiaosm.cloud.common.util.SpringContextUtils;
-import cn.xiaosm.cloud.common.util.cache.CacheUtils;
-import cn.xiaosm.cloud.core.admin.service.MenuService;
-import cn.xiaosm.cloud.core.admin.service.TaskService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -21,27 +17,6 @@ public class Application {
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
-        loadMenu();
-        // loadTask();
-    }
-
-    /**
-     * 加载菜单
-     */
-    public static void loadMenu() {
-        // 项目启动完成后加载所有菜单
-        MenuService menuService = SpringContextUtils.getBean(MenuService.class);
-        // List<Menu> list = menuService.list(new QueryWrapper<Menu>().isNotNull("parent_menu"));
-        CacheUtils.set("MenuList", menuService.list());
-    }
-
-    /**
-     * 加载定时任务
-     */
-    public static void loadTask() {
-        // 项目启动完成后加载所有任务
-        TaskService taskService = SpringContextUtils.getBean(TaskService.class);
-        taskService.startAllTask();
     }
 
 }

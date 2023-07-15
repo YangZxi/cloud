@@ -33,10 +33,6 @@ public class MenuDTO extends Menu {
 
     public MenuDTO() {}
 
-    public MenuDTO(Integer id, String name) {
-        super(id, name);
-    }
-
     public boolean isHasChildren() {
         return hasChildren;
     }

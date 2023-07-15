@@ -12,6 +12,7 @@ package cn.xiaosm.cloud.core.admin.entity.vo;
 
 import cn.xiaosm.cloud.common.exception.SQLOperateException;
 import cn.xiaosm.cloud.core.admin.entity.Role;
+import cn.xiaosm.cloud.core.admin.entity.enums.StatusEnum;
 import com.baomidou.mybatisplus.annotation.TableField;
 
 import java.util.Set;
@@ -30,6 +31,10 @@ public class RoleVO extends Role {
     private Integer userId;
     // @TableField(exist = false)
     private Set<Integer> menuIds;
+
+    public RoleVO(Integer id, String name, String nameZh, String desc, StatusEnum status) {
+        super(id, name, nameZh, desc, status);
+    }
 
     public Integer getUserId() {
         return userId;

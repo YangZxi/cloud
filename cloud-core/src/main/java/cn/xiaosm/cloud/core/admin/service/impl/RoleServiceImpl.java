@@ -11,11 +11,11 @@
 package cn.xiaosm.cloud.core.admin.service.impl;
 
 import cn.xiaosm.cloud.common.exception.SQLOperateException;
-import cn.xiaosm.cloud.core.admin.service.RoleService;
 import cn.xiaosm.cloud.core.admin.entity.Role;
 import cn.xiaosm.cloud.core.admin.entity.vo.Pager;
 import cn.xiaosm.cloud.core.admin.entity.vo.RoleVO;
 import cn.xiaosm.cloud.core.admin.mapper.RoleMapper;
+import cn.xiaosm.cloud.core.admin.service.RoleService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +52,15 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
             this.addUserRoles(role.getId(), ((RoleVO) role).getMenuIds());
         }
         return true;
+    }
+
+    @Override
+    @Transactional
+    public void updateRoleMenu(Set<Integer> menuIds, Integer roleId) {
+        // 先清除所有的角色信息
+        this.clearRoleMenu(roleId);
+        // 在进行新的插入
+        this.addUserRoles(roleId, menuIds);
     }
 
     /**

@@ -3,7 +3,6 @@ package cn.xiaosm.cloud.core.admin.service.impl;
 import cn.hutool.core.util.StrUtil;
 import cn.xiaosm.cloud.common.exception.CanShowException;
 import cn.xiaosm.cloud.common.exception.SQLOperateException;
-import cn.xiaosm.cloud.core.admin.service.UserService;
 import cn.xiaosm.cloud.core.admin.entity.User;
 import cn.xiaosm.cloud.core.admin.entity.UserLoginTrack;
 import cn.xiaosm.cloud.core.admin.entity.UserOpen;
@@ -13,6 +12,7 @@ import cn.xiaosm.cloud.core.admin.entity.vo.Pager;
 import cn.xiaosm.cloud.core.admin.entity.vo.UserVO;
 import cn.xiaosm.cloud.core.admin.mapper.UserMapper;
 import cn.xiaosm.cloud.core.admin.mapper.UserOpenMapper;
+import cn.xiaosm.cloud.core.admin.service.UserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,10 +63,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     @Transactional
+    public void updateUserRoles(Long userId, Set<Integer> roleIds) {
+        this.removeUserRoles(userId);
+        this.addUserRoles(userId, roleIds);
+    }
+
+    @Override
+    @Transactional
     public boolean save(User user) {
         if (this.isExist(user)) throw new SQLOperateException("用户名" + user.getUsername() + "已存在");
         // 设置默认密码
-        this.defaultPass(user);
+        user.setPassword(getDefaultPassword());
         userMapper.insert(user);
         this.addUserRoles(user.getId(), ((UserVO) user).getRoleIds());
         return true;
@@ -114,7 +121,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public boolean modPassword(User user, String password, boolean keep) {
         User newU = new User();
         newU.setId(user.getId());
-        this.encodePass(user, password);
+        user.setPassword(encodePassword(password));
         if (keep) {
             return userMapper.updateById(user) == 1;
         }
@@ -122,23 +129,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 设置用户密码，这里使用默认密码
-     * @param user
+     * 获取使用默认密码
      */
-    @Override
-    public void defaultPass(User user) {
-        user.setPassword(bCryptPasswordEncoder.encode(DEFAULT_PASS));
+    public String getDefaultPassword() {
+        return bCryptPasswordEncoder.encode(DEFAULT_PASS);
     }
 
     /**
      * 设置用户密码
      * 会在user.password中覆盖原有的密码
-     * @param user
-     * @param password
      */
-    public void encodePass(User user, String password) {
-        if (StrUtil.isNotBlank(password))
-            user.setPassword(bCryptPasswordEncoder.encode(password));
+    public String encodePassword(String password) {
+        if (StrUtil.isBlank(password)) {
+            throw new IllegalArgumentException("密码不能为空");
+        }
+        return bCryptPasswordEncoder.encode(password);
     }
 
     /**

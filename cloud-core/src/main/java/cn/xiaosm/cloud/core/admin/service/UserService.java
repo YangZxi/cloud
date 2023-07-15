@@ -15,23 +15,19 @@ import cn.xiaosm.cloud.core.admin.entity.UserLoginTrack;
 import cn.xiaosm.cloud.core.admin.entity.UserOpen;
 import cn.xiaosm.cloud.core.admin.entity.dto.UserDTO;
 import cn.xiaosm.cloud.core.admin.entity.enums.UserOpenType;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
 
-/**
- * 〈一句话功能简述〉
- * 〈〉
- *
- * @author Young
- * @create 2020/6/13
- * @since 1.0.0
- */
 public interface UserService extends BaseService<User> {
 
     List<UserOpen> getUserOpenByUserId(Long userId);
 
     boolean addUserOpen(UserOpen userOpen);
+
+    @Transactional
+    void updateUserRoles(Long userId, Set<Integer> roleIds);
 
     boolean modPassword(User user);
 
@@ -39,7 +35,7 @@ public interface UserService extends BaseService<User> {
 
     boolean modPassword(User user, String password, boolean keep);
 
-    void defaultPass(User user);
+    String getDefaultPassword();
 
     int removeById(Integer id);
 

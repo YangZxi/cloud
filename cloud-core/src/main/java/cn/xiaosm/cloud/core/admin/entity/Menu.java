@@ -10,8 +10,8 @@
  */
 package cn.xiaosm.cloud.core.admin.entity;
 
-import cn.xiaosm.cloud.core.admin.entity.enums.StatusEnum;
 import cn.xiaosm.cloud.core.admin.entity.enums.MenuType;
+import cn.xiaosm.cloud.core.admin.entity.enums.StatusEnum;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -51,9 +51,11 @@ public class Menu extends BaseEntity implements Cloneable {
 
     public Menu() { }
 
-    public Menu(Integer id, String name) {
+    public Menu(Integer id, String name, MenuType type, Integer parentMenuId) {
         this.id = id;
         this.name = name;
+        this.type = type;
+        this.parentMenuId = parentMenuId;
     }
 
     @Override

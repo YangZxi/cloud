@@ -13,6 +13,7 @@ package cn.xiaosm.cloud.core.admin.service;
 import cn.xiaosm.cloud.core.admin.entity.Role;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 〈一句话功能简述〉
@@ -23,6 +24,8 @@ import java.util.List;
  * @since 1.0.0
  */
 public interface RoleService extends BaseService<Role> {
+
+    void updateRoleMenu(Set<Integer> menuIds, Integer roleId);
 
     List<Role> getByUserId(Integer userId);
 }

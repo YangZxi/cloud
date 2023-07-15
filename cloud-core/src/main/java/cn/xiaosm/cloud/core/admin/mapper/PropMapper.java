@@ -12,7 +12,10 @@ package cn.xiaosm.cloud.core.admin.mapper;
 
 import cn.xiaosm.cloud.core.admin.entity.Prop;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * 〈一句话功能简述〉
@@ -24,5 +27,11 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface PropMapper extends BaseMapper<Prop> {
+
+    @Select("select * from `properties` where prop_key = #{propKey}")
+    Prop selectByPropKey(String propKey);
+
+    @Select("select * from `properties` where prop_key like concat(#{prefix}, '%')")
+    List<Prop> listAllByPrefix(String prefix);
 
 }
