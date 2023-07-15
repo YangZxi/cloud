@@ -16,6 +16,7 @@ import cn.xiaosm.cloud.core.entity.Resource;
 import cn.xiaosm.cloud.core.entity.Share;
 import cn.xiaosm.cloud.core.entity.response.ResourceDTO;
 import cn.xiaosm.cloud.core.entity.response.ShareDTO;
+import cn.xiaosm.cloud.core.entity.response.ShareListDTO;
 import cn.xiaosm.cloud.core.mapper.ResourceMapper;
 import cn.xiaosm.cloud.core.mapper.ShareMapper;
 import cn.xiaosm.cloud.core.storage.FileStorageUtil;
@@ -31,7 +32,9 @@ import org.springframework.stereotype.Service;
 import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Young
@@ -77,10 +80,42 @@ public class ShareService extends ServiceImpl<ShareMapper, Share> {
         return dto;
     }
 
+    public List<ShareListDTO> listByUserId(Long userId) {
+        List<Share> shareList = shareMapper.listByUserId(userId);
+        List<ShareListDTO> shareListDTOList = new ArrayList<>();
+        // 获取每个链接里的资源名称
+        shareList.forEach(share -> {
+            List<Resource> resourceList = resourceService.listByIds(share.getResourceIds());
+            String name = resourceList.stream().map(Resource::getName).reduce((a, b) -> a + ", " + b).orElse("");
+            ShareListDTO dto = new ShareListDTO(share);
+            dto.setShareLabel(name);
+            shareListDTOList.add(dto);
+        });
+        return shareListDTOList;
+    }
+
+    public boolean update(Share share) {
+        Share db = shareMapper.selectById(share.getAutoId());
+        if (null == db || !SecurityUtils.getLoginUserId().equals(db.getUserId())) {
+            throw new ShareException("当前分享的资源在地球找不到啦！");
+        }
+        Optional.ofNullable(share.getDeadline()).ifPresent(db::setDeadline);
+        Optional.ofNullable(share.getPassword()).ifPresent(db::setPassword);
+        return shareMapper.updateById(db) == 1;
+    }
+
+    public boolean delete(Integer id) {
+        Share db = shareMapper.selectById(id);
+        if (null == db || !SecurityUtils.getLoginUserId().equals(db.getUserId())) {
+            throw new ShareException("当前分享的资源在地球找不到啦！");
+        }
+        return shareMapper.deleteById(id) == 1;
+    }
+
     private Share getByUuidAndDeadline(ShareDTO dto) {
         // 获取当前分享
         Share db = shareMapper.selectById(dto.getId());
-        if (db == null) {
+        if (null == db || !SecurityUtils.getLoginUserId().equals(db.getUserId())) {
             throw new ShareException("当前分享的资源在地球找不到啦！");
         }
         // 不是永久资源，且资源已过期

@@ -31,4 +31,7 @@ public class SecurityUtils extends DefaultSecurityUtils {
         }
     }
 
+    public static boolean isLogin() {
+        return SecurityUtils.getAuthentication().isAuthenticated();
+    }
 }

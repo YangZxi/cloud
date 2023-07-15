@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
  * @since 1.0.0
  */
 @Data
+@NoArgsConstructor
 public class Share {
 
     @TableId(type = IdType.AUTO)
@@ -49,4 +51,16 @@ public class Share {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime createTime;
 
+    public Share(Share share) {
+        this.autoId = share.getAutoId();
+        this.id = share.getId();
+        this.shortCode = share.getShortCode();
+        this.deadline = share.getDeadline();
+        this.password = share.getPassword();
+        this.viewCount = share.getViewCount();
+        this.downloadCount = share.getDownloadCount();
+        this.resourceIds = share.getResourceIds();
+        this.userId = share.getUserId();
+        this.createTime = share.getCreateTime();
+    }
 }

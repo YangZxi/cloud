@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,8 +59,31 @@ public class ShareController {
     }
 
     @RequestMapping("list")
+    public RespBody list() {
+        return RespUtils.success(shareService.listByUserId(SecurityUtils.getLoginUserId()));
+    }
+
+    @RequestMapping("update")
+    @LogRecord("更新分享")
+    public RespBody update(@RequestBody ShareDTO shareDTO) {
+        if (shareService.update(shareDTO)) {
+            return RespUtils.success("更新成功");
+        }
+        return RespUtils.fail("更新失败");
+    }
+
+    @RequestMapping("delete/{id}")
+    @LogRecord("删除分享")
+    public RespBody delete(@PathVariable("id") Integer id) {
+        if (shareService.removeById(id)) {
+            return RespUtils.success("删除成功");
+        }
+        return RespUtils. fail("删除失败");
+    }
+
+    @RequestMapping("shareInfo")
     @PreAuthorize("hasRole('ROLE_share')")
-    public RespBody preview(@RequestBody ShareDTO share) {
+    public RespBody shareInfo(@RequestBody ShareDTO share) {
         Assert.isTrue(hasShare(share.getId()), () -> new ShareException("当前分享的资源在地球找不到啦！"));
         ShareDTO dto = shareService.info(share);
         if (dto.getResourceList().size() == 1) {
