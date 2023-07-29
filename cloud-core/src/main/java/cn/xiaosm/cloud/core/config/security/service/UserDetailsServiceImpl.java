@@ -11,7 +11,6 @@
 package cn.xiaosm.cloud.core.config.security.service;
 
 import cn.hutool.core.util.ArrayUtil;
-import cn.xiaosm.cloud.core.config.security.SecurityUtils;
 import cn.xiaosm.cloud.core.admin.entity.LoginUser;
 import cn.xiaosm.cloud.core.admin.entity.Menu;
 import cn.xiaosm.cloud.core.admin.entity.Role;
@@ -21,7 +20,8 @@ import cn.xiaosm.cloud.core.admin.entity.enums.StatusEnum;
 import cn.xiaosm.cloud.core.admin.entity.enums.UserOpenType;
 import cn.xiaosm.cloud.core.admin.service.MenuService;
 import cn.xiaosm.cloud.core.admin.service.RoleService;
-import cn.xiaosm.cloud.core.admin.service.UserService;
+import cn.xiaosm.cloud.core.admin.service.impl.UserService;
+import cn.xiaosm.cloud.core.config.security.SecurityUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -63,8 +63,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     /**
      * 登录
-     * @param username
-     * @return
      */
     @Override
     public UserDetails loadUserByUsername(String username) {
@@ -84,9 +82,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     /**
      * 通过快捷登录方式登录系统
-     * @param openId
-     * @param source
-     * @return
      */
     public UserDetails loadUserByOpenId(String openId, String source) {
         UserDTO userDTO = null;
@@ -103,13 +98,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     /**
      * 加载用户信息，包括用户的所有角色和角色所拥有的权限
-     *
-     * @param loginUser
      */
     public void loadUserInfo(LoginUser loginUser) {
         // 获取当前用户的完整数据
         UserDTO userDTO = userService.getByUsername(loginUser.getUsername());
-        if (userDTO.getId().equals(1l)) {
+        if (userDTO.getId().equals(1L)) {
             userDTO.setRoles(roleService.list());
         }
         BeanUtils.copyProperties(userDTO, loginUser, "");
@@ -126,7 +119,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 })
                 .toArray(), ","));
         // 通过roleIds 字符串添加用户所拥有的菜单<注意，这里还只是链表结构>
-        if (isAdmin.get() == true) {
+        if (isAdmin.get()) {
             loginUser.setMenusOriginal(menuService.getAllEnable(true));
         } else {
             loginUser.setMenusOriginal(menuService.getByRoleIds(loginUser.getRoleIds()));
@@ -137,8 +130,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         Collection<SimpleGrantedAuthority> authorities =
                 loginUser.getMenusOriginalOfList().stream()
                     // 取出权限字段（permission）不为空的值
-                    .filter(menu -> StringUtils.isNotBlank(menu.getPermission()))
                     .map(Menu::getPermission)
+                    .filter(StringUtils::isNotBlank)
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
         // 添加默认权限
@@ -155,19 +148,16 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     /**
      * 异常抛出后将会由 AuthenticationException 处理
-     * @param user
      */
     private void validateUser(User user) {
         if (Objects.isNull(user)) {
             throw new AuthenticationCredentialsNotFoundException("用户名或密码输入错误");
-        } else if (user.getStatus() == StatusEnum.ENABLED) {
-            return;
-        } else if (user.getStatus() == StatusEnum.DISABLED){
-            throw new DisabledException("用户已被禁用，请联系管理员");
-        } else if (user.getStatus() == StatusEnum.DELETED) {
-            throw new DisabledException("用户已被删除，请联系管理员");
-        } else {
-            throw new DisabledException("用户状态异常，请联系管理员");
+        }
+        switch (user.getStatus()) {
+            case ENABLED -> {}
+            case DISABLED -> throw new DisabledException("用户已被禁用，请联系管理员");
+            case DELETED -> throw new DisabledException("用户已被删除，请联系管理员");
+            default -> throw new DisabledException("用户状态异常，请联系管理员");
         }
     }
 

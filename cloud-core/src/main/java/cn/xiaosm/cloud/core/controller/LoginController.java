@@ -7,7 +7,7 @@ import cn.xiaosm.cloud.common.util.RespUtils;
 import cn.xiaosm.cloud.core.admin.entity.LoginUser;
 import cn.xiaosm.cloud.core.admin.entity.dto.LoginUserDTO;
 import cn.xiaosm.cloud.core.admin.service.RoleService;
-import cn.xiaosm.cloud.core.admin.service.UserService;
+import cn.xiaosm.cloud.core.admin.service.impl.UserService;
 import cn.xiaosm.cloud.core.config.security.service.TokenService;
 import cn.xiaosm.cloud.core.config.security.service.UserDetailsServiceImpl;
 import cn.xiaosm.cloud.security.annotation.Decrypt;
@@ -64,7 +64,7 @@ public class LoginController {
         // 记录登录足迹
         // userService.addLoginTrack(loginUser.getId(), ServletUtil.getClientIP(request));
         // 根据认证创建 Token
-        String token = "";
+        String token;
         if ("guest".equals(loginUser.getUsername())) {
             PUBLIC_LOGIN = loginUser;
             token = tokenService.createToken(IdUtil.simpleUUID(), TokenType.LOGIN, loginUser);
@@ -75,11 +75,6 @@ public class LoginController {
         RespUtils.sendToken(response, token);
         return null;
     }
-
-    // @RequestMapping("unsafeToken")
-    // public void unsafeToken(HttpServletRequest request, HttpServletResponse response) {
-    //     RespUtils.sendToken(response, tokenService.getUUID(tokenService.getToken(request)));
-    // }
 
     private RespBody publicLogin(LoginUserDTO user, HttpServletResponse response) {
         if (user.getPassword().equals(PUBLIC_LOGIN.getPassword())) {

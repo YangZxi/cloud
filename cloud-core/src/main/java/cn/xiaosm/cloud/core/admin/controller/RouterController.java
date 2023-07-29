@@ -13,15 +13,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
-
-/**
- * @author Young
- * @create 2022/11/17
- * @since 1.0.0
- */
 
 @YAdmin
 public class RouterController {
@@ -31,8 +24,6 @@ public class RouterController {
 
     /**
      * 首页
-     * @param request
-     * @return
      */
     @RequestMapping
     public String index(HttpServletRequest request) {
@@ -49,7 +40,6 @@ public class RouterController {
 
     /**
      * 首页
-     * @return
      */
     @RequestMapping("home")
     public String home() {
@@ -62,15 +52,10 @@ public class RouterController {
         List<? extends Menu> menus = ((LoginUser) ((UsernamePasswordAuthenticationToken) request.getUserPrincipal()).getPrincipal()).getMenus();
         try {
             // 过滤非启用状态的菜单
-            Iterator<? extends Menu> iterator = menus.iterator();
-            while (iterator.hasNext()) {
-                Menu next = iterator.next();
-                if (!next.getStatus().equals(StatusEnum.ENABLED)) {
-                    menus.remove(next);
-                }
-            }
-            // .filter(el-> el.getStatus() == StatusEnum.ENABLED)
-            request.setAttribute("menus", new ObjectMapper().writeValueAsString(menus));
+            List<? extends Menu> newList = menus.stream()
+                    .filter(el -> StatusEnum.ENABLED.equals(el.getStatus()))
+                    .toList();
+            request.setAttribute("menus", new ObjectMapper().writeValueAsString(newList));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

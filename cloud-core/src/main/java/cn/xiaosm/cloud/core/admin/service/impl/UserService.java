@@ -4,7 +4,6 @@ import cn.hutool.core.util.StrUtil;
 import cn.xiaosm.cloud.common.exception.CanShowException;
 import cn.xiaosm.cloud.common.exception.SQLOperateException;
 import cn.xiaosm.cloud.core.admin.entity.User;
-import cn.xiaosm.cloud.core.admin.entity.UserLoginTrack;
 import cn.xiaosm.cloud.core.admin.entity.UserOpen;
 import cn.xiaosm.cloud.core.admin.entity.dto.UserDTO;
 import cn.xiaosm.cloud.core.admin.entity.enums.UserOpenType;
@@ -12,7 +11,7 @@ import cn.xiaosm.cloud.core.admin.entity.vo.Pager;
 import cn.xiaosm.cloud.core.admin.entity.vo.UserVO;
 import cn.xiaosm.cloud.core.admin.mapper.UserMapper;
 import cn.xiaosm.cloud.core.admin.mapper.UserOpenMapper;
-import cn.xiaosm.cloud.core.admin.service.UserService;
+import cn.xiaosm.cloud.core.admin.service.BaseService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -34,7 +32,7 @@ import java.util.Set;
  * @since 1.0.0
  */
 @Service
-public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+public class UserService extends ServiceImpl<UserMapper, User> implements BaseService<User> {
 
     @Autowired
     UserMapper userMapper;
@@ -61,7 +59,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return i == 1;
     }
 
-    @Override
     @Transactional
     public void updateUserRoles(Long userId, Set<Integer> roleIds) {
         this.removeUserRoles(userId);
@@ -88,44 +85,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 修改密码，但是不进行数据库操作
-     *
-     * @param user
-     * @return
-     */
-    @Override
-    public boolean modPassword(User user) {
-        return this.modPassword(user, user.getPassword(), false);
-    }
-
-    /**
-     * 修改密码，但是不进行数据库操作
-     *
-     * @param user
-     * @param password
-     * @return
-     */
-    @Override
-    public boolean modPassword(User user, String password) {
-        return this.modPassword(user, password, false);
-    }
-
-    /**
      * 修改密码，根据keep决定是否进行数据库操作
-     * @param user
-     * @param password
-     * @param keep
-     * @return
      */
-    @Override
-    public boolean modPassword(User user, String password, boolean keep) {
+    public boolean updatePassword(User user, String password) {
         User newU = new User();
         newU.setId(user.getId());
         user.setPassword(encodePassword(password));
-        if (keep) {
-            return userMapper.updateById(user) == 1;
-        }
-        return true;
+        return userMapper.updateById(user) == 1;
     }
 
     /**
@@ -148,7 +114,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 删除用户的所有角色信息
-     * @param userId
      */
     public void removeUserRoles(Long userId) {
         userMapper.deleteUserRole(userId);
@@ -156,28 +121,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 添加用户的角色
-     * @param userId
-     * @param roleIds
-     * @return
      */
-    public int addUserRoles(Long userId, Set<Integer> roleIds) {
-        int i = 0;
+    public void addUserRoles(Long userId, Set<Integer> roleIds) {
         for (Integer roleId : roleIds) {
             try {
-                i = userMapper.insertUserRole(userId, roleId);
+                userMapper.insertUserRole(userId, roleId);
             } catch (Exception e) {
                 throw new SQLOperateException("保存失败###选择角色不存在");
             }
         }
-        return i;
     }
 
-    @Override
-    public int removeById(Integer id) {
-        return userMapper.updateUserStatusToDeleted(id);
-    }
-
-    @Override
     public int removeByIds(Set<Long> ids) {
         int count = 0;
         for (Long id : ids) {
@@ -193,48 +147,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 根据用户名查询用户信息
-     * @param username
-     * @return
      */
-    @Override
     public UserDTO getByUsername(String username) {
         return userMapper.selectByUsername(username);
     }
 
     /**
      * 通过快捷方式登录
-     * @param openId
-     * @param loginType
-     * @return
      */
-    @Override
     public UserDTO getByUsername(String openId, UserOpenType loginType) {
         return userMapper.selectByOpenId(openId, loginType);
-    }
-
-    /**
-     * 登录方法
-     *
-     * 方法已废弃，真实的登录应使用 UserDetailsServiceImpl.loadUserByUsername
-     *
-     * @param user
-     * @return
-     */
-    @Override
-    @Deprecated
-    public User login(User user) {
-        User condition = new User();
-        condition.setUsername(user.getUsername());
-        condition.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>(condition);
-        User re = this.getOne(queryWrapper);
-        if (Objects.isNull(re)) return null;
-        return re;
-    }
-
-    public List findByCondition(QueryWrapper<User> queryWrapper) {
-        List<User> list = this.list(queryWrapper);
-        return list;
     }
 
     @Override
@@ -246,31 +168,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return userMapper.selectPage(pager, queryWrapper);
     }
 
-    @Override
-    public List<UserLoginTrack> listOfTrack(Long userId, Integer size) {
-        // 不进行 count sql 优化，解决 MP 无法自动优化 SQL 问题，这时候你需要自己查询 count 部分
-        // page.setOptimizeCountSql(false);
-        // 当 total 为小于 0 或者设置 setSearchCount(false) 分页插件不会进行 count 查询
-        // 要点!! 分页返回的对象与传入的对象是同一个
-        return userMapper.selectUserTrack(userId, size);
-    }
-
-    @Override
-    public boolean addLoginTrack(Long userId, String ip) {
-        UserLoginTrack track = new UserLoginTrack();
-        track.setUserId(userId);
-        track.setLoginIp(ip);
-        track.setLoginTime(new Date());
-        return userMapper.insertUserTrack(track) == 1 ? true : false;
-        // return userMapper.insertUserTrack(userId, ip, new Date()) == 1 ? true : false;
-    }
-
-    @Override
     public List<UserOpen> getUserOpenByUserId(Long userId) {
         return userOpenMapper.selectList(new QueryWrapper<UserOpen>().eq("user_id", userId));
     }
 
-    @Override
     public boolean addUserOpen(UserOpen userOpen) {
         // 查询当前的UserOpen信息是否已经被绑定
         if (!isUnbind(userOpen))
@@ -290,31 +191,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 查询当前openId是否没有被绑定
-     *
-     * @param userOpen
-     * @return
      */
     public boolean isUnbind(UserOpen userOpen) {
         UserOpen open = userOpenMapper.selectOne(new QueryWrapper<UserOpen>()
             .eq("open_id", userOpen.getOpenId())
             .eq("type", userOpen.getType()));
-        /**
+        /*
          * 数据库不存在
          * 数据库已存在的用户Id与需要绑定的用户id相同
          */
-        return open == null || open.getUserId() == userOpen.getUserId();
-    }
-
-    public boolean removeUserOpen(UserOpen userOpen) {
-        return userOpenMapper.deleteById(userOpen) == 1;
+        return open == null || Objects.equals(open.getUserId(), userOpen.getUserId());
     }
 
     /**
      * 删除用户的open信息
-     * @param userOpen
-     * @return
      */
-    @Override
     public boolean revokeUserOpen(UserOpen userOpen) {
         return userOpenMapper.deleteById(userOpen) == 1;
     }

@@ -1,18 +1,8 @@
-/**
- * Copyright: 2019-2020，小树苗(www.xiaosm.cn)
- * FileName: PropertiesController
- * Author:   Young
- * Date:     2020/6/18 13:45
- * Description:
- * History:
- * <author>          <time>          <version>          <desc>
- * Young         修改时间           版本号             描述
- */
 package cn.xiaosm.cloud.core.admin.controller;
 
+import cn.xiaosm.cloud.common.annotation.YAdmin;
 import cn.xiaosm.cloud.common.entity.RespBody;
 import cn.xiaosm.cloud.common.util.RespUtils;
-import cn.xiaosm.cloud.common.annotation.YAdmin;
 import cn.xiaosm.cloud.core.admin.entity.Prop;
 import cn.xiaosm.cloud.core.admin.service.PropService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -24,14 +14,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-/**
- * 〈一句话功能简述〉
- * 〈〉
- *
- * @author Young
- * @create 2020/6/18
- * @since 1.0.0
- */
 @YAdmin("api/props")
 @RestController
 public class AdminPropsController {
@@ -49,9 +31,9 @@ public class AdminPropsController {
     @PutMapping
     @PreAuthorize("hasAuthority('prop:add') or hasRole('admin')")
     public RespBody saveProp(@RequestBody List<Prop> props) {
-        props.stream().forEach(el -> el.setCreateTime(new Date()));
+        props.forEach(el -> el.setCreateTime(new Date()));
         boolean b = propService.saveBatch(props);
-        return b == true ? RespUtils.success("保存成功")
+        return b ? RespUtils.success("保存成功")
                 : RespUtils.fail("保存失败");
     }
 

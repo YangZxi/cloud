@@ -1,39 +1,24 @@
-/**
- * Copyright: 2019-2020，小树苗(www.xiaosm.cn)
- * FileName: AdminController
- * Author:   Young
- * Date:     2020/6/13 20:27
- * Description:
- * History:
- * <author>          <time>          <version>          <desc>
- * Young         修改时间           版本号             描述
- */
 package cn.xiaosm.cloud.core.admin.controller;
 
-import cn.hutool.extra.servlet.ServletUtil;
+import cn.xiaosm.cloud.common.annotation.YAdmin;
 import cn.xiaosm.cloud.common.entity.RespBody;
 import cn.xiaosm.cloud.common.util.RespUtils;
-import cn.xiaosm.cloud.common.annotation.YAdmin;
-import cn.xiaosm.cloud.core.config.security.service.UserDetailsServiceImpl;
 import cn.xiaosm.cloud.core.admin.entity.LoginUser;
 import cn.xiaosm.cloud.core.admin.entity.dto.LoginUserDTO;
-import cn.xiaosm.cloud.core.admin.service.UserService;
+import cn.xiaosm.cloud.core.admin.service.impl.UserService;
+import cn.xiaosm.cloud.core.config.security.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-/**
- *
- * @author Young
- * @create 2020/6/13
- * @since 1.0.0
- */
 @YAdmin
 public class AdminController {
 
@@ -46,10 +31,6 @@ public class AdminController {
 
     /**
      * 登录页
-     * @param request
-     * @param response
-     * @return
-     * @throws IOException
      */
     @GetMapping("/login")
     public String login(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -70,8 +51,6 @@ public class AdminController {
 
     /**
      * 登录处理
-     * @param user
-     * @param request
      * @return 响应 JSON
      */
     @PostMapping("/api/login")
@@ -90,13 +69,11 @@ public class AdminController {
         // 如果密码没有输入错误，将能够正确执行以下代码
         LoginUser loginUser = (LoginUser) authentication.getPrincipal();
         // 暂时只允许 id 为1的登录
-        if (!loginUser.getId().equals(1l)) {
+        if (!loginUser.getId().equals(1L)) {
             return RespUtils.fail("请求拒绝");
         }
         // 设置登录用户信息（用户的权限和菜单列表）
         userDetailsService.loadUserInfo(loginUser);
-        // 记录登录足迹
-        userService.addLoginTrack(loginUser.getId(), ServletUtil.getClientIP(request));
         request.getSession().setAttribute("USER", loginUser);
         return RespUtils.success();
     }

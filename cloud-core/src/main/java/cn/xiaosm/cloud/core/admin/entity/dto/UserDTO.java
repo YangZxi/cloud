@@ -13,7 +13,6 @@ package cn.xiaosm.cloud.core.admin.entity.dto;
 import cn.xiaosm.cloud.core.admin.entity.Menu;
 import cn.xiaosm.cloud.core.admin.entity.Role;
 import cn.xiaosm.cloud.core.admin.entity.User;
-import cn.xiaosm.cloud.core.admin.entity.UserLoginTrack;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
@@ -36,6 +35,5 @@ public class UserDTO extends User implements Serializable {
     private String roleIds;
     private List<Role> roles;
     private List<Menu> menus;
-    private List<UserLoginTrack> userLoginTracks;
 
 }

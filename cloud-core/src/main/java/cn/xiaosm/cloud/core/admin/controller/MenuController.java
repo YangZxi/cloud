@@ -1,20 +1,10 @@
-/**
- * Copyright: 2019-2020，小树苗(www.xiaosm.cn)
- * FileName: MenuController
- * Author:   Young
- * Date:     2020/6/18 13:42
- * Description:
- * History:
- * <author>          <time>          <version>          <desc>
- * Young         修改时间           版本号             描述
- */
 package cn.xiaosm.cloud.core.admin.controller;
 
+import cn.xiaosm.cloud.common.annotation.LogRecord;
+import cn.xiaosm.cloud.common.annotation.YAdmin;
 import cn.xiaosm.cloud.common.entity.RespBody;
 import cn.xiaosm.cloud.common.exception.SQLOperateException;
 import cn.xiaosm.cloud.common.util.RespUtils;
-import cn.xiaosm.cloud.common.annotation.LogRecord;
-import cn.xiaosm.cloud.common.annotation.YAdmin;
 import cn.xiaosm.cloud.core.admin.entity.Menu;
 import cn.xiaosm.cloud.core.admin.entity.dto.MenuQueryDTO;
 import cn.xiaosm.cloud.core.admin.entity.vo.Pager;
@@ -24,16 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.Set;
 
-/**
- * 〈一句话功能简述〉
- * 〈〉
- *
- * @author Young
- * @create 2020/6/18
- * @since 1.0.0
- */
 @YAdmin("/api/menu")
 @RestController
 public class MenuController {
@@ -70,7 +53,7 @@ public class MenuController {
         boolean b = menuService.save(menu);
         // 重新获取最新的菜单表到内存
         if (b) menuService.refreshMenus();
-        return b == true ? RespUtils.success("新增菜单信息成功")
+        return b ? RespUtils.success("新增菜单信息成功")
                 : RespUtils.fail("新增失败");
     }
 
@@ -83,7 +66,7 @@ public class MenuController {
         }
         boolean b = menuService.updateById(menu);
         if (b) menuService.refreshMenus();
-        return b == true ? RespUtils.success("修改菜单信息成功")
+        return b ? RespUtils.success("修改菜单信息成功")
                 : RespUtils.fail("修改失败");
     }
 
@@ -91,7 +74,7 @@ public class MenuController {
     @LogRecord("菜单删除")
     @PreAuthorize("hasAuthority('menu:delete') or hasRole('admin')")
     public RespBody deleteMenus(@RequestBody Set<Integer> ids) {
-        if (ids.stream().filter(el -> el <= 36).count() >= 1) {
+        if (ids.stream().anyMatch(el -> el == 1)) {
             throw new SQLOperateException("系统保留数据，请勿操作");
         }
         int b = menuService.removeByIds(ids);
