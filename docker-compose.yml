@@ -10,8 +10,12 @@ services:
     container_name: cloud
     ports:
       - "8080:8999"
-    command: bash -c "java -jar ./cloud-core-1.0.jar --spring.config.location=file:./application.yml"
-    working_dir: /home/cloud
+    command:
+      - bash
+      - -c
+      - |
+        cd /home/cloud
+        java -jar ./cloud-core-1.0.jar --spring.config.additional-location=file:./application.yml
     volumes:
       - $PWD:/home/cloud
     environment:

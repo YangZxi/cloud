@@ -55,7 +55,7 @@ logging:
 
 ## 项目自定义配置
 cloud:
-  local-path: ~/.cloud/
+  local-path: .
   max-upload-size: 120
   # 腾讯云配置
   tencent:
