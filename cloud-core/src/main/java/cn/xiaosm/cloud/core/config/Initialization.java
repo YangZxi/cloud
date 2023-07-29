@@ -41,9 +41,10 @@ public class Initialization implements ApplicationRunner {
     RoleService roleService;
     @Autowired
     LocalBucketService bucketService;
+    private MagicVar magicVar;
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) {
         SpringContextUtils.getBean(Initialization.class).install();
         loadMenu();
     }
@@ -74,8 +75,9 @@ public class Initialization implements ApplicationRunner {
             return;
         }
         // 初始化基本菜单数据
-        initUser();
+        magicVar = new MagicVar();
         initMenu();
+        initUser();
         initRole();
         initRoleMenu();
         initUserRole();
@@ -90,88 +92,68 @@ public class Initialization implements ApplicationRunner {
         propService.saveOrUpdate(install);
     }
 
+    private static class MagicVar {
+        private final long ADMIN_USER_ID = 1L;
+        private final long GUEST_USER_ID = 2L;
+        private final int ADMIN_ROLE_ID = 1;
+        private final int NORMAL_ROLE_ID = 2;
+        private final int GUEST_ROLE_ID = 3;
+        private final int ROOT_MENU_ID = 1;
+        private final int FRONT_MENU_ID = 1000;
+    }
+
+    private void initMenu() {
+        List<Menu> menuList = new ArrayList<>();
+        menuList.add(new Menu(magicVar.ROOT_MENU_ID, "根目录", MenuType.LEVEL_1, 1).setOrder(0));
+
+        menuList.add(new Menu(magicVar.FRONT_MENU_ID, "前端权限", MenuType.LEVEL_1, 1).setIcon("fa-tent"));
+        menuList.add(new Menu(null, "资源上传", MenuType.BUTTON, magicVar.FRONT_MENU_ID).setPermission("front:resource:upload"));
+        menuList.add(new Menu(null, "资源重命名", MenuType.BUTTON, magicVar.FRONT_MENU_ID).setPermission("front:resource:rename"));
+        menuList.add(new Menu(null, "资源新建", MenuType.BUTTON, magicVar.FRONT_MENU_ID).setPermission("front:resource:create"));
+        menuList.add(new Menu(null, "资源删除", MenuType.BUTTON, magicVar.FRONT_MENU_ID).setPermission("front:resource:delete"));
+        menuList.add(new Menu(null, "资源预览与下载", MenuType.BUTTON, magicVar.FRONT_MENU_ID).setPermission("front:resource:download"));
+        menuList.add(new Menu(null, "资源分享", MenuType.BUTTON, magicVar.FRONT_MENU_ID).setPermission("front:resource:share"));
+        menuList.add(new Menu(null, "资源加速", MenuType.BUTTON, magicVar.FRONT_MENU_ID).setPermission("front:resource:cdn"));
+        menuService.saveOrUpdateBatch(menuList);
+        log.info("初始化菜单数据成功");
+    }
+
     private void initUser() {
         String password = userService.getDefaultPassword();
         List<User> userList = new ArrayList<>();
-        userList.add(new User(1L, IdUtil.fastUUID(), "admin", password, "admin", "", "", StatusEnum.ENABLED));
-        userList.add(new User(2L, IdUtil.fastUUID(), "guest", password, "游客", "", "", StatusEnum.ENABLED));
+        userList.add(new User(magicVar.ADMIN_USER_ID, IdUtil.fastUUID(), "admin", password, "admin", "", "", StatusEnum.ENABLED));
+        userList.add(new User(magicVar.GUEST_USER_ID, IdUtil.fastUUID(), "guest", password, "游客", "", "", StatusEnum.ENABLED));
         userService.saveOrUpdateBatch(userList);
         log.info("初始化用户数据成功");
 
         // 初始化用户的 bucket
         List<Bucket> bucketList = new ArrayList<>();
-        bucketList.add(new Bucket(1, "local", "本地存储", null, 1L, BucketType.LOCAL));
-        bucketList.add(new Bucket(2, "local", "本地存储", null, 2L, BucketType.LOCAL));
+        bucketList.add(new Bucket(1, "local", "本地存储", null, magicVar.ADMIN_USER_ID, BucketType.LOCAL));
+        bucketList.add(new Bucket(2, "local", "本地存储", null, magicVar.GUEST_USER_ID, BucketType.LOCAL));
         bucketService.saveOrUpdateBatch(bucketList);
         log.info("初始化用户的 bucket 成功");
     }
 
-    private void initMenu() {
-        List<Menu> menuList = new ArrayList<>();
-        menuList.add(new Menu(1, "根目录", MenuType.LEVEL_1, 1).setOrder(0));
-        menuList.add(new Menu(2, "系统管理", MenuType.LEVEL_1, 1).setIcon("fa-gear"));
-        menuList.add(new Menu(3, "角色管理", MenuType.PAGE, 1).setIcon("fa-user-plus"));
-        menuList.add(new Menu(4, "菜单管理", MenuType.PAGE, 1).setIcon("fa-list"));
-        menuList.add(new Menu(5, "资源管理", MenuType.PAGE, 1).setIcon("fa-archive"));
-        menuList.add(new Menu(6, "定时任务", MenuType.PAGE, 1).setIcon("fa-clock"));
-
-        menuList.add(new Menu(7, "系统监控", MenuType.LEVEL_1, 1).setIcon("fa-laptop"));
-        menuList.add(new Menu(8, "操作日志", MenuType.PAGE, 1).setIcon("fa-laptop"));
-        menuList.add(new Menu(9, "异常日志", MenuType.PAGE, 1).setIcon("fa-bug"));
-
-        menuList.add(new Menu(10, "系统工具", MenuType.LEVEL_1, 1).setIcon("fa-toolbox"));
-        menuList.add(new Menu(11, "SMTP管理", MenuType.PAGE, 1).setIcon("fa-envelope"));
-
-        menuList.add(new Menu(12, "用户查询", MenuType.BUTTON, 2).setPermission("user:query"));
-        menuList.add(new Menu(13, "用户添加", MenuType.BUTTON, 2).setPermission("user:add"));
-        menuList.add(new Menu(14, "用户修改", MenuType.BUTTON, 2).setPermission("user:update"));
-        menuList.add(new Menu(15, "用户删除", MenuType.BUTTON, 2).setPermission("user:delete"));
-
-        menuList.add(new Menu(16, "角色查询", MenuType.BUTTON, 3).setPermission("role:query"));
-        menuList.add(new Menu(17, "角色添加", MenuType.BUTTON, 3).setPermission("role:add"));
-        menuList.add(new Menu(18, "角色修改", MenuType.BUTTON, 3).setPermission("role:update"));
-        menuList.add(new Menu(19, "角色删除", MenuType.BUTTON, 3).setPermission("role:delete"));
-
-        menuList.add(new Menu(20, "菜单查询", MenuType.BUTTON, 4).setPermission("menu:query"));
-        menuList.add(new Menu(21, "菜单添加", MenuType.BUTTON, 4).setPermission("menu:add"));
-        menuList.add(new Menu(22, "菜单修改", MenuType.BUTTON, 4).setPermission("menu:update"));
-        menuList.add(new Menu(23, "菜单删除", MenuType.BUTTON, 4).setPermission("menu:delete"));
-
-        menuList.add(new Menu(24, "操作日志查询", MenuType.BUTTON, 8).setPermission("log:query"));
-        menuList.add(new Menu(25, "操作日志删除", MenuType.BUTTON, 8).setPermission("log:delete"));
-
-        menuList.add(new Menu(26, "前端权限", MenuType.LEVEL_1, 1).setIcon("fa-tent"));
-        menuList.add(new Menu(27, "资源上传", MenuType.BUTTON, 26).setPermission("front:resource:upload"));
-        menuList.add(new Menu(28, "资源重命名", MenuType.BUTTON, 26).setPermission("front:resource:rename"));
-        menuList.add(new Menu(29, "资源新建", MenuType.BUTTON, 26).setPermission("front:resource:create"));
-        menuList.add(new Menu(30, "资源删除", MenuType.BUTTON, 26).setPermission("front:resource:delete"));
-        menuList.add(new Menu(31, "资源预览与下载", MenuType.BUTTON, 26).setPermission("front:resource:download"));
-        menuList.add(new Menu(32, "资源分享", MenuType.BUTTON, 26).setPermission("front:resource:share"));
-        menuList.add(new Menu(33, "资源加速", MenuType.BUTTON, 26).setPermission("front:resource:cdn"));
-        menuService.saveOrUpdateBatch(menuList);
-        log.info("初始化菜单数据成功");
-    }
-
     private void initRole() {
         List<Role> roleList = new ArrayList<>();
-        roleList.add(new Role(1, "ROLE_admin", "管理员", "-", StatusEnum.ENABLED));
-        roleList.add(new Role(2, "ROLE_public", "游客用户", "-", StatusEnum.ENABLED));
-        roleList.add(new Role(3, "ROLE_normal", "注册用户", "-", StatusEnum.ENABLED));
+        roleList.add(new Role(magicVar.ADMIN_ROLE_ID, "ROLE_admin", "管理员", "-", StatusEnum.ENABLED));
+        roleList.add(new Role(magicVar.NORMAL_ROLE_ID, "ROLE_normal", "注册用户", "-", StatusEnum.ENABLED));
+        roleList.add(new Role(magicVar.GUEST_ROLE_ID, "ROLE_guest", "游客用户", "-", StatusEnum.ENABLED));
         roleService.saveOrUpdateBatch(roleList);
         log.info("初始化角色数据成功");
     }
 
     private void initRoleMenu() {
-        Set<Integer> normalRoleMenuList = menuService.getByParentId(26).stream().map(Menu::getId).collect(Collectors.toSet());
-        roleService.updateRoleMenu(normalRoleMenuList, 2);
+        Set<Integer> normalRoleMenuList = menuService.getByParentId(1000).stream().map(Menu::getId).collect(Collectors.toSet());
+        roleService.updateRoleMenu(normalRoleMenuList, magicVar.NORMAL_ROLE_ID);
         log.info("初始化角色菜单数据成功");
     }
 
     private void initUserRole() {
         // 管理员
-        userService.updateUserRoles(1L, Set.of(1));
+        userService.updateUserRoles(magicVar.ADMIN_USER_ID, Set.of(magicVar.ADMIN_ROLE_ID));
         // 游客
-        userService.updateUserRoles(2L, Set.of(2));
+        userService.updateUserRoles(magicVar.GUEST_USER_ID, Set.of(magicVar.GUEST_ROLE_ID));
         log.info("初始化用户角色数据成功");
     }
 
