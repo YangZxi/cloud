@@ -2,6 +2,7 @@ package cn.xiaosm.cloud.core.storage;
 
 import cn.hutool.core.io.unit.DataUnit;
 import cn.hutool.core.lang.Assert;
+import cn.hutool.core.util.StrUtil;
 import cn.xiaosm.cloud.Application;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -97,7 +98,7 @@ public class UploadConfig {
             if (prefix == null) {
                 throw new FileNotFoundException("HOME 环境变量未设置");
             }
-        } else  if (path.startsWith("./")) {
+        } else if (path.startsWith("./")) {
             // get a path of absolute
             prefix = new ApplicationHome(Application.class).getSource().getParent();
         }
@@ -109,7 +110,9 @@ public class UploadConfig {
     }
 
     public void setLocalPath(String path) throws FileNotFoundException {
-        if (!path.endsWith("/")) {
+        if (StrUtil.isBlank(path)) {
+            path = "./storage";
+        } else if (!path.endsWith("/")) {
             path += "/";
         }
         String localPath = path + LOCAL_BUCKET;
@@ -126,7 +129,7 @@ public class UploadConfig {
     public void setMaxUploadSize(Long arg) {
         long mb = DataUnit.MEGABYTES.ordinal();
         if (ObjectUtils.isEmpty(arg)) {
-            MAX_UPLOAD_SIZE = mb * 100;
+            MAX_UPLOAD_SIZE = mb * 120;
         } else {
             try {
                 MAX_UPLOAD_SIZE = arg * mb;

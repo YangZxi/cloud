@@ -51,12 +51,10 @@ management:
 logging:
   #  config: classpath:log4j.properties
   level:
-    cn.xiaosm.cloud.mapper: debug
+    cn.xiaosm.cloud.mapper: info
 
 ## 项目自定义配置
 cloud:
-  local-path: .
-  max-upload-size: 120
   # 腾讯云配置
   tencent:
     secret-id:
