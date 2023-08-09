@@ -22,14 +22,6 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Objects;
 
-/**
- * 〈一句话功能简述〉
- * 〈〉
- *
- * @author Young
- * @create 2020/6/15
- * @since 1.0.0
- */
 @Data
 @Log4j2
 @Component("defaultTokenService")
@@ -67,8 +59,6 @@ public class DefaultTokenService {
 
     /**
      * 创建 Token
-     * @param
-     * @return
      */
     public String createToken(String uuid, TokenType type, @NotNull AuthUser user) {
         Date expireTime = new Date(System.currentTimeMillis() + EXPIRES);
@@ -90,8 +80,6 @@ public class DefaultTokenService {
 
     /**
      * 获取请求头中的 token
-     * @param request
-     * @return
      */
     public String getToken(HttpServletRequest request) {
         String token = request.getHeader(AUTH_HEADER);
@@ -102,8 +90,6 @@ public class DefaultTokenService {
 
     /**
      * 校验Token是否过期
-     * @param token
-     * @return
      */
     public boolean verifyToken(String token) {
         if (StrUtil.isBlank(token)) {
@@ -164,7 +150,6 @@ public class DefaultTokenService {
 
     /**
      * 从内存中获取 UserDetails 信息
-     * @return
      */
     public AuthUser getAuthUser() {
         return this.getAuthUser(ServletUtils.getRequest());
@@ -172,8 +157,6 @@ public class DefaultTokenService {
 
     /**
      * 从内存中获取 UserDetails 信息
-     * @param request
-     * @return
      */
     public AuthUser getAuthUser(HttpServletRequest request) {
         String token = this.getToken(request);

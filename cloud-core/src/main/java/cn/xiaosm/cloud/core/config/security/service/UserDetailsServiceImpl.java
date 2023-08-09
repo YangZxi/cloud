@@ -73,10 +73,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         // 转变为 UserDetails 类型
         LoginUser loginUser = new LoginUser();
         BeanUtils.copyProperties(user, loginUser, "");
-        if ("guest".equals(username)) {
-            // 为了让security的密码校验通过
-            loginUser.setPassword(bCryptPasswordEncoder.encode(loginUser.getPassword()));
-        }
         return loginUser;
     }
 

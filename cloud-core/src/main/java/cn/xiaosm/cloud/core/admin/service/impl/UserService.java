@@ -101,15 +101,18 @@ public class UserService extends ServiceImpl<UserMapper, User> implements BaseSe
         return bCryptPasswordEncoder.encode(DEFAULT_PASS);
     }
 
-    /**
-     * 设置用户密码
-     * 会在user.password中覆盖原有的密码
-     */
     public String encodePassword(String password) {
         if (StrUtil.isBlank(password)) {
             throw new IllegalArgumentException("密码不能为空");
         }
         return bCryptPasswordEncoder.encode(password);
+    }
+
+    public boolean equalsPassword(String password, User user) {
+        return bCryptPasswordEncoder.matches(
+                bCryptPasswordEncoder.encode(password),
+                user.getPassword()
+        );
     }
 
     /**
