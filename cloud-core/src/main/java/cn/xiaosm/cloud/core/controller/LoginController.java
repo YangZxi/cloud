@@ -39,11 +39,11 @@ public class LoginController {
     @Autowired
     RoleService roleService;
 
-    private static LoginUser PUBLIC_LOGIN = null;
+    private static LoginUser GUEST_USER = null;
 
     @PostMapping("login")
     public RespBody login(@Decrypt LoginUserDTO user, HttpServletResponse response) {
-        if ("guest".equals(user.getUsername()) && null != PUBLIC_LOGIN) {
+        if ("guest".equals(user.getUsername()) && null != GUEST_USER) {
             return publicLogin(user, response);
         }
         /* START
@@ -61,12 +61,10 @@ public class LoginController {
         LoginUser loginUser = (LoginUser) authentication.getPrincipal();
         // 设置登录用户信息（用户的权限和菜单列表）
         userDetailsService.loadUserInfo(loginUser);
-        // 记录登录足迹
-        // userService.addLoginTrack(loginUser.getId(), ServletUtil.getClientIP(request));
         // 根据认证创建 Token
         String token;
         if ("guest".equals(loginUser.getUsername())) {
-            PUBLIC_LOGIN = loginUser;
+            GUEST_USER = loginUser;
             token = tokenService.createToken(IdUtil.simpleUUID(), TokenType.LOGIN, loginUser);
         } else {
             token = tokenService.createToken(loginUser);
@@ -77,12 +75,12 @@ public class LoginController {
     }
 
     private RespBody publicLogin(LoginUserDTO user, HttpServletResponse response) {
-        if (user.getPassword().equals(PUBLIC_LOGIN.getPassword())) {
-            RespUtils.sendToken(response, tokenService.createToken(IdUtil.simpleUUID(), TokenType.LOGIN, PUBLIC_LOGIN));
+        if (userService.equalsPassword(user.getPassword(), GUEST_USER)) {
+            RespUtils.sendToken(response, tokenService.createToken(IdUtil.simpleUUID(), TokenType.LOGIN, GUEST_USER));
         } else {
             return RespUtils.fail("用户名或密码不正确");
         }
-        return null;
+        return RespUtils.fail("登录出错");
     }
 
 }
