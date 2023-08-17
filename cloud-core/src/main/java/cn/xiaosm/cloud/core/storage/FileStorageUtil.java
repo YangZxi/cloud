@@ -31,6 +31,10 @@ public class FileStorageUtil {
         return new QiniuStorageService(file, filename);
     }
 
+    public static TencentStorageService tencent(File file) {
+        return new TencentStorageService(file);
+    }
+
     public static TencentStorageService tencent(File file, String filename) {
         return new TencentStorageService(file, filename);
     }

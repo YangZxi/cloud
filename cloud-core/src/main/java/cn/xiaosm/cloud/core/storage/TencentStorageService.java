@@ -47,12 +47,32 @@ public class TencentStorageService implements FileStorageService {
         cred = new BasicCOSCredentials(SECRET_ID, SECRET_KEY);
     }
 
+    protected TencentStorageService(File file) {
+        if (!file.exists() || file.isDirectory()) {
+            throw new ResourceException("文件不存在");
+        }
+        this.file = file;
+        this.filename = UUID.randomUUID().toString();
+    }
+
     protected TencentStorageService(File file, String filename) {
         if (!file.exists() || file.isDirectory()) {
             throw new ResourceException("文件不存在");
         }
         this.file = file;
         this.filename = filename;
+    }
+
+    public void delete(String path) {
+        // delete file
+        ClientConfig clientConfig = new ClientConfig(region);
+        // 这里建议设置使用 https 协议
+        // 从 5.6.54 版本开始，默认使用了 https
+        clientConfig.setConnectionTimeout(5000);
+        clientConfig.setHttpProtocol(HttpProtocol.https);
+        // 3 生成 cos 客户端。
+        COSClient cosClient = new COSClient(cred, clientConfig);
+        cosClient.deleteObject(BUCKET, path);
     }
 
     public String upload() {

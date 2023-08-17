@@ -351,10 +351,15 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> {
             resourceMapper.selectList(wrapper).forEach(el -> ((ResourceService) AopContext.currentProxy()).delete(el));
         }
         resourceMapper.deleteById(db.getId());
-        if (
-            // 如果不为目录 && 当前资源没有引用，则删除本地资源
-            !db.isDir() && (resourceMapper.countByHash(db.getHash()) == 0)) {
+        // 如果不为目录 && 当前资源没有引用，则删除本地资源
+        if (!db.isDir() && (resourceMapper.countByHash(db.getHash()) == 0)) {
+            String cdn = db.getCdn();
             File file = this.getLocalFile(db);
+            if (StrUtil.isNotBlank(cdn)) {
+                // 删除 CDN 资源
+                FileStorageUtil.tencent(file).delete(cdn);
+                log.info("CDN 文件删除成功：{}", cdn);
+            }
             if (file.exists() && file.delete()) {
                 // 文件删除成功后删除数据库数据
                 log.info("本地文件删除成功：{}", db.getName());
