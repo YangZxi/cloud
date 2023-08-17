@@ -13,13 +13,13 @@ package cn.xiaosm.cloud.core.admin.service.impl;
 import cn.hutool.core.util.StrUtil;
 import cn.xiaosm.cloud.common.exception.SQLOperateException;
 import cn.xiaosm.cloud.common.util.cache.CacheUtils;
-import cn.xiaosm.cloud.core.admin.service.MenuService;
 import cn.xiaosm.cloud.core.admin.entity.Menu;
 import cn.xiaosm.cloud.core.admin.entity.dto.MenuDTO;
 import cn.xiaosm.cloud.core.admin.entity.enums.MenuType;
 import cn.xiaosm.cloud.core.admin.entity.enums.StatusEnum;
 import cn.xiaosm.cloud.core.admin.entity.vo.Pager;
 import cn.xiaosm.cloud.core.admin.mapper.MenuMapper;
+import cn.xiaosm.cloud.core.admin.service.MenuService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.BeanUtils;
@@ -138,8 +138,6 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
 
     /**
      * 根据父菜单获取子菜单，以树的形式()
-     * @param parentId
-     * @return
      */
     @Override
     public List<MenuDTO> getByParentIdOfTree(Integer parentId, boolean includeButton) {
@@ -149,9 +147,6 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
 
     /**
      * 根据角色id查询菜单
-     *
-     * @param roleId
-     * @return
      */
     @Override
     public List<Menu> getByRoleId(Integer roleId) {
@@ -180,8 +175,6 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
 
     /**
      * 构建菜单树 （默认不包含父级菜单）
-     * @param menuList
-     * @return
      */
     @Override
     public List<MenuDTO> buildTree(List<Menu> menuList) {
@@ -190,10 +183,6 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
 
     /**
      * 构建菜单树 （默认不包含父级菜单）
-     *
-     * @param menuList
-     * @param parentId
-     * @return
      */
     @Override
     public List<MenuDTO> buildTree(List<Menu> menuList, Integer parentId) {
@@ -203,31 +192,45 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
     /**
      * 构建菜单树，这里是先将父级菜单及其子菜单过滤出来
      *
-     * @param menuList
-     * @param parentId
      * @param includeParent 是否包含父菜单
-     * @return
      */
     @Override
     public List<MenuDTO> buildTree(List<Menu> menuList, Integer parentId, boolean includeParent) {
         // 转换为子类
-        List<MenuDTO> menuList2 = menuList.stream()
+        List<MenuDTO> menuListCopy = menuList.stream()
             .map(menu -> {
                 MenuDTO menuDTO = new MenuDTO();
                 BeanUtils.copyProperties(menu, menuDTO);
                 return menuDTO;
-            }).collect(Collectors.toList());
-        List<MenuDTO> menuTree = menuList2.stream()
-            .filter(el -> includeParent ? parentId.equals(el.getId()) : parentId.equals(el.getParentMenuId()))
-            .collect(Collectors.toList());
-        return this.buildTree(menuTree, menuList2);
+            }).toList();
+        List<MenuDTO> menuChildren = new ArrayList<>();
+        List<MenuDTO> menuTree = new ArrayList<>();
+        if (includeParent) {
+            for (MenuDTO menuDTO : menuListCopy) {
+                if (parentId.equals(menuDTO.getId())) {
+                    menuTree.add(menuDTO);
+                } else {
+                    menuChildren.add(menuDTO);
+                }
+            }
+        } else {
+            for (MenuDTO menuDTO : menuListCopy) {
+                if (parentId.equals(menuDTO.getId())) continue;
+                if (parentId.equals(menuDTO.getParentMenuId())) {
+                    menuTree.add(menuDTO);
+                } else {
+                    menuChildren.add(menuDTO);
+                }
+            }
+        }
+
+        return this.buildTree(menuTree, menuChildren);
     }
 
     /**
      * 构建菜单树
      * @param menuTree 初始菜单树，需要有顶级菜单（整理后的菜单）
      * @param menuList 链表菜单，通过遍历此菜单构建树（未整理的菜单）
-     * @return
      */
     private List<MenuDTO> buildTree(List<MenuDTO> menuTree, List<MenuDTO> menuList) {
         if (menuList.isEmpty() || menuTree.isEmpty()) return menuTree;
@@ -236,19 +239,24 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
         MenuDTO next;
         for (MenuDTO menu : menuTree) {
             // 如果是按钮，将不会继续找它的子级菜单
-            if (menu.getType() == MenuType.BUTTON) continue;
-            else {
-                it = menuList.iterator();
-                while (it.hasNext()) {
-                    next = it.next();
-                    if (next.getParentMenuId() == menu.getId()) {
-                        // next.setParent(menuDTO);
-                        children.add(next);
-                        it.remove();
-                    }
+            if (menu.getType() == MenuType.BUTTON) {
+                continue;
+            }
+            it = menuList.iterator();
+            while (it.hasNext()) {
+                next = it.next();
+                if (next.getId().equals(menu.getId())) {
+                    it.remove();
                 }
-                menu.setChildren(children);
-                children = new LinkedList<>();
+                else if (next.getParentMenuId().equals(menu.getId())) {
+                    // next.setParent(menuDTO);
+                    children.add(next);
+                    it.remove();
+                }
+            }
+            menu.setChildren(children);
+            children = new LinkedList<>();
+            if (menu.getChildren().size() > 0) {
                 buildTree(menu.getChildren(), menuList);
             }
         }

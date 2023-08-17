@@ -108,7 +108,7 @@ public class Initialization implements ApplicationRunner {
 
     private void initMenu() {
         List<Menu> menuList = new ArrayList<>();
-        menuList.add(new Menu(magicVar.ROOT_MENU_ID, "根目录", MenuType.LEVEL_1, 1).setOrder(0));
+        menuList.add(new Menu(magicVar.ROOT_MENU_ID, "根目录", MenuType.LEVEL_1, null).setOrder(0));
 
         menuList.add(new Menu(magicVar.FRONT_MENU_ID, "前端权限", MenuType.LEVEL_1, 1).setIcon("fa-tent"));
         menuList.add(new Menu(null, "资源上传", MenuType.BUTTON, magicVar.FRONT_MENU_ID).setPermission("front:resource:upload"));
