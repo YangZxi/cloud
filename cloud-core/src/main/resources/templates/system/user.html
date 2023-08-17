@@ -197,10 +197,7 @@
         }
       },
       mounted() {
-        // console.esLog(this.API)
-        // console.esLog(this)
         this.queryHandler();
-        console.esLog(this)
       },
       methods: {
         searchHandler(formData) {
@@ -222,7 +219,7 @@
           this.dateScope = null;
         },
         statusChange(value) {
-          // console.esLog(value);
+          // console.log(value);
           if (value.status != 1) {
             this.$alert("是否将当前【" + value.nickname + "】设置为禁用状态", "禁用用户", {
               distinguishCancelAndClose: true,
@@ -239,7 +236,7 @@
             });
           } else {
             $axios.post(this.API, {id: value.id, status: 1}).then(res => {
-              console.esLog(res)
+              console.log(res)
               if (res.code == 200) {
                 // this.modelForm = {type: 1, order: 3,$se status: 1}
                 this.$message.success("修改状态成功");
@@ -255,7 +252,7 @@
         },
         // 表格行被选择事件
         rowSelect(selection, row) {
-          console.esLog(selection, row);
+          console.log(selection, row);
           // this.table.row = row;
         },
         //
@@ -266,9 +263,9 @@
          * @param {Object} data
          */
         baseRequest(data) {
-          console.esLog(data)
+          console.log(data)
           return this.method(this.API, data).then(res => {
-            console.esLog(res)
+            console.log(res)
             if (res.code == 200) {
               // this.modelForm = {type: 1, order: 3, status: 1}
               this.dialog.visible = false;
@@ -284,13 +281,13 @@
           if (current) this.pageInfo.current = current;
           this.table.loading = true;
           $axios.get(this.API, Object.assign({}, this.pageInfo, this.searchForm)).then(res => {
-            // console.esLog(res)
+            // console.log(res)
             this.pageData = res.data ? res.data : {current: 1, total: 0, records: []};
             this.table.loading = false;
-            // console.esLog(res.data)
+            // console.log(res.data)
           }).catch(err => {
             this.table.loading = false;
-            // console.esLog(err)
+            // console.log(err)
           })
         },
         // 新增按钮
@@ -309,7 +306,7 @@
             if (res.code == 200) {
               // this.modelForm.roleIds = res.data;
               // 请勿使用上面的方式进行赋值，可能出现无法双向绑定失效
-              console.esLog(res)
+              console.log(res)
               // this.$set(this.modelForm, "roleIds", res.data);
               this.modelForm.roleIds = res.data;
               // 强制刷新视图
@@ -329,8 +326,8 @@
             cancelButtonText: '取消'
           }).then(() => {
             this.method = $axios.delete;
-            console.esLog("删除了")
-            console.esLog(rows)
+            console.log("删除了")
+            console.log(rows)
             if (Array.isArray(rows)) {
               this.baseRequest(rows.map(el => el.id)).then(res => this.queryHandler());
             } else {
@@ -342,12 +339,12 @@
         },
         // 导出按钮
         exportHandler(el) {
-          console.esLog(el);
-          console.esLog(this.$refs["table"]);
+          console.log(el);
+          console.log(this.$refs["table"]);
           let columns = this.$refs["table"]["columns"].slice(1, this.$refs["table"]["columns"].length - 1);
-          console.esLog(columns)
+          console.log(columns)
           columns = columns.map(el => ({"key": el.property, "value": el.label}) );
-          console.esLog(columns);
+          console.log(columns);
           // this.$tools.exportExcel(this.table.rows, columns, "用户列表");
         },
         resetPassword() {
@@ -365,7 +362,7 @@
          * @param {Object} type
          */
         submitHandler(type) {
-          console.esLog(this.modelForm)
+          console.log(this.modelForm)
           this.$refs["modelForm"].validate((valid) => {
             if (valid) {
               this.baseRequest(this.modelForm);
@@ -376,20 +373,20 @@
         },
         // 当某一行被双击时
         rowDblClick(row) {
-          // console.esLog(row)
+          // console.log(row)
         },
         //
         // 这下面是关于表单的方法
         //
         typeChange(val) {
-          console.esLog(val)
+          console.log(val)
           // this.type = val;
         },
         // 这将在对话框被打开的时候进行调用
         queryRoles() {
           if (this.form.roles.length == 0) {
             $axios.get("/role", {size: 20}).then(res => {
-              // console.esLog(res.data);
+              // console.log(res.data);
               this.form.roles = res.data.records;
             });
           }
@@ -403,7 +400,7 @@
       },
       watch: {
         pageInfo() {
-          console.esLog("我变了")
+          console.log("我变了")
         },
         pageData(nV, oV) {
           if (this.pageInfo.current > nV.pages) {
