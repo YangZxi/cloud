@@ -55,6 +55,7 @@ logging:
 
 ## 项目自定义配置
 cloud:
+  # local-path: ./storage/
   # 腾讯云配置
   tencent:
     secret-id:

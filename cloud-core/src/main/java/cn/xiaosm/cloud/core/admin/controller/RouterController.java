@@ -10,6 +10,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,12 +43,17 @@ public class RouterController {
     /**
      * 首页
      */
-    @RequestMapping("home")
+    @GetMapping("home")
     public String home() {
         return "home";
     }
 
-    @RequestMapping("system/menu")
+    @GetMapping("system/{path}")
+    public String system(@PathVariable String path) {
+        return "system/" + path;
+    }
+
+    @GetMapping("system/menu")
     public String menu(HttpServletRequest request) {
         // 获取当前用户的菜单
         List<? extends Menu> menus = ((LoginUser) ((UsernamePasswordAuthenticationToken) request.getUserPrincipal()).getPrincipal()).getMenus();
