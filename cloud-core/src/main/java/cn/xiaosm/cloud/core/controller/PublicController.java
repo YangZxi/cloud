@@ -13,7 +13,7 @@ import cn.xiaosm.cloud.core.entity.Resource;
 import cn.xiaosm.cloud.core.entity.Share;
 import cn.xiaosm.cloud.core.entity.request.ShareVO;
 import cn.xiaosm.cloud.core.entity.response.ShareDTO;
-import cn.xiaosm.cloud.core.service.ShareService;
+import cn.xiaosm.cloud.core.service.PublicService;
 import cn.xiaosm.cloud.security.annotation.AnonymousAccess;
 import cn.xiaosm.cloud.security.entity.ShareUser;
 import cn.xiaosm.cloud.security.entity.TokenType;
@@ -32,9 +32,10 @@ import javax.servlet.http.HttpServletResponse;
 @Api("public")
 @RequiredArgsConstructor
 @Slf4j
+@PreAuthorize("hasRole('ROLE_share')")
 public class PublicController {
 
-    private final ShareService shareService;
+    private final PublicService publicService;
     private final TokenService tokenService;
 
     /**
@@ -47,7 +48,7 @@ public class PublicController {
         String token = tokenService.getToken(request);
         // token 为空，验证密码
         if (StrUtil.isBlank(token)) {
-            Share share = shareService.checkPass(dto);
+            Share share = publicService.checkPass(dto);
             RespUtils.sendToken(response, tokenService.createShareToken(share.getId()));
             return null;
         }
@@ -72,10 +73,9 @@ public class PublicController {
     }
 
     @RequestMapping("shareInfo")
-    @PreAuthorize("hasRole('ROLE_share')")
     public RespBody shareInfo(@RequestBody ShareDTO share) {
         Assert.isTrue(hasShare(share.getId()), () -> new ShareException("当前分享的资源在地球找不到啦！"));
-        ShareDTO dto = shareService.info(share);
+        ShareDTO dto = publicService.info(share);
         if (dto.getResourceList().size() == 1) {
             Resource resource = dto.getResourceList().get(0);
             CacheUtils.set("S" + resource.getId(), resource);
@@ -88,11 +88,10 @@ public class PublicController {
      * 需要同时提供文件id 和当前访问的 path 路径，以便进行所属权判定
      */
     @PostMapping("link")
-    @PreAuthorize("hasRole('ROLE_share')")
     public RespBody createDownloadLink(@RequestBody ShareDTO shareDTO) {
         if (null == shareDTO.getResourceId()) return RespUtils.fail("资源ID不可以为空");
         shareDTO.setId(((ShareUser) SecurityUtils.getAuthentication().getPrincipal()).getShareId());
-        String url = shareService.createDownloadLink(shareDTO);
+        String url = publicService.createDownloadLink(shareDTO);
         return RespUtils.success("OK", url);
     }
 
