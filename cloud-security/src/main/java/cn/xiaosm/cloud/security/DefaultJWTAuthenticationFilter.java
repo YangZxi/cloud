@@ -77,7 +77,7 @@ public class DefaultJWTAuthenticationFilter extends OncePerRequestFilter {
             return false;
         }
         UsernamePasswordAuthenticationToken authenticationToken =
-            new UsernamePasswordAuthenticationToken(authUser, authUser.getId(), authUser.getAuthorities());
+            new UsernamePasswordAuthenticationToken(authUser, authUser.getLoginId(), authUser.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         return true;
     }

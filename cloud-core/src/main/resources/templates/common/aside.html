@@ -28,8 +28,13 @@
       </template>
       Home
     </a-menu-item>
-    <div th:replace="~{/common/menuIItem :: menu(${#request.getAttribute('menus')})}"></div>
-
+    <a-sub-menu key="system" title="系统管理">
+      <a-menu-item key="system/user">用户管理</a-menu-item>
+      <a-menu-item key="system/role">角色管理</a-menu-item>
+      <a-menu-item key="system/menu">菜单管理</a-menu-item>
+      <a-menu-item key="system/permission">权限管理</a-menu-item>
+      <a-menu-item key="system/log">日志管理</a-menu-item>
+    </a-sub-menu>
   </a-menu>
 </aside>
 
@@ -62,13 +67,10 @@
       this.iframe = document.querySelector("#main > iframe");
     },
     methods: {
-      handleClick({key, keyPath}) {
+      handleClick({key}) {
         // window.location.href = `/admin/${key}`
-        console.esLog(keyPath)
-        const path = keyPath.join("/");
-        console.esLog(path)
-        this.iframe.src = `/admin/${path}`;
-        window.history.pushState({}, "111", `#${path}`)
+        this.iframe.src = `/admin/${key}`;
+        window.history.pushState({}, "111", `#${key}`)
       }
     }
   }, "#aside");

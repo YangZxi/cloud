@@ -26,8 +26,6 @@ import java.io.File;
 import java.net.URL;
 import java.util.*;
 
-import static cn.xiaosm.cloud.core.storage.UploadConfig.Tencent.*;
-
 @Slf4j
 @Data
 @Accessors(chain = true)
@@ -40,11 +38,20 @@ public class TencentStorageService implements FileStorageService {
     private User user;
     private String scheme = "http";
     private boolean useCDN = false;
+    private static UploadConfig.Tencent tencent;
 
     private static Region region = new Region("ap-shanghai");
     private static COSCredentials cred;
     static {
-        cred = new BasicCOSCredentials(SECRET_ID, SECRET_KEY);
+        cred = new BasicCOSCredentials(tencent.getSecretId(), tencent.getSecretKey());
+    }
+
+    protected TencentStorageService(File file) {
+        if (!file.exists() || file.isDirectory()) {
+            throw new ResourceException("文件不存在");
+        }
+        this.file = file;
+        this.filename = UUID.randomUUID().toString();
     }
 
     protected TencentStorageService(File file, String filename) {
@@ -53,6 +60,18 @@ public class TencentStorageService implements FileStorageService {
         }
         this.file = file;
         this.filename = filename;
+    }
+
+    public void delete(String path) {
+        // delete file
+        ClientConfig clientConfig = new ClientConfig(region);
+        // 这里建议设置使用 https 协议
+        // 从 5.6.54 版本开始，默认使用了 https
+        clientConfig.setConnectionTimeout(5000);
+        clientConfig.setHttpProtocol(HttpProtocol.https);
+        // 3 生成 cos 客户端。
+        COSClient cosClient = new COSClient(cred, clientConfig);
+        cosClient.deleteObject(tencent.getBucket(), path);
     }
 
     public String upload() {
@@ -64,7 +83,7 @@ public class TencentStorageService implements FileStorageService {
         // 3 生成 cos 客户端。
         COSClient cosClient = new COSClient(cred, clientConfig);
         // 指定要上传的文件
-        PutObjectRequest putObjectRequest = new PutObjectRequest(BUCKET, filename, file);
+        PutObjectRequest putObjectRequest = new PutObjectRequest(tencent.getBucket(), filename, file);
 
         long l = System.currentTimeMillis();
         log.info("Tencent 上传文件, filename: {}", filename);
@@ -77,7 +96,7 @@ public class TencentStorageService implements FileStorageService {
             List<Tag> tags = new ArrayList<>();
             tags.add(new Tag("user", user.getId().toString()));
             tags.add(new Tag("name", name));
-            SetObjectTaggingRequest setObjectTaggingRequest = new SetObjectTaggingRequest(BUCKET, filename, new ObjectTagging(tags));
+            SetObjectTaggingRequest setObjectTaggingRequest = new SetObjectTaggingRequest(tencent.getBucket(), filename, new ObjectTagging(tags));
             cosClient.setObjectTagging(setObjectTaggingRequest);
 
             return filename;
@@ -102,11 +121,11 @@ public class TencentStorageService implements FileStorageService {
             if (!path.startsWith("/")) {
                 path = "/" + path;
             }
-            String domain = DOMAIN;
+            String domain = tencent.getDomain();
             long timestamp = System.currentTimeMillis() / 1000;
             String rand = RandomUtil.randomString(10);
             // 文件路径-timestamp-rand-uid-自定义密钥 的MD5值
-            String md5Hex = Md5Utils.md5Hex(path + "-" + timestamp + "-" + rand + "-" + "0" + "-" + CDN_KEY);
+            String md5Hex = Md5Utils.md5Hex(path + "-" + timestamp + "-" + rand + "-" + "0" + "-" + tencent.getCdnKey());
             // http://DomainName/Filename?sign=timestamp-rand-uid-md5hash
             // domain + path + "?sign=" + timestamp + "-" + rand + "-" + "0" + "-" + md5Hex
             newUrl = String.format("//%s%s?sign=%s-%s-%s-%s", domain, path, timestamp, rand, "0", md5Hex);
@@ -121,7 +140,7 @@ public class TencentStorageService implements FileStorageService {
             Map<String, String> headers = new HashMap<>();
             // params.put("Host", "https://tencent.cdn.xiaosm.cn");
             // 请求的 HTTP 方法，上传请求用 PUT，下载请求用 GET，删除请求用 DELETE
-            URL url = cosClient.generatePresignedUrl(BUCKET, path, expirationDate, HttpMethodName.GET, headers, params);
+            URL url = cosClient.generatePresignedUrl(tencent.getBucket(), path, expirationDate, HttpMethodName.GET, headers, params);
             newUrl = url.toString();
             // newUrl = newUrl.replace(url.getHost(), DOMAIN);
             // 确认本进程不再使用 cosClient 实例之后，关闭即可

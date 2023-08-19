@@ -338,9 +338,6 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> {
     /**
      * 资源删除，当资源 hash 唯一时，同时删除磁盘文件
      * 删除操作会同时删除当前资源下的所有子文件
-     *
-     * @param resource
-     * @return
      */
     @Transactional
     public boolean delete(Resource resource) {
@@ -354,10 +351,15 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> {
             resourceMapper.selectList(wrapper).forEach(el -> ((ResourceService) AopContext.currentProxy()).delete(el));
         }
         resourceMapper.deleteById(db.getId());
-        if (
-            // 如果不为目录 && 当前资源没有引用，则删除本地资源
-            !db.isDir() && (resourceMapper.countByHash(db.getHash()) == 0)) {
+        // 如果不为目录 && 当前资源没有引用，则删除本地资源
+        if (!db.isDir() && (resourceMapper.countByHash(db.getHash()) == 0)) {
+            String cdn = db.getCdn();
             File file = this.getLocalFile(db);
+            if (StrUtil.isNotBlank(cdn)) {
+                // 删除 CDN 资源
+                FileStorageUtil.tencent(file).delete(cdn);
+                log.info("CDN 文件删除成功：{}", cdn);
+            }
             if (file.exists() && file.delete()) {
                 // 文件删除成功后删除数据库数据
                 log.info("本地文件删除成功：{}", db.getName());
@@ -369,9 +371,6 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> {
     /**
      * 通过文件路劲获取 File 对象
      * 注：仅会获取本地的文件
-     *
-     * @param resource
-     * @return
      */
     public File getLocalFile(Resource resource) {
         // 根据仓库地址和文件相对地址创建文件对象
@@ -420,7 +419,6 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> {
 
     /**
      * 当数据库存在同样的文件，执行复制操作
-     * @return
      */
     public Resource quickUpload(long resourceId, UploadDTO dto) {
         // 查询当前仓库
@@ -443,9 +441,6 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> {
 
     /**
      * 文件上传
-     *
-     * @param upload
-     * @return
      */
     public String upload(UploadDTO upload) {
         // 查询当前仓库
@@ -469,7 +464,6 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> {
             // }
         } catch (Exception e) {
             log.error("文件上传失败");
-            e.printStackTrace();
             throw new CanShowException(e.getMessage(), 400);
         }
         return file.getOriginalFilename();
@@ -477,8 +471,6 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> {
 
     /**
      * 文件合并请求
-     * @param dto
-     * @return
      */
     public Boolean merge(UploadDTO dto) {
         // 查询当前仓库
@@ -491,9 +483,6 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> {
 
     /**
      * 获取转存文件目的地地址
-     *
-     * @param filePath
-     * @return
      */
     public static File transformFile(String filePath) {
         // 本地文件名格式：yyyy-MM/uuid.[fileType]
@@ -514,9 +503,6 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> {
 
     /**
      * 文件名校验
-     *
-     * @param fileName
-     * @return
      */
     public boolean checkName(String fileName) {
         if (StrUtil.isBlank(fileName)) return false;
@@ -529,10 +515,6 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> {
     /**
      * 检查文件名是否合法
      * 检查文件名在目标文件夹下是否唯一
-     *
-     * @param fileName
-     * @param parentId
-     * @return
      */
     private boolean checkNameAndUnique(String fileName, Long parentId, Integer bucketId) {
         if (!this.checkName(fileName)) return false;
@@ -556,8 +538,6 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> {
     /**
      * 上传前检查
      * 检查 文件hash/文件名 在当前目录下是否存在 重名/重复
-     * @param dto
-     * @return
      */
     public Resource checkByHashOrNameInPath(UploadDTO dto) {
         // 查询当前仓库
@@ -573,12 +553,6 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> {
      * 检查文件名是否合法
      * 检查文件名在目标文件夹下是否唯一
      * 检查是否有相同文件在当前目录下
-     *
-     * @param hash
-     * @param filename
-     * @param parentId
-     * @param bucketId
-     * @return
      */
     public Resource getAndCheckHashInPath(String hash, String filename, Long parentId, Integer bucketId) {
         // 检查是否同名
@@ -688,7 +662,6 @@ public class ResourceService extends ServiceImpl<ResourceMapper, Resource> {
                         .setUser(user)
                         .upload();
             } catch (Exception e) {
-                e.printStackTrace();
                 log.error("开启 CDN 失败，{}", e.getMessage());
                 throw new ResourceException("开启 CDN 失败");
             }

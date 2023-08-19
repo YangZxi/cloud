@@ -67,7 +67,10 @@ public class ShareUser implements AuthUser {
         return false;
     }
 
-
+    @Override
+    public String getLoginId() {
+        return this.shareId;
+    }
 
     public long expired() {
         return this.expireTime.getTime() - System.currentTimeMillis();

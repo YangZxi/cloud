@@ -3,6 +3,7 @@ package cn.xiaosm.cloud.core.config.security;
 import cn.xiaosm.cloud.common.exception.LoginException;
 import cn.xiaosm.cloud.core.admin.entity.LoginUser;
 import cn.xiaosm.cloud.security.DefaultSecurityUtils;
+import cn.xiaosm.cloud.security.entity.AuthUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,13 +11,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @Slf4j
 public class SecurityUtils extends DefaultSecurityUtils {
 
+    public static AuthUser getUser() {
+        return (AuthUser) getAuthentication().getPrincipal();
+    }
+
     public static LoginUser getLoginUser() {
-        try {
-            return (LoginUser) getAuthentication().getPrincipal();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw new LoginException("登录信息过期");
-        }
+        return (LoginUser) getAuthentication().getPrincipal();
     }
 
     public static Long getLoginUserId() {

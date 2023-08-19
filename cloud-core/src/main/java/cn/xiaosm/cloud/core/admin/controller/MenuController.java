@@ -30,7 +30,7 @@ public class MenuController {
         if ("tree".equals(menu.getShowType())) {
             // 默认：父级菜单为 0 且不包含按钮
             return RespUtils.success("成功获取菜单列表",
-                    menuService.getByParentIdOfTree(menu.getParentMenu(), menu.isIncludeButton()));
+                    menuService.getByParentIdOfTree(menu.getParentMenu(), true));
         } else {
             QueryWrapper<Menu> wrapper = new QueryWrapper<>();
             if (menu.getParentMenu() == null || menu.getParentMenu().equals(0)) {

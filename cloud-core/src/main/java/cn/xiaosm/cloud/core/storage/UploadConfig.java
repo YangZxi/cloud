@@ -20,7 +20,6 @@ import java.io.FileNotFoundException;
 @ConfigurationProperties(
     prefix = "cloud"
 )
-// @PropertySource(value = "classpath:app-config.yml", factory = YamlSourceFactory.class)
 public class UploadConfig {
 
     /**
@@ -41,52 +40,28 @@ public class UploadConfig {
      */
     public static Long MAX_UPLOAD_SIZE;
 
+    private String localPath = "./storage/";
+    private Long maxUploadSize = 120L;
+
+    @Data
     @Component
     @ConfigurationProperties(prefix = "cloud.qiniu")
-    static class Qiniu {
-        static String ACCESS_KEY;
-        static String SECRET_KEY;
-        static String BUCKET;
-        static String DOMAIN;
-
-        public void setAccessKey(String accessKey) {
-            ACCESS_KEY = accessKey;
-        }
-        public void setSecretKey(String secretKey) {
-            SECRET_KEY = secretKey;
-        }
-        public void setBucket(String bucket) {
-            BUCKET = bucket;
-        }
-        public void setDomain(String domain) {
-            DOMAIN = domain;
-        }
+    public static class Qiniu {
+        private String accessKey;
+        private String secretKey;
+        private String bucket;
+        private String domain;
     }
 
+    @Data
     @Component
     @ConfigurationProperties(prefix = "cloud.tencent")
-    static class Tencent {
-        static String SECRET_ID;
-        static String SECRET_KEY;
-        static String BUCKET;
-        static String DOMAIN;
-        static String CDN_KEY;
-
-        public void setSecretId(String secretId) {
-            SECRET_ID = secretId;
-        }
-        public void setSecretKey(String secretKey) {
-            SECRET_KEY = secretKey;
-        }
-        public void setBucket(String bucket) {
-            BUCKET = bucket;
-        }
-        public void setDomain(String domain) {
-            DOMAIN = domain;
-        }
-        public void setCdnKey(String cdnKey) {
-            CDN_KEY = cdnKey;
-        }
+    public static class Tencent {
+        private String secretId;
+        private String secretKey;
+        private String bucket;
+        private String domain;
+        private String cdnKey;
     }
 
     private File getFile(String path) throws FileNotFoundException {
@@ -111,7 +86,7 @@ public class UploadConfig {
 
     public void setLocalPath(String path) throws FileNotFoundException {
         if (StrUtil.isBlank(path)) {
-            path = "./storage";
+            path = LOCAL_PATH;
         } else if (!path.endsWith("/")) {
             path += "/";
         }
@@ -124,20 +99,22 @@ public class UploadConfig {
         File chunkFile = getFile(chunkPath);
         CHUNK_PATH = chunkFile.getAbsolutePath();
         log.info("当前分块上传缓存路径：{}", CHUNK_PATH);
+        this.localPath = path;
     }
 
-    public void setMaxUploadSize(Long arg) {
+    public void setMaxUploadSize(Long maxUploadSize) {
         long mb = DataUnit.MEGABYTES.ordinal();
-        if (ObjectUtils.isEmpty(arg)) {
-            MAX_UPLOAD_SIZE = mb * 120;
+        if (ObjectUtils.isEmpty(maxUploadSize)) {
+            MAX_UPLOAD_SIZE = mb * this.maxUploadSize;
         } else {
             try {
-                MAX_UPLOAD_SIZE = arg * mb;
+                MAX_UPLOAD_SIZE = maxUploadSize * mb;
                 log.info("当前最大上传文件大小：{}", MAX_UPLOAD_SIZE);
             } catch (NumberFormatException e) {
                 throw new NumberFormatException("max-upload-size 格式化错误");
             }
         }
+        this.maxUploadSize = maxUploadSize;
     }
 
 }

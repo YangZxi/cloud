@@ -18,7 +18,7 @@ html, body {
 #aside {
     flex: 0 0 200px;
     height: 100%;
-    padding: 20px 0px;
+    padding: 20px 0;
     box-sizing: border-box;
     border-right: 2px solid #f5f6f9;
 }
@@ -56,7 +56,6 @@ html, body {
     height: calc(100% - 100px - 60px);
     box-sizing: border-box;
     margin-bottom: 60px;
-    overflow-y: auto;
     padding: 20px 10px 10px 10px;
     overflow: hidden;
 }

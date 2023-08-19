@@ -22,8 +22,6 @@ import java.io.File;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-import static cn.xiaosm.cloud.core.storage.UploadConfig.Qiniu.*;
-
 @Slf4j
 @Data
 @Accessors(chain = true)
@@ -35,6 +33,7 @@ public class QiniuStorageService implements FileStorageService {
     private String filename;
     private User user;
     private String scheme = "http";
+    private UploadConfig.Qiniu qiniu;
 
     private static Configuration cfg = new Configuration(Region.huadong());
 
@@ -57,8 +56,8 @@ public class QiniuStorageService implements FileStorageService {
 
         String key = this.filename;
 
-        Auth auth = Auth.create(ACCESS_KEY, SECRET_KEY);
-        String upToken = auth.uploadToken(BUCKET, key);
+        Auth auth = Auth.create(qiniu.getAccessKey(), qiniu.getSecretKey());
+        String upToken = auth.uploadToken(qiniu.getBucket(), key);
         StringMap meta = new StringMap();
         User user = this.user;
         if (user == null) {
@@ -87,9 +86,9 @@ public class QiniuStorageService implements FileStorageService {
 
     public String download(String path) {
         String encodedFileName = URLEncoder.encode(path, StandardCharsets.UTF_8).replace("+", "%20");
-        String publicUrl = String.format("%s://%s/%s", scheme, DOMAIN, encodedFileName);
+        String publicUrl = String.format("%s://%s/%s", scheme, qiniu.getDomain(), encodedFileName);
 
-        Auth auth = Auth.create(ACCESS_KEY, SECRET_KEY);
+        Auth auth = Auth.create(qiniu.getAccessKey(), qiniu.getSecretKey());
         long expireInSeconds = 3600; // 1小时，可以自定义链接过期时间
         String finalUrl = auth.privateDownloadUrl(publicUrl, expireInSeconds);
         log.info("下载链接：{}", finalUrl);

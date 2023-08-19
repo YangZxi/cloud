@@ -40,8 +40,6 @@ public class ResourceController {
 
     /**
      * 获取文件信息
-     * @param resource
-     * @return
      */
     @GetMapping
     public RespBody listResource(ResourceDTO resource) {
@@ -52,8 +50,6 @@ public class ResourceController {
 
     /**
      * 文件、目录创建
-     * @param resource
-     * @return
      */
     @PostMapping("create")
     public RespBody create(@RequestBody ResourceDTO resource) {
@@ -64,8 +60,6 @@ public class ResourceController {
 
     /**
      * 文件重命名
-     * @param resource
-     * @return
      */
     @PostMapping("rename")
     public RespBody rename(
@@ -93,8 +87,6 @@ public class ResourceController {
 
     /**
      * 文件重命名
-     * @param resource
-     * @return
      */
     @PostMapping("saveContent")
     public RespBody saveContent(
@@ -108,8 +100,6 @@ public class ResourceController {
 
     /**
      * 资源删除
-     * @param resource
-     * @return
      */
     @RequestMapping("delete")
     public RespBody delete(@RequestBody ResourceVO resource) {
@@ -131,7 +121,6 @@ public class ResourceController {
      * totalChunks=1
      * bucketName=local
      * path=
-     * @return
      */
     @GetMapping("upload")
     public RespBody uploadCheck(UploadDTO dto) {

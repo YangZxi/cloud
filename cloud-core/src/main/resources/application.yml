@@ -49,12 +49,12 @@ management:
       enabled: false # 启动时关闭邮箱检测
 
 logging:
-  #  config: classpath:log4j.properties
   level:
     cn.xiaosm.cloud.mapper: info
 
 ## 项目自定义配置
 cloud:
+  # local-path: ./storage/
   # 腾讯云配置
   tencent:
     secret-id:
@@ -62,3 +62,5 @@ cloud:
     bucket:
     domain:
     cdn-key:
+  # max-upload-size: 120
+  # local-path: ./storage/
