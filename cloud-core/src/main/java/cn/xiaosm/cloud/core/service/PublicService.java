@@ -37,10 +37,7 @@ public class PublicService {
     private final TokenService tokenService;
 
     public ShareDTO info(ShareDTO shareDTO) {
-        Share db = this.getByUuidAndDeadline(shareDTO);
-        if (!SecurityUtils.getUser().getLoginId().equals(db.getId())) {
-            throw new ShareException("当前分享的资源在地球找不到啦！");
-        }
+        Share db = this.getByIdAndDeadlineWithCheckLogin(shareDTO);
         // 根据 ids 获取资源信息
         // 获取当前分享下所有文件和一级目录
         List<Resource> resourceList = resourceService.listByIds(db.getResourceIds());
@@ -88,10 +85,7 @@ public class PublicService {
 
     public String createDownloadLink(ShareDTO shareDTO) {
         // 获取所有分享资源时判断是否过期
-        Share db = this.getByUuidAndDeadline(shareDTO);
-        if (!SecurityUtils.getLoginUserId().equals(db.getUserId())) {
-            throw new ShareException("当前分享的资源在地球找不到啦！");
-        }
+        Share db = this.getByIdAndDeadlineWithCheckLogin(shareDTO);
         Resource resource;
         if (StrUtil.isBlank(shareDTO.getPath())) {
             // 如果不包含此资源
@@ -127,7 +121,7 @@ public class PublicService {
 
     @NotNull
     public Share checkPass(ShareDTO dto) {
-        Share db = this.getByUuidAndDeadline(dto);
+        Share db = this.getByIdAndDeadlineWithCheckLogin(dto);
         // 分享有密码，但是未提供密码，或密码不正确
         if (StrUtil.isNotBlank(db.getPassword()) && !db.getPassword().equals(dto.getPassword())) {
             throw new ShareException("密码错误");
@@ -136,9 +130,14 @@ public class PublicService {
     }
 
     @NotNull
-    public Share getByUuidAndDeadline(ShareDTO dto) {
+    public Share getByIdAndDeadlineWithCheckLogin(ShareDTO dto) {
         // 获取当前分享
         Share db = shareService.getById(dto.getId());
+        if (SecurityUtils.getUser() != null) {
+            if (!SecurityUtils.getUser().getLoginId().equals(db.getId())) {
+                throw new ShareException("当前分享的资源在地球找不到啦！");
+            }
+        }
         // 不是永久资源，且资源已过期
         if (null != db.getDeadline() && LocalDateTime.now().isAfter(db.getDeadline())) {
             throw new ShareException("当前分享链接已过期！");
