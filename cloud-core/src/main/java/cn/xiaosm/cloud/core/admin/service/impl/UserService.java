@@ -87,10 +87,10 @@ public class UserService extends ServiceImpl<UserMapper, User> implements BaseSe
     /**
      * 修改密码，根据keep决定是否进行数据库操作
      */
-    public boolean updatePassword(User user, String password) {
+    public boolean updatePassword(User user, String rawPassword) {
         User newU = new User();
         newU.setId(user.getId());
-        user.setPassword(encodePassword(password));
+        user.setPassword(encodePassword(rawPassword));
         return userMapper.updateById(user) == 1;
     }
 
