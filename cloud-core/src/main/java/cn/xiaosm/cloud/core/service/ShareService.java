@@ -112,12 +112,10 @@ public class ShareService extends ServiceImpl<ShareMapper, Share> {
         return shareMapper.deleteById(id) == 1;
     }
 
+    @NotNull
     private Share getByUuidAndDeadline(ShareDTO dto) {
         // 获取当前分享
         Share db = shareMapper.selectById(dto.getId());
-        if (null == db || !SecurityUtils.getLoginUserId().equals(db.getUserId())) {
-            throw new ShareException("当前分享的资源在地球找不到啦！");
-        }
         // 不是永久资源，且资源已过期
         if (null != db.getDeadline() && LocalDateTime.now().isAfter(db.getDeadline())) {
             throw new ShareException("当前分享链接已过期！");
@@ -137,6 +135,9 @@ public class ShareService extends ServiceImpl<ShareMapper, Share> {
 
     public ShareDTO info(ShareDTO shareDTO) {
         Share db = this.getByUuidAndDeadline(shareDTO);
+        if (!SecurityUtils.getLoginUserId().equals(db.getUserId())) {
+            throw new ShareException("当前分享的资源在地球找不到啦！");
+        }
         // 根据 ids 获取资源信息
         // 获取当前分享下所有文件和一级目录
         List<Resource> resourceList = resourceService.listByIds(db.getResourceIds());
@@ -152,9 +153,12 @@ public class ShareService extends ServiceImpl<ShareMapper, Share> {
         return dto;
     }
 
-    public String buildLink(ShareDTO shareDTO) {
+    public String createDownloadLink(ShareDTO shareDTO) {
         // 获取所有分享资源时判断是否过期
         Share db = this.getByUuidAndDeadline(shareDTO);
+        if (!SecurityUtils.getLoginUserId().equals(db.getUserId())) {
+            throw new ShareException("当前分享的资源在地球找不到啦！");
+        }
         Resource resource;
         if (StrUtil.isBlank(shareDTO.getPath())) {
             // 如果不包含此资源
