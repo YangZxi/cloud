@@ -37,18 +37,6 @@ public class PublicController {
     private final ShareService shareService;
     private final TokenService tokenService;
 
-    @RequestMapping("shareInfo")
-    @PreAuthorize("hasRole('ROLE_share')")
-    public RespBody shareInfo(@RequestBody ShareDTO share) {
-        Assert.isTrue(hasShare(share.getId()), () -> new ShareException("当前分享的资源在地球找不到啦！"));
-        ShareDTO dto = shareService.info(share);
-        if (dto.getResourceList().size() == 1) {
-            Resource resource = dto.getResourceList().get(0);
-            CacheUtils.set("S" + resource.getId(), resource);
-        }
-        return RespUtils.success(new ShareVO(dto));
-    }
-
     /**
      * 获取需要访问分享资源的 Token
      * <p>通过 shareUuid 来构建 token，保证此 token 只能访问指定的分享</>
@@ -81,6 +69,18 @@ public class PublicController {
             return null;
         }
         return new ResponseEntity<>(RespUtils.fail("当前分享资源暂不可访问"), HttpStatus.OK);
+    }
+
+    @RequestMapping("shareInfo")
+    @PreAuthorize("hasRole('ROLE_share')")
+    public RespBody shareInfo(@RequestBody ShareDTO share) {
+        Assert.isTrue(hasShare(share.getId()), () -> new ShareException("当前分享的资源在地球找不到啦！"));
+        ShareDTO dto = shareService.info(share);
+        if (dto.getResourceList().size() == 1) {
+            Resource resource = dto.getResourceList().get(0);
+            CacheUtils.set("S" + resource.getId(), resource);
+        }
+        return RespUtils.success(new ShareVO(dto));
     }
 
     /**

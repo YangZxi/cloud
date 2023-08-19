@@ -10,15 +10,8 @@
  */
 package cn.xiaosm.cloud.security;
 
-import cn.hutool.core.util.StrUtil;
-import cn.xiaosm.cloud.common.util.cache.CacheUtils;
 import cn.xiaosm.cloud.security.entity.AuthUser;
-import cn.xiaosm.cloud.security.entity.ShareUser;
-import cn.xiaosm.cloud.security.entity.TokenType;
-import cn.xiaosm.cloud.security.service.DefaultTokenService;
 import lombok.extern.log4j.Log4j2;
-import org.apache.catalina.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -47,7 +40,7 @@ public class DefaultSessionAuthenticationFilter extends OncePerRequestFilter {
         if (request.getRequestURI().startsWith("/admin") && (user = (AuthUser) request.getSession().getAttribute("USER")) != null) {
             // 获取请求头中的token
             UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(user, user.getId(), user.getAuthorities());
+                new UsernamePasswordAuthenticationToken(user, user.getLoginId(), user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }
         chain.doFilter(request, response);
