@@ -18,9 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
 import java.time.LocalDateTime;
 
 @Aspect
@@ -61,7 +58,7 @@ public class LogAspect {
         String className = joinPoint.getSignature().getDeclaringTypeName();
         esLog.setMethod(className + "." + joinPoint.getSignature().getName());
         // 执行方法 得到的对象是返回值
-        Object returnObj = null;
+        Object returnObj;
         try {
             returnObj = joinPoint.proceed();
             esLog.setType("INFO");
@@ -70,6 +67,7 @@ public class LogAspect {
             esLog.setType("ERROR");
             esLog.setError(e.getMessage());
             logger.error("{}", esLog);
+            throw e;
         } finally {
             // 设置请求耗时
             esLog.setTime((int) (System.currentTimeMillis() - start));
@@ -77,19 +75,6 @@ public class LogAspect {
             loggerService.insert(esLog);
         }
         return returnObj;
-    }
-
-    public String getStackTrace(Throwable e) {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream(out);
-        e.printStackTrace(ps);
-        try {
-            out.close();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        ps.close();
-        return out.toString();
     }
 
 }
