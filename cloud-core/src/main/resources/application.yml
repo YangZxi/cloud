@@ -49,7 +49,6 @@ management:
       enabled: false # 启动时关闭邮箱检测
 
 logging:
-  #  config: classpath:log4j.properties
   level:
     cn.xiaosm.cloud.mapper: info
 
@@ -63,3 +62,5 @@ cloud:
     bucket:
     domain:
     cdn-key:
+  # max-upload-size: 120
+  # local-path: ./storage/
