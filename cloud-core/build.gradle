@@ -22,7 +22,7 @@ dependencies {
 }
 
 tasks.register("copyProdFile", Copy) {
-    mustRunAfter(":cloud-core:jar")
+    dependsOn(":cloud-core:jar")
     from("${buildDir}/libs/cloud-core-${version}.jar")
     into("${parent.buildDir}")
     // 复制 application.yml 文件
