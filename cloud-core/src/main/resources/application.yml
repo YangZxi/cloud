@@ -41,7 +41,6 @@ mybatis-plus:
   configuration:
     # 下划线转驼峰命名
     map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 management:
   health:
@@ -54,7 +53,6 @@ logging:
 
 ## 项目自定义配置
 cloud:
-  # local-path: ./storage/
   # 腾讯云配置
   tencent:
     secret-id:

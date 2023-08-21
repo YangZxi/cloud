@@ -222,7 +222,10 @@ public class ChunkService {
                 } else {
                     temp = new File(UploadConfig.CHUNK_PATH, chunk.getHash() + ".data");
                 }
-                if (!temp.exists()) throw new CanShowException("文件 chunk 不存在", 400);
+                if (!temp.exists()) {
+                    log.error("文件 chunk 不存在：{}", temp.getAbsolutePath());
+                    throw new CanShowException("文件 chunk 不存在", 400);
+                }
                 integrateFile(raf, new FileInputStream(temp));
             }
             log.info("文件整合完成：{}，{}", filename, dest.getAbsolutePath());

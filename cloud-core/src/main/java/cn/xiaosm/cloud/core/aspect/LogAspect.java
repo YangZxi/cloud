@@ -6,6 +6,7 @@ import cn.xiaosm.cloud.common.annotation.LogRecord;
 import cn.xiaosm.cloud.common.entity.Log;
 import cn.xiaosm.cloud.common.service.LoggerService;
 import cn.xiaosm.cloud.common.util.ServletUtils;
+import cn.xiaosm.cloud.core.admin.entity.LoginUser;
 import cn.xiaosm.cloud.core.config.security.service.TokenService;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -15,7 +16,6 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -47,8 +47,8 @@ public class LogAspect {
         // 设置请求IP
         esLog.setIp(ServletUtil.getClientIP(ServletUtils.getRequest()));
         // 设置请求者
-        if (ServletUtils.getRequest().getUserPrincipal() instanceof UsernamePasswordAuthenticationToken token) {
-            esLog.setUserId((Long) token.getCredentials());
+        if (ServletUtils.getRequest().getUserPrincipal() instanceof LoginUser user) {
+            esLog.setUserId(user.getId());
         }
         // 设置请求参数
         esLog.setContent(JSONUtil.toJsonStr(joinPoint.getArgs()));
