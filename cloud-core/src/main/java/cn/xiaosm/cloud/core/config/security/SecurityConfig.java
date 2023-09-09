@@ -54,7 +54,6 @@ public class SecurityConfig extends SecurityAdapter {
                 // .anyRequest().authenticated()
                 .and()
                 .headers().frameOptions().disable();
-        System.out.println(1);
     }
 
 }

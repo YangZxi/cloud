@@ -10,11 +10,11 @@
  */
 package cn.xiaosm.cloud.core.admin.controller;
 
+import cn.xiaosm.cloud.common.annotation.LogRecord;
+import cn.xiaosm.cloud.common.annotation.YAdmin;
 import cn.xiaosm.cloud.common.entity.RespBody;
 import cn.xiaosm.cloud.common.exception.SQLOperateException;
 import cn.xiaosm.cloud.common.util.RespUtils;
-import cn.xiaosm.cloud.common.annotation.LogRecord;
-import cn.xiaosm.cloud.common.annotation.YAdmin;
 import cn.xiaosm.cloud.core.admin.entity.Menu;
 import cn.xiaosm.cloud.core.admin.entity.Role;
 import cn.xiaosm.cloud.core.admin.entity.vo.Pager;

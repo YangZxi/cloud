@@ -2,6 +2,7 @@ package cn.xiaosm.cloud.common.util.cache;
 
 import cn.hutool.core.util.ClassLoaderUtil;
 import cn.xiaosm.cloud.common.util.SpringContextUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import java.util.Map;
  * @create 2020/6/16
  * @since 1.0.0
  */
+@Slf4j
 public class CacheUtils {
 
     static {
@@ -21,18 +23,16 @@ public class CacheUtils {
             boolean b = ClassLoaderUtil.isPresent("org.springframework.data.redis.core.RedisTemplate");
             if (b) {
                 handler = (CacheHandler) SpringContextUtils.createClass("cn.xiaosm.cloud.common.util.cache.RedisCache");
-                System.out.println("Redis 连接成功");
+                log.info("Redis 连接成功");
             } else {
                 // 未使用则用java来进行存储对象
                 handler = new JavaCache();
-                System.out.println("Redis未配置，将使用 Java 缓存");
+                log.warn("Redis未配置，将使用 Java 缓存");
             }
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-            System.err.println("Redis 连接失败，将使用其他方式缓存数据");
             handler = new JavaCache();
+            log.warn("Redis 连接失败，将使用 Java 内存缓存数据: {}", e.getMessage());
         }
-        // handler = new JavaCache();
     }
 
     // 缓存处理器
