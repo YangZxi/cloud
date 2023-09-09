@@ -1,7 +1,7 @@
 package cn.xiaosm.cloud.core.config;
 
-import cn.xiaosm.cloud.core.admin.service.impl.DbLoggerServiceImpl;
 import cn.xiaosm.cloud.common.service.LoggerService;
+import cn.xiaosm.cloud.core.admin.service.impl.DbLoggerServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

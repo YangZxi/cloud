@@ -44,13 +44,6 @@ public class DownloadService {
     private static final String DOWNLOAD_USER_OF_TASK = "user_";
     private RedisTemplate<String, String> redis;
 
-    @PostConstruct
-    public void post() {
-        localPath = new File(UploadConfig.LOCAL_PATH, LOCAL_DOWNLOAD);
-        System.out.println(localPath);
-        if (!localPath.exists()) localPath.mkdirs();
-    }
-
     @Autowired
     public void setRedis(RedisTemplate<String, String> redis) {
         // redis

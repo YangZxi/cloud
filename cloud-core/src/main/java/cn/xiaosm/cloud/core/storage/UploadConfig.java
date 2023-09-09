@@ -13,7 +13,6 @@ import org.springframework.util.ObjectUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.io.FileNotFoundException;
 
 @Slf4j
 @Data
@@ -86,18 +85,19 @@ public class UploadConfig {
             if (prefix == null) {
                 throw new RuntimeException("HOME 环境变量未设置");
             }
+            path = path.substring(1);
         } else if (path.startsWith("./")) {
             // get a path of absolute
             prefix = new ApplicationHome(Application.class).getSource().getParent();
+            path = path.substring(1);
         }
-        path = path.substring(1);
         path = prefix + path;
         File file = new File(path);
         if (!file.exists()) Assert.isTrue(file.mkdirs());
         return file;
     }
 
-    public void setLocalPath(String path) throws FileNotFoundException {
+    public void setLocalPath(String path) {
         this.localPath = path;
     }
 

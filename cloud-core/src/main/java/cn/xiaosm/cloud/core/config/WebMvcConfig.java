@@ -8,14 +8,14 @@
  */
 package cn.xiaosm.cloud.core.config;
 
+import cn.xiaosm.cloud.common.annotation.Api;
 import cn.xiaosm.cloud.common.annotation.YAdmin;
 import cn.xiaosm.cloud.core.admin.entity.dto.MenuDTO;
+import cn.xiaosm.cloud.core.admin.service.MenuService;
 import cn.xiaosm.cloud.core.config.security.MyHandlerMethodArgumentResolver;
 import cn.xiaosm.cloud.core.factory.BaseEnumConverterFactory;
-import cn.xiaosm.cloud.core.interceptor.LogInterceptor;
 import cn.xiaosm.cloud.core.interceptor.AdminInterceptor;
-import cn.xiaosm.cloud.common.annotation.Api;
-import cn.xiaosm.cloud.core.admin.service.MenuService;
+import cn.xiaosm.cloud.core.interceptor.LogInterceptor;
 import cn.xiaosm.cloud.core.interceptor.MainInterceptor;
 import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.NotNull;
@@ -30,9 +30,10 @@ import org.springframework.format.FormatterRegistry;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * 〈拦截器配置文件〉
