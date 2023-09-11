@@ -32,7 +32,6 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -40,14 +39,6 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-/**
- * 〈一句话功能简述〉
- * 〈〉
- *
- * @author Young
- * @create 2020/6/15
- * @since 1.0.0
- */
 @Primary
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -58,8 +49,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     MenuService menuService;
     @Autowired
     RoleService roleService;
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     /**
      * 登录
@@ -147,7 +136,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      */
     private void validateUser(User user) {
         if (Objects.isNull(user)) {
-            throw new AuthenticationCredentialsNotFoundException("用户名或密码输入错误");
+            throw new AuthenticationCredentialsNotFoundException("用户名或密码不正确");
         }
         switch (user.getStatus()) {
             case ENABLED -> {}

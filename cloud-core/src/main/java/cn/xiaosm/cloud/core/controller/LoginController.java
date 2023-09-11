@@ -20,11 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.servlet.http.HttpServletResponse;
 
-/**
- * @author Young
- * @create 2022/3/23
- * @since 1.0.0
- */
 @Api
 public class LoginController {
 
@@ -77,10 +72,10 @@ public class LoginController {
     private RespBody publicLogin(LoginUserDTO user, HttpServletResponse response) {
         if (userService.equalsPassword(user.getPassword(), GUEST_USER)) {
             RespUtils.sendToken(response, tokenService.createToken(IdUtil.simpleUUID(), TokenType.LOGIN, GUEST_USER));
+            return null;
         } else {
             return RespUtils.fail("用户名或密码不正确");
         }
-        return RespUtils.fail("登录出错");
     }
 
 }
