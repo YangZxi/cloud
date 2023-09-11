@@ -24,13 +24,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-/**
- *
- *
- * @author Young
- * @create 2020/6/13
- * @since 1.0.0
- */
 @Service
 public class UserService extends ServiceImpl<UserMapper, User> implements BaseService<User> {
 
@@ -108,9 +101,9 @@ public class UserService extends ServiceImpl<UserMapper, User> implements BaseSe
         return bCryptPasswordEncoder.encode(password);
     }
 
-    public boolean equalsPassword(String password, User user) {
+    public boolean equalsPassword(String rawPassword, User user) {
         return bCryptPasswordEncoder.matches(
-                bCryptPasswordEncoder.encode(password),
+                rawPassword,
                 user.getPassword()
         );
     }
