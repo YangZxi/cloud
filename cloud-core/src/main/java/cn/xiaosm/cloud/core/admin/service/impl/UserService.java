@@ -35,7 +35,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements BaseSe
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public static final String DEFAULT_PASS = "123456";
+    public static final String DEFAULT_PASS = "123123";
 
     @Override
     @Transactional
