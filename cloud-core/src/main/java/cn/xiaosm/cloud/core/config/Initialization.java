@@ -163,10 +163,11 @@ public class Initialization implements ApplicationRunner {
 
     private void initProp() {
         List<Prop> propList = new ArrayList<>();
-        propList.add(new Prop("filetype_vide", "mp4,ogg", PropType.FILE_TYPE));
+        propList.add(new Prop("filetype_video", "mp4", PropType.FILE_TYPE));
         propList.add(new Prop("filetype_image", "jpg,jpeg,gif,png", PropType.FILE_TYPE));
-        propList.add(new Prop("filetype_text", "txt,md,js,java,cpp,c,py,go", PropType.FILE_TYPE));
+        propList.add(new Prop("filetype_text", "txt,md,js,java,cpp,c,py,go,sql", PropType.FILE_TYPE));
         propList.add(new Prop("filetype_audio", "mp3,ogg", PropType.FILE_TYPE));
+        propList.add(new Prop("filetype_office", "docx,doc,xls,xlsx,pdf", PropType.FILE_TYPE));
         propService.saveOrUpdateBatch(propList);
     }
 }

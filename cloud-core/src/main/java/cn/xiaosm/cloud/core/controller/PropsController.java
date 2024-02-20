@@ -6,6 +6,7 @@ import cn.xiaosm.cloud.common.util.RespUtils;
 import cn.xiaosm.cloud.core.admin.entity.Prop;
 import cn.xiaosm.cloud.core.admin.entity.enums.PropType;
 import cn.xiaosm.cloud.core.admin.service.PropService;
+import cn.xiaosm.cloud.security.annotation.AnonymousAccess;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ public class PropsController {
     PropService propService;
 
     @GetMapping("filetype")
+    @AnonymousAccess
     public RespBody queryProps() {
         List<Prop> list = propService.list(new QueryWrapper<Prop>().eq("type", PropType.FILE_TYPE));
         return RespUtils.success(list);
