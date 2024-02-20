@@ -4,6 +4,7 @@ import cn.hutool.core.io.unit.DataUnit;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import cn.xiaosm.cloud.Application;
+import cn.xiaosm.cloud.core.config.AppConfig;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -27,6 +28,7 @@ public class UploadConfig {
      */
     private static final String LOCAL_BUCKET = "local";
     private static final String LOCAL_CHUNK = "chunk";
+    private static final String DEFAULT_LOCAL_PATH = "./%s/storage/".formatted(AppConfig.DATA_DIR);
     /**
      * 文件存储目录
      */
@@ -40,7 +42,7 @@ public class UploadConfig {
      */
     public static Long MAX_UPLOAD_SIZE;
 
-    private String localPath = "./storage/";
+    private String localPath = DEFAULT_LOCAL_PATH;
     private Long maxUploadSize = 120L;
 
     @PostConstruct
@@ -48,7 +50,7 @@ public class UploadConfig {
         // 设置本地存储的路径
         String path = this.localPath;
         if (StrUtil.isBlank(path)) {
-            path = LOCAL_PATH;
+            path = DEFAULT_LOCAL_PATH;
         } else if (!path.endsWith("/")) {
             path += "/";
         }
