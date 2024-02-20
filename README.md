@@ -11,10 +11,39 @@
 本项目在[**RBAC权限系统**](https://github.com/YangZxi/RBAC-Admin)上进行开发，前端项目地址：[**cloud-vue-ts**](https://github.com/YangZxi/cloud-vue-ts)  
 项目使用前后端分离的方式进行开发，使用 JWT 技术进行 token 下发和管理
 
+## 启动
+### Docker
+```bash
+docker run -p 8999:8999 yangzxi/cloud:latest
+```
+### Docker Compose
+``` yaml
+version: "3"
+services:
+  cloud:
+    image: yangzxin/cloud:latest
+    container_name: cloud
+    ports:
+      - "8999:8999"
+    volumes:
+      - $PWD/data:/app/data
+    environment:
+      - GUEST_PWD=123123
+    # restart: unless-stopped
+    restart: always
+```
+### 手动
+从[**`release`**](https://github.com/yangzxi/cloud/releases/latest)中下载最新的`jar`包，然后执行
+```bash
+java -jar cloud-core.jar 
+```
+可选参数：
+* `--spring.config.additional-location=file:./application.yml`
+
 ## 🪄 项目主要技术框架
 * 前端：TypeScript、Vue3、Axios、Naive UI、Element UI Plus
 * 后端：Springboot、Spring-Security、JWT、Mybatis-plus
-* 持久层：Mysql8、Redis、ElasticSearch
+* 持久层：Mysql8、Redis、~~ElasticSearch~~
 
 ## ✨ 项目特点
 * 使用 jdk17 和 vue3+ts，主流的技术栈，方便学习和开发
@@ -24,7 +53,6 @@
 * 双端支持，同时支持手机端和PC端设备
 * 文件资源管理器页面支持右键菜单，切换使用无需重新适应
 * 支持文件断点续传、多线程下载技术等
-* 可扩展的 ElasticSearch 日志服务，对系统操作、系统报错等日志分类管理和检索
 
 ## 🔭 后续功能
 1. [x] 文件搜索
