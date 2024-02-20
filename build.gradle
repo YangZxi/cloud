@@ -37,7 +37,7 @@ subprojects {
         implementation("javax.validation:validation-api:2.0.1.Final")
         implementation("cn.hutool:hutool-all:5.8.11")
 
-        testImplementation("org.springframework.boot:spring-boot-starter-test:2.6.15")
+        testImplementation("org.springframework.boot:spring-boot-starter-test")
         compileOnly("org.projectlombok:lombok:1.18.26")
         annotationProcessor("org.projectlombok:lombok:1.18.26")
     }
