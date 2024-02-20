@@ -22,19 +22,61 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.7.0")
 }
 
+import groovy.json.JsonSlurper
+
+tasks.register("getLatestReleaseOfFE") {
+    dependsOn("copyProdFile")
+    def owner = 'yangzxi' // GitHub仓库的所有者
+    def repo = 'repository' // GitHub仓库的名称
+    doLast {
+        // 发起HTTP请求来获取最新发布信息
+        def response = new URL("https://api.github.com/repos/yangzxi/cloud-vue-ts/releases/latest").getText()
+
+        // 解析JSON响应
+        def jsonSlurper = new JsonSlurper()
+        def releaseInfo = jsonSlurper.parseText(response)
+
+        // 提取所需信息
+        def tagName = releaseInfo.tag_name
+        def releaseName = releaseInfo.name
+        def releaseUrl = releaseInfo.html_url
+
+        // 输出结果
+        println "Latest Release Tag Name: ${tagName}"
+        println "Latest Release Name: ${releaseName}"
+        println "Latest Release URL: ${releaseUrl}"
+
+        // 从 github release 下载最新的 tar.gz 包
+        def url = ""
+        releaseInfo.assets.each {
+            if (it.name == "dist.tar.gz") {
+                url = it.browser_download_url
+            }
+        }
+        print("Downloading from ${url}")
+        def outputFilePath = "${parent.buildDir}/dist.tar.gz"
+
+        ant.get(src: url, dest: outputFilePath)
+    }
+}
+
 tasks.register("copyProdFile", Copy) {
     mustRunAfter(":cloud-core:jar")
     from("${buildDir}/libs/cloud-core-${version}.jar")
+    rename("cloud-core-${version}.jar", "cloud-core.jar")
     into("${parent.buildDir}")
     // 复制 application.yml 文件
     def applicationYml = sourceSets.main.resources.find {
-        it.name == 'application.yml'
+        it.name == 'application-template.yml'
     }
     from(applicationYml)
+    rename("application-template.yml", "application.yml")
     into("${parent.buildDir}")
     // 复制 docker-compose.yml
     from("${rootDir}/docker-compose.yml")
     into("${parent.buildDir}")
+
+    finalizedBy("getLatestReleaseOfFE")
 }
 
 bootJar {

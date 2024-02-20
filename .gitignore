@@ -41,3 +41,6 @@ build/
 
 ### mac
 .DS_Store
+
+### custom
+cloud.db

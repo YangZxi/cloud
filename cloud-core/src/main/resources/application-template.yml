@@ -1,0 +1,13 @@
+
+## 项目自定义配置
+cloud:
+  # 腾讯云配置
+  tencent:
+    secret-id:
+    secret-key:
+    bucket:
+    domain:
+    cdn-key:
+
+  max-upload-size: 120
+  # local-path: ./storage/

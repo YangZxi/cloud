@@ -1,31 +1,15 @@
 version: "3"
 services:
-  redis:
-    image: redis
-    container_name: cloud_redis
-    # ports:
-      # - "6378:6379"
   cloud:
-    image: openjdk:17-jdk
+    image: yangzxin/cloud:latest
     container_name: cloud
     ports:
       - "8080:8999"
-    command:
-      - bash
-      - -c
-      - |
-        cd /home/cloud
-        java -jar ./cloud-core-1.0.jar --spring.config.additional-location=file:./application.yml
     volumes:
-      - $PWD:/home/cloud
+      - $PWD/data:/app/data
     environment:
       - TZ=Asia/shanghai
       - GUEST_PWD=123123
       - REDIS_HOST=cloud_redis
     # restart: unless-stopped
     restart: always
-    depends_on:
-      - cloud_redis
-networks:
-  default:
-    driver: cloud_net
