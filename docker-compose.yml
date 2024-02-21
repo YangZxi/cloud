@@ -1,15 +1,17 @@
 version: "3"
 services:
+  cloud_redis:
+    image: redis
+    container_name: cloud_redis
   cloud:
-    image: yangzxin/cloud:latest
+    image: yangzxi/cloud:latest
     container_name: cloud
     ports:
-      - "8080:8999"
+      - "8999:8999"
     volumes:
-      - $PWD/data:/app/data
+      - ./data:/app/.data
     environment:
-      - TZ=Asia/shanghai
-      - GUEST_PWD=123123
       - REDIS_HOST=cloud_redis
-    # restart: unless-stopped
-    restart: always
+    restart: unless-stopped
+    depends_on:
+      - cloud_redis

@@ -10,4 +10,4 @@ cloud:
     cdn-key:
 
   max-upload-size: 120
-  # local-path: ./storage/
+  # local-path: ./.data/storage/
