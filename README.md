@@ -20,17 +20,21 @@ docker run -p 8999:8999 yangzxi/cloud:latest
 ``` yaml
 version: "3"
 services:
+  cloud_redis:
+    image: redis
+    container_name: cloud_redis
   cloud:
-    image: yangzxin/cloud:latest
+    image: yangzxi/cloud:latest
     container_name: cloud
     ports:
       - "8999:8999"
     volumes:
-      - $PWD/data:/app/data
+      - ./data:/app/.data
     environment:
-      - GUEST_PWD=123123
-    # restart: unless-stopped
-    restart: always
+      - REDIS_HOST=cloud_redis
+    restart: unless-stopped
+    depends_on:
+      - cloud_redis
 ```
 ### 手动
 从[**`release`**](https://github.com/yangzxi/cloud/releases/latest)中下载最新的`jar`包，然后执行
