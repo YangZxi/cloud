@@ -4,7 +4,7 @@ spring:
   #数据库连接配置
   datasource:
     driver-class-name: org.sqlite.JDBC
-    url: jdbc:sqlite:${user.dir}/cloud.db
+    url: jdbc:sqlite:${DB_FILE:${user.dir}/cloud.db}
   redis:
     host: ${REDIS_HOST:127.0.0.1}
     port: 6379
