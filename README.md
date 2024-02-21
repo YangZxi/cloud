@@ -11,7 +11,7 @@
 本项目在[**RBAC权限系统**](https://github.com/YangZxi/RBAC-Admin)上进行开发，前端项目地址：[**cloud-vue-ts**](https://github.com/YangZxi/cloud-vue-ts)  
 项目使用前后端分离的方式进行开发，使用 JWT 技术进行 token 下发和管理
 
-## 启动
+## 🚀 启动
 ### Docker
 ```bash
 docker run -p 8999:8999 yangzxi/cloud:latest
@@ -47,7 +47,7 @@ java -jar cloud-core.jar
 ## 🪄 项目主要技术框架
 * 前端：TypeScript、Vue3、Axios、Naive UI、Element UI Plus
 * 后端：Springboot、Spring-Security、JWT、Mybatis-plus
-* 持久层：Mysql8、Redis、~~ElasticSearch~~
+* 持久层：Sql Lite3、Redis、~~ElasticSearch~~
 
 ## ✨ 项目特点
 * 使用 jdk17 和 vue3+ts，主流的技术栈，方便学习和开发
