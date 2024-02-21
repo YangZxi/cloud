@@ -28,5 +28,4 @@ jobs:
         with:
           files: |
             build/*.jar
-            application.yml
-            docker-compose.yml
+            build/*.yml
