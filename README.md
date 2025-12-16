@@ -1,7 +1,11 @@
 # 私有云存储网盘
 
+本项目已归档，不再更新和维护。  
+如果你需要与他类似的功能，欢迎使用我的新项目 [Linkit](https://github.com/yangzxi/linkit)。  
+**Linkit** 是一个更加简洁的 **One Times** 文件分享，使用 React + Go 进行开发
+
 ### 预览地址
-[https://cloud.xiaosm.cn](https://cloud.xiaosm.cn)，选择游客登陆，密码`123123`
+~~[https://cloud.xiaosm.cn](https://cloud.xiaosm.cn)，选择游客登陆，密码`123123`~~
 
 ## 🔮 介绍
 本项目是一人云盘存储系统，为解决部分用户在上传文件或下载文件时受到第三方平台的限速、或需要文件私有化、有文件在线预览需求等  
@@ -106,4 +110,5 @@ java -jar cloud-core.jar
 ![编辑界面](images/edit.png)
 ![创建分享界面](images/create_share.png)
 ![预览分享界面](images/view_share.png)
+
 
